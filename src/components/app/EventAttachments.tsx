@@ -1,13 +1,10 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { FileText, ImageIcon, Loader2, Paperclip, Trash2, Upload } from 'lucide-react'
+import { FileText, ImageIcon, Loader2, Paperclip, Play, Trash2, Upload, Volume2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { labelCaps } from '@/lib/design'
-
-const BUCKET = 'employee-tracking-attachments'
-const MAX_BYTES = 10 * 1024 * 1024
-const ACCEPT = 'image/jpeg,image/png,image/webp,application/pdf'
+import { ACCEPT, BUCKET, attachmentPath, isAudio, rejectReason } from '@/lib/attachments'
 
 interface Row {
   id: string
@@ -42,6 +39,8 @@ export function EventAttachments({
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [openedAt] = useState(() => Date.now())
+  // Signed URLs for clips the user has asked to hear, minted on the click.
+  const [audioUrls, setAudioUrls] = useState<Record<string, string>>({})
 
   const load = useCallback(async () => {
     const { data, error: err } = await createClient()
@@ -68,22 +67,15 @@ export function EventAttachments({
   async function upload(file: File) {
     setError('')
 
-    if (file.size > MAX_BYTES) {
-      setError(`${file.name} is ${(file.size / 1048576).toFixed(1)} MB. The limit is 10 MB.`)
-      return
-    }
-    if (!ACCEPT.split(',').includes(file.type)) {
-      setError('Only JPG, PNG, WEBP and PDF files can be attached.')
+    const bad = rejectReason(file)
+    if (bad) {
+      setError(bad)
       return
     }
 
     setBusy(true)
     const supabase = createClient()
-
-    // The first path segment is the event id — the storage policies read it
-    // to decide who may see the file, so the shape matters.
-    const safe = file.name.replace(/[^\w.\- ]+/g, '_').slice(-80)
-    const path = `${eventId}/${crypto.randomUUID()}-${safe}`
+    const path = attachmentPath(eventId, file.name)
 
     const { error: upErr } = await supabase.storage.from(BUCKET).upload(path, file, {
       contentType: file.type,
@@ -122,17 +114,30 @@ export function EventAttachments({
     await load()
   }
 
-  async function open(row: Row) {
-    setError('')
+  async function signedUrl(row: Row) {
     const { data, error: err } = await createClient()
       .storage.from(BUCKET)
       .createSignedUrl(row.file_url, 600)
 
     if (err || !data?.signedUrl) {
       setError('Could not open that file. It may have been removed.')
-      return
+      return null
     }
-    window.open(data.signedUrl, '_blank', 'noopener,noreferrer')
+    return data.signedUrl
+  }
+
+  async function open(row: Row) {
+    setError('')
+    const url = await signedUrl(row)
+    if (url) window.open(url, '_blank', 'noopener,noreferrer')
+  }
+
+  // A voice note opened in a new tab is a voice note nobody plays. It gets a
+  // player in place instead, on the row where it was left.
+  async function play(row: Row) {
+    setError('')
+    const url = await signedUrl(row)
+    if (url) setAudioUrls((prev) => ({ ...prev, [row.id]: url }))
   }
 
   async function remove(row: Row) {
@@ -235,12 +240,14 @@ export function EventAttachments({
       ) : rows.length === 0 ? (
         <div style={{ fontSize: '12.5px', color: 'var(--epi-fg-3)' }}>
           {canUpload
-            ? 'No files yet. Attach a photo or PDF as evidence for this event.'
+            ? 'No files yet. Attach a photo, a PDF or a voice note as evidence for this event.'
             : 'No files attached.'}
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          {rows.map((r) => (
+          {rows.map((r) => {
+            const audio = isAudio('', r.file_name)
+            return (
             <div
               key={r.id}
               style={{
@@ -254,34 +261,51 @@ export function EventAttachments({
               }}
             >
               <span style={{ color: 'var(--epi-fg-3)', flex: '0 0 auto', display: 'flex' }}>
-                {r.file_name.toLowerCase().endsWith('.pdf') ? (
+                {audio ? (
+                  <Volume2 size={15} />
+                ) : r.file_name.toLowerCase().endsWith('.pdf') ? (
                   <FileText size={15} />
                 ) : (
                   <ImageIcon size={15} />
                 )}
               </span>
 
-              <button
-                onClick={() => void open(r)}
-                title="Open in a new tab"
-                style={{
-                  flex: 1,
-                  minWidth: 0,
-                  textAlign: 'left',
-                  border: 0,
-                  background: 'transparent',
-                  padding: 0,
-                  cursor: 'pointer',
-                  color: 'var(--epi-fg)',
-                  fontSize: '13px',
-                  fontWeight: 500,
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {r.file_name}
-              </button>
+              <span style={{ flex: 1, minWidth: 0 }}>
+                <button
+                  onClick={() => void (audio ? play(r) : open(r))}
+                  title={audio ? 'Play this clip' : 'Open in a new tab'}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '7px',
+                    width: '100%',
+                    minWidth: 0,
+                    textAlign: 'left',
+                    border: 0,
+                    background: 'transparent',
+                    padding: 0,
+                    cursor: 'pointer',
+                    color: 'var(--epi-fg)',
+                    fontSize: '13px',
+                    fontWeight: 500,
+                  }}
+                >
+                  {audio && !audioUrls[r.id] ? (
+                    <Play size={12} style={{ flex: '0 0 12px', color: 'var(--epi-teal)' }} />
+                  ) : null}
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {r.file_name}
+                  </span>
+                </button>
+                {audioUrls[r.id] ? (
+                  <audio
+                    controls
+                    autoPlay
+                    src={audioUrls[r.id]}
+                    style={{ width: '100%', height: '30px', marginTop: '6px' }}
+                  />
+                ) : null}
+              </span>
 
               <span
                 className="epi-num"
@@ -314,7 +338,8 @@ export function EventAttachments({
                 </button>
               ) : null}
             </div>
-          ))}
+            )
+          })}
         </div>
       )}
     </div>

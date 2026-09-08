@@ -1875,3 +1875,34 @@ body {
     padding: 0 !important;
   }
 }
+
+
+/* =====================================================================
+   Dictation and attachment controls inside the record form, phones
+   `.epi-modal button` sets the 44px touch floor on everything in the
+   drawer. That is right for Save and Cancel and wrong for a language
+   toggle sitting on a field label — at 44px the label row wraps twice and
+   pushes the field itself off the first screen. Released here only, and
+   only down to sizes that are still comfortable to hit with a thumb.
+   ===================================================================== */
+@media (max-width: 767px) {
+  .epi-voice button {
+    min-height: 0 !important;
+    height: 32px !important;
+  }
+  .epi-attach button,
+  .epi-attach label {
+    min-height: 0 !important;
+    height: 36px !important;
+  }
+  .epi-attach .epi-attach-del {
+    width: 32px !important;
+    height: 32px !important;
+    flex: 0 0 32px !important;
+  }
+  /* The player is not a control the touch rules should stretch. */
+  .epi-attach audio,
+  .epi-modal audio {
+    min-height: 0 !important;
+  }
+}

@@ -14,6 +14,8 @@ import {
   Zap,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { AttachmentPicker, uploadPending, type PendingFile } from './AttachmentPicker'
+import { VoiceDictation } from './VoiceDictation'
 import {
   SEVERITY_HINTS,
   SEVERITY_LABELS,
@@ -100,6 +102,11 @@ export function RecordDrawer({
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [files, setFiles] = useState<PendingFile[]>([])
+  // Set only when the event was written but a file was not. The form is done
+  // at that point — leaving Save live would let one incident be recorded
+  // twice while the user tries to fix an attachment.
+  const [postSave, setPostSave] = useState('')
 
   const reset = (keepType: boolean) => {
     if (!keepType) setType(null)
@@ -110,9 +117,13 @@ export function RecordDrawer({
     setCategoryId('')
     setSeverity('medium')
     setError('')
+    files.forEach((f) => {
+      if (f.preview) URL.revokeObjectURL(f.preview)
+    })
+    setFiles([])
   }
 
-  const dirty = Boolean(employeeId || title || description)
+  const dirty = Boolean(employeeId || title || description || files.length)
 
   // SPEC §9.5 — never silently lose unsaved input.
   useEffect(() => {
@@ -142,6 +153,14 @@ export function RecordDrawer({
   }, [open, dirty])
 
   function attemptClose() {
+    // Nothing is unsaved once the event is written — only the attachment
+    // failed, and the warning has already been read.
+    if (postSave) {
+      setPostSave('')
+      reset(false)
+      close()
+      return
+    }
     if (dirty && !window.confirm('Discard this unsaved record?')) return
     reset(false)
     close()
@@ -177,27 +196,30 @@ export function RecordDrawer({
     setSaving(true)
     const supabase = createClient()
 
-    const { error: err } = await supabase.from('performance_events').insert({
-      employee_id: employeeId,
-      type,
-      title: title.trim(),
-      description: description.trim() || null,
-      event_date: date,
-      category_id: categoryId || null,
-      severity,
-      recorded_by: appUserId,
-      // Tags and follow-ups were removed from this form. The columns stay so
-      // the data model and the follow-up reporting are unchanged if they return.
-      tags: [],
-      follow_up_required: false,
-      follow_up_date: null,
-      follow_up_status: null,
-      follow_up_notes: null,
-    })
-
-    setSaving(false)
+    const { data: created, error: err } = await supabase
+      .from('performance_events')
+      .insert({
+        employee_id: employeeId,
+        type,
+        title: title.trim(),
+        description: description.trim() || null,
+        event_date: date,
+        category_id: categoryId || null,
+        severity,
+        recorded_by: appUserId,
+        // Tags and follow-ups were removed from this form. The columns stay so
+        // the data model and the follow-up reporting are unchanged if they return.
+        tags: [],
+        follow_up_required: false,
+        follow_up_date: null,
+        follow_up_status: null,
+        follow_up_notes: null,
+      })
+      .select('id')
+      .single()
 
     if (err) {
+      setSaving(false)
       setError(
         err.message.includes('themselves')
           ? 'You cannot record a performance event about yourself.'
@@ -206,7 +228,18 @@ export function RecordDrawer({
       return
     }
 
+    // Files can only be sent now — their storage path is keyed on the id the
+    // insert just returned.
+    const failed = created?.id ? await uploadPending(created.id, files, appUserId) : []
+    setSaving(false)
     router.refresh()
+
+    if (failed.length) {
+      setPostSave(
+        `The event was saved, but ${failed.length === 1 ? 'this file' : 'these files'} could not be attached: ${failed.join(', ')}. Open the event from the Performance page and attach ${failed.length === 1 ? 'it' : 'them'} again.`,
+      )
+      return
+    }
 
     if (addAnother) {
       setSaved(true)
@@ -527,17 +560,34 @@ export function RecordDrawer({
                 />
               </label>
 
-              <label style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
-                <span style={labelRow}>What happened?</span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                  <label htmlFor="epi-what-happened" style={labelRow}>
+                    What happened?
+                  </label>
+                  <VoiceDictation
+                    onText={(chunk) => setDescription((prev) => (prev ? `${prev} ${chunk}` : chunk))}
+                  />
+                </div>
                 <textarea
+                  id="epi-what-happened"
                   className="epi-field"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   rows={3}
-                  placeholder="Context a manager would need three months from now…"
+                  placeholder="Type, or press Speak and say it…"
                   style={{ ...field, height: 'auto', padding: '10px 12px', resize: 'vertical', lineHeight: 1.5 }}
                 />
-              </label>
+              </div>
+
+              <div
+                style={{
+                  paddingTop: '14px',
+                  borderTop: '1px solid var(--epi-border)',
+                }}
+              >
+                <AttachmentPicker files={files} onChange={setFiles} />
+              </div>
 
               {!quick ? (
                 <div
@@ -638,6 +688,26 @@ export function RecordDrawer({
                 </div>
               ) : null}
 
+              {postSave ? (
+                <div
+                  role="status"
+                  style={{
+                    display: 'flex',
+                    gap: '9px',
+                    alignItems: 'flex-start',
+                    border: '1px solid var(--epi-orange-bd)',
+                    background: 'var(--epi-orange-bg)',
+                    borderRadius: '11px',
+                    padding: '11px 13px',
+                    fontSize: '13px',
+                    color: 'var(--epi-orange)',
+                  }}
+                >
+                  <AlertTriangle size={15} style={{ flex: '0 0 15px', marginTop: '1px' }} />
+                  <span style={{ flex: 1, lineHeight: 1.45 }}>{postSave}</span>
+                </div>
+              ) : null}
+
               {error ? (
                 <div
                   role="alert"
@@ -691,6 +761,25 @@ export function RecordDrawer({
               </span>
             ) : null}
             <span style={{ flex: 1 }} />
+            {postSave ? (
+              <button
+                onClick={attemptClose}
+                style={{
+                  height: '40px',
+                  padding: '0 20px',
+                  borderRadius: '10px',
+                  border: 0,
+                  background: 'linear-gradient(135deg,#14907c 0%,#0e7c6b 55%,#0a5f52 100%)',
+                  color: '#fff',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                Done
+              </button>
+            ) : (
+              <>
             <button
               onClick={attemptClose}
               style={{
@@ -753,6 +842,8 @@ export function RecordDrawer({
               {saving ? <Loader2 size={15} className="epi-spin" /> : null}
               {saving ? 'Saving…' : 'Save event'}
             </button>
+              </>
+            )}
           </div>
         ) : null}
       </div>
