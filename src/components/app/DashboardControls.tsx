@@ -3,7 +3,7 @@
 import { useCallback, useState, type CSSProperties } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { CalendarDays, SlidersHorizontal } from 'lucide-react'
-import { SEVERITY_LABELS, SEVERITY_ORDER } from '@/lib/types'
+import { SEVERITY_LABELS, SEVERITY_ORDER, hasImpact } from '@/lib/types'
 
 function useSetParams() {
   const router = useRouter()
@@ -122,7 +122,13 @@ export function DashboardFilters({
   const setParams = useSetParams()
   const [open, setOpen] = useState(false)
 
-  const active = ['emp', 'dept', 'type', 'sev'].filter((k) => params.get(k)).length
+  const typeFilter = params.get('type') ?? ''
+  // Impact grades goofups only, so the control is dropped once the type
+  // filter has excluded them — and it stops counting toward the badge.
+  const showImpact = typeFilter !== 'positive'
+  const active = ['emp', 'dept', 'type', 'sev'].filter(
+    (k) => params.get(k) && !(k === 'sev' && !showImpact),
+  ).length
 
   return (
     <div
@@ -245,8 +251,17 @@ export function DashboardFilters({
           <span style={filterLabel}>Type</span>
           <select
             aria-label="Type"
-            value={params.get('type') ?? ''}
-            onChange={(e) => setParams({ type: e.target.value })}
+            value={typeFilter}
+            onChange={(e) => {
+              const next = e.target.value
+              // Drop any impact already set, in the same push, so the list is
+              // never filtered by a control that has left the screen.
+              setParams(
+                next && !hasImpact(next as 'positive' | 'goofup')
+                  ? { type: next, sev: '' }
+                  : { type: next },
+              )
+            }}
             style={control}
           >
           <option value="">All types</option>
@@ -255,22 +270,24 @@ export function DashboardFilters({
           </select>
         </label>
 
-        <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', minWidth: 0, flex: '1 1 150px' }}>
-          <span style={filterLabel}>Impact</span>
-          <select
-            aria-label="Impact"
-            value={params.get('sev') ?? ''}
-            onChange={(e) => setParams({ sev: e.target.value })}
-            style={control}
-          >
-          <option value="">All severities</option>
-          {SEVERITY_ORDER.map((s) => (
-            <option key={s} value={s}>
-              {SEVERITY_LABELS[s]}
-            </option>
-          ))}
-          </select>
-        </label>
+        {showImpact ? (
+          <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', minWidth: 0, flex: '1 1 150px' }}>
+            <span style={filterLabel}>Impact</span>
+            <select
+              aria-label="Impact"
+              value={params.get('sev') ?? ''}
+              onChange={(e) => setParams({ sev: e.target.value })}
+              style={control}
+            >
+              <option value="">All severities</option>
+              {SEVERITY_ORDER.map((s) => (
+                <option key={s} value={s}>
+                  {SEVERITY_LABELS[s]}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
       </div>
 
       <span style={{ fontSize: '13px', color: 'var(--epi-fg-3)', flex: '0 0 auto' }}>{summary}</span>

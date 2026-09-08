@@ -23,7 +23,8 @@ export interface OverviewEvent {
   title: string
   category: string
   impact: string
-  impactTone: Tone
+  /** Null for a positive contribution, which has no impact grade. */
+  impactTone: Tone | null
   recordedBy: string
 }
 
@@ -305,17 +306,23 @@ export function ProfileOverview({
                         {e.category}
                       </span>
                     </span>
+                    {/* A positive contribution carries no impact grade, so the
+                        cell reads as an em dash rather than an empty pill. */}
                     <span style={{ minWidth: 0 }}>
-                      <span
-                        style={{
-                          ...pill(e.impactTone),
-                          textTransform: 'none',
-                          letterSpacing: 0,
-                          fontSize: '11.5px',
-                        }}
-                      >
-                        {e.impact}
-                      </span>
+                      {e.impactTone ? (
+                        <span
+                          style={{
+                            ...pill(e.impactTone),
+                            textTransform: 'none',
+                            letterSpacing: 0,
+                            fontSize: '11.5px',
+                          }}
+                        >
+                          {e.impact}
+                        </span>
+                      ) : (
+                        <span style={{ fontSize: '13px', color: 'var(--epi-fg-3)' }}>{e.impact}</span>
+                      )}
                     </span>
                     <span
                       style={{

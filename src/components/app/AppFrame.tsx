@@ -20,6 +20,7 @@ export function AppFrame({
   employeeId,
   employees,
   categories,
+  observers,
   alerts,
   alertTotal,
   alertCritical,
@@ -32,6 +33,7 @@ export function AppFrame({
   employeeId: string | null
   employees: EmployeeOption[]
   categories: Category[]
+  observers: { id: string; name: string }[]
   alerts: { id: string; name: string; reason: string; load: number; critical: number }[]
   alertTotal: number
   alertCritical: number
@@ -50,6 +52,7 @@ export function AppFrame({
             close={close}
             employees={employees}
             categories={categories}
+            observers={observers}
             appUserId={appUserId}
             currentUserName={fullName}
             selfEmployeeId={employeeId}

@@ -32,7 +32,7 @@ import {
 } from 'lucide-react'
 import { DASH, avatarStyle, cardStyle, initials, tableHeadStyle } from '@/lib/design'
 import { ago, fmtFull } from '@/lib/format'
-import { SEVERITY_LABELS, type EmployeeSignal, type Severity } from '@/lib/types'
+import { SEVERITY_LABELS, hasImpact, impactLabel, type EmployeeSignal, type Severity } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
 
@@ -193,11 +193,17 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
     recordedBy: (one(e.recorder) as { full_name: string } | null)?.full_name ?? 'Unknown',
   }))
 
+  // A stale ?type=positive&sev=high URL would otherwise filter positives by a
+  // grade none of them carry and come back empty, with no visible control to
+  // explain why — so the impact filter is ignored once positives are the only
+  // type in scope.
+  const sevFilter = sp.type === 'positive' ? undefined : sp.sev
+
   const matchesFilters = (e: (typeof allEvents)[number]) =>
     (!sp.emp || e.employeeRef?.id === sp.emp) &&
     (!sp.dept || e.department_id === sp.dept) &&
     (!sp.type || e.type === sp.type) &&
-    (!sp.sev || e.severity === sp.sev)
+    (!sevFilter || e.severity === sevFilter)
 
   const events = allEvents
     .filter((e) => e.event_date >= sinceIso && e.event_date <= toIso)
@@ -366,9 +372,13 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
 
   // Impact hues escalate cool -> hot (DASH.impact), so severity reads off
   // the donut without consulting the legend.
-  const donutTotal = events.length
+  // Goofups only. Impact grades how bad an issue was — positives are all
+  // stored at the neutral grade, so counting them here would have piled every
+  // recognition into the "Medium" slice and made the mix meaningless.
+  const gradedEvents = events.filter((e) => e.type === 'goofup')
+  const donutTotal = gradedEvents.length
   const donutSlices = (['critical', 'high', 'medium', 'low'] as const).map((sev) => {
-    const count = events.filter((e) => e.severity === sev).length
+    const count = gradedEvents.filter((e) => e.severity === sev).length
     return {
       name: SEVERITY_LABELS[sev],
       count,
@@ -992,16 +1002,20 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                     </div>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginTop: '4px' }}>
-                      <span
-                        style={{
-                          width: '6px',
-                          height: '6px',
-                          borderRadius: '999px',
-                          background: DASH.impact[e.severity],
-                        }}
-                      />
+                      {/* The impact dot only means something on a goofup. */}
+                      {hasImpact(e.type) ? (
+                        <span
+                          style={{
+                            width: '6px',
+                            height: '6px',
+                            borderRadius: '999px',
+                            background: DASH.impact[e.severity],
+                          }}
+                        />
+                      ) : null}
                       <span style={{ fontSize: '11.5px', color: 'var(--epi-fg-3)' }}>
-                        {SEVERITY_LABELS[e.severity]} · {e.recordedBy}
+                        {hasImpact(e.type) ? `${impactLabel(e.type, e.severity)} · ` : ''}
+                        {e.recordedBy}
                       </span>
                     </div>
                   </div>

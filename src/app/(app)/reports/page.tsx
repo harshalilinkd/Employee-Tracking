@@ -5,7 +5,7 @@ import { ReportActions } from '@/components/app/ReportActions'
 import { ReportDocument, type DocEvent, type DocInsight } from '@/components/app/ReportDocument'
 import { initials } from '@/lib/design'
 import { ago, fmtFull, fmtShort } from '@/lib/format'
-import { SEVERITY_LABELS, type EmployeeSignal, type Severity } from '@/lib/types'
+import { hasImpact, impactLabel, type EmployeeSignal, type Severity } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
 
@@ -79,7 +79,7 @@ export default async function ReportsPage({
     supabase
       .from('performance_events')
       .select(
-        'id, event_ref, type, title, event_date, severity, category:categories(name), recorder:app_users(full_name)',
+        'id, event_ref, type, title, event_date, severity, category:categories(name), recorder:app_users(full_name), observer:observers(name)',
       )
       .eq('employee_id', selectedId)
       .eq('status', 'active')
@@ -107,11 +107,13 @@ export default async function ReportsPage({
     severity: Severity
     category: unknown
     recorder: unknown
+    observer: unknown
   }
   const events = ((evRes.data ?? []) as Ev[]).map((e) => ({
     ...e,
     categoryName: (one(e.category) as { name: string } | null)?.name ?? 'Uncategorised',
     recordedBy: (one(e.recorder) as { full_name: string } | null)?.full_name ?? 'Unknown',
+    observedBy: (one(e.observer) as { name: string } | null)?.name ?? null,
   }))
 
   const positives = events.filter((e) => e.type === 'positive').length
@@ -231,8 +233,8 @@ export default async function ReportsPage({
     type: e.type,
     title: e.title,
     category: e.categoryName,
-    impact: SEVERITY_LABELS[e.severity],
-    impactTone: impactTone(e.severity),
+    impact: impactLabel(e.type, e.severity),
+    impactTone: hasImpact(e.type) ? impactTone(e.severity) : null,
     recordedBy: e.recordedBy,
   }))
 
@@ -307,7 +309,8 @@ export default async function ReportsPage({
             Type: e.type === 'positive' ? 'Positive Contribution' : 'Goofup',
             Event: e.title,
             Category: e.categoryName,
-            Impact: SEVERITY_LABELS[e.severity],
+            Impact: impactLabel(e.type, e.severity),
+            'Observed by': e.observedBy ?? '',
             'Recorded by': e.recordedBy,
           }))}
         />

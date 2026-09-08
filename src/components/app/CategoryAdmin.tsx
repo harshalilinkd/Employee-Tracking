@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Pencil, Plus, Trash2, Undo2, X } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { CHART, cardStyle, labelCaps, selectStyle, subtleButton, tableHeadStyle } from '@/lib/design'
-import { SEVERITY_LABELS, SEVERITY_ORDER, type Severity } from '@/lib/types'
+import { NEUTRAL_SEVERITY, SEVERITY_LABELS, SEVERITY_ORDER, hasImpact, type Severity } from '@/lib/types'
 
 export interface CategoryRow {
   id: string
@@ -191,18 +191,24 @@ function CategoryTable({
               {/* A dot carries the impact colour; the label stays plain text.
                   Two filled chips per row read as noise at 23 rows. */}
               <span style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
-                <span
-                  style={{
-                    width: '7px',
-                    height: '7px',
-                    flex: '0 0 7px',
-                    borderRadius: '999px',
-                    background: CHART.impact[c.default_severity],
-                  }}
-                />
-                <span style={{ fontSize: '13.5px', color: 'var(--epi-fg-2)' }}>
-                  {SEVERITY_LABELS[c.default_severity]}
-                </span>
+                {hasImpact(c.applies_to) ? (
+                  <>
+                    <span
+                      style={{
+                        width: '7px',
+                        height: '7px',
+                        flex: '0 0 7px',
+                        borderRadius: '999px',
+                        background: CHART.impact[c.default_severity],
+                      }}
+                    />
+                    <span style={{ fontSize: '13.5px', color: 'var(--epi-fg-2)' }}>
+                      {SEVERITY_LABELS[c.default_severity]}
+                    </span>
+                  </>
+                ) : (
+                  <span style={{ fontSize: '13.5px', color: 'var(--epi-fg-3)' }}>—</span>
+                )}
               </span>
 
               <span
@@ -271,11 +277,16 @@ function CategoryModal({
     const { error: err } = existing
       ? await supabase
           .from('categories')
-          .update({ name: name.trim(), default_severity: severity })
+          .update({ name: name.trim(), default_severity: hasImpact(kind) ? severity : NEUTRAL_SEVERITY })
           .eq('id', existing.id)
       : await supabase
           .from('categories')
-          .insert({ name: name.trim(), applies_to: kind, default_severity: severity, sort_order: 999 })
+          .insert({
+            name: name.trim(),
+            applies_to: kind,
+            default_severity: hasImpact(kind) ? severity : NEUTRAL_SEVERITY,
+            sort_order: 999,
+          })
     setSaving(false)
 
     if (err) {
@@ -380,23 +391,27 @@ function CategoryModal({
             />
           </label>
 
-          <label style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <span style={labelCaps}>Default impact</span>
-            <select
-              value={severity}
-              onChange={(e) => setSeverity(e.target.value as Severity)}
-              style={selectStyle}
-            >
-              {SEVERITY_ORDER.map((s) => (
-                <option key={s} value={s}>
-                  {SEVERITY_LABELS[s as Severity]}
-                </option>
-              ))}
-            </select>
-            <span style={{ fontSize: '12px', color: 'var(--epi-fg-3)' }}>
-              Pre-selected when someone picks this category. They can still change it on the record.
-            </span>
-          </label>
+          {/* Impact is a goofup scale, and the record form does not ask for
+              it on a positive — so a positive category has no default to set. */}
+          {hasImpact(kind) ? (
+            <label style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <span style={labelCaps}>Default impact</span>
+              <select
+                value={severity}
+                onChange={(e) => setSeverity(e.target.value as Severity)}
+                style={selectStyle}
+              >
+                {SEVERITY_ORDER.map((s) => (
+                  <option key={s} value={s}>
+                    {SEVERITY_LABELS[s as Severity]}
+                  </option>
+                ))}
+              </select>
+              <span style={{ fontSize: '12px', color: 'var(--epi-fg-3)' }}>
+                Pre-selected when someone picks this category. They can still change it on the record.
+              </span>
+            </label>
+          ) : null}
 
           {error ? <div style={{ fontSize: '13px', color: 'var(--epi-red)' }}>{error}</div> : null}
         </div>

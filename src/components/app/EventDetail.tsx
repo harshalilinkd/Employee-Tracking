@@ -8,7 +8,15 @@ import { EventAttachments } from './EventAttachments'
 import { createClient } from '@/lib/supabase/client'
 import { iconStyle, pill } from '@/lib/design'
 import { fmtFull } from '@/lib/format'
-import { SEVERITY_HINTS, SEVERITY_LABELS, SEVERITY_ORDER, type Category, type Severity } from '@/lib/types'
+import {
+  SEVERITY_HINTS,
+  SEVERITY_LABELS,
+  SEVERITY_ORDER,
+  hasImpact,
+  impactLabel,
+  type Category,
+  type Severity,
+} from '@/lib/types'
 
 export interface DetailEvent {
   id: string
@@ -25,6 +33,8 @@ export interface DetailEvent {
   employeeName: string
   categoryId: string | null
   categoryName: string
+  /** Who witnessed it, from the Settings master. Null when unspecified. */
+  observedBy?: string | null
   departmentName: string
   recordedBy: string
 }
@@ -153,12 +163,18 @@ export function EventDetail({
     return msg
   }
 
+  // Impact is a goofup scale, so the row is dropped rather than shown as a
+  // dash for a positive contribution — a read-only summary should not list
+  // a field that does not apply.
   const meta = [
     ['Employee', event.employeeName],
     ['Department', event.departmentName],
     ['Category', event.categoryName],
-    ['Impact', SEVERITY_LABELS[event.severity]],
+    ...(hasImpact(event.type) ? [['Impact', impactLabel(event.type, event.severity)] as const] : []),
     ['Happened on', fmtFull(event.event_date)],
+    // Observed by is only listed when it was actually captured; recorded by
+    // is always known, because the database sets it.
+    ...(event.observedBy ? [['Observed by', event.observedBy] as const] : []),
     ['Recorded by', event.recordedBy],
   ] as const
 
@@ -342,6 +358,7 @@ export function EventDetail({
                 </label>
               </div>
 
+              {hasImpact(event.type) ? (
               <div>
                 <span style={{ ...label, display: 'block', marginBottom: '8px' }}>Impact</span>
                 <div
@@ -380,6 +397,7 @@ export function EventDetail({
                   })}
                 </div>
               </div>
+              ) : null}
 
               <p style={{ margin: 0, fontSize: '12px', color: 'var(--epi-fg-3)', lineHeight: 1.5 }}>
                 Employee, type and who recorded it cannot be changed — those are frozen at creation. Every edit is

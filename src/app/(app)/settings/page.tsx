@@ -4,6 +4,7 @@ import { UserAccessAdmin, type UserRow } from '@/components/app/UserAccessAdmin'
 import { createClient } from '@/lib/supabase/server'
 import { getSession } from '@/lib/session'
 import { CategoryAdmin } from '@/components/app/CategoryAdmin'
+import { ObserverAdmin, type ObserverRow } from '@/components/app/ObserverAdmin'
 import { GeneralAdmin, ReadOnlyNote } from '@/components/app/GeneralAdmin'
 import { Gauge } from 'lucide-react'
 import { cardStyle, labelCaps, pill, tableHeadStyle } from '@/lib/design'
@@ -15,6 +16,7 @@ export const dynamic = 'force-dynamic'
 const TABS = [
   'Employee database',
   'Performance categories',
+  'Observers',
   'User access',
   'Audit log',
   'General',
@@ -72,6 +74,7 @@ export default async function SettingsPage({
         <EmployeeDatabase supabase={supabase} canEdit={admin || session?.appUser?.role === 'hr'} />
       ) : null}
       {tab === 'Performance categories' ? <Categories supabase={supabase} canEdit={admin} /> : null}
+      {tab === 'Observers' ? <Observers supabase={supabase} canEdit={admin} /> : null}
       {tab === 'User access' ? (
         <UserAccess supabase={supabase} canManage={admin} currentUserId={session?.appUser?.id ?? ''} />
       ) : null}
@@ -159,6 +162,41 @@ async function Categories({ supabase, canEdit }: { supabase: any; canEdit: boole
         </p>
       </div>
     </>
+  )
+}
+
+async function Observers({ supabase, canEdit }: { supabase: any; canEdit: boolean }) {
+  const [{ data }, { data: used }] = await Promise.all([
+    supabase
+      .from('observers')
+      .select('id, name, role_note, is_active, sort_order')
+      .order('is_active', { ascending: false })
+      .order('sort_order')
+      .order('name'),
+    // Usage counts drive the delete guard: the FK is ON DELETE SET NULL, so
+    // deleting a named observer would silently blank it on past records.
+    supabase.from('performance_events').select('observed_by').not('observed_by', 'is', null),
+  ])
+
+  const counts = new Map<string, number>()
+  for (const row of (used ?? []) as { observed_by: string }[]) {
+    counts.set(row.observed_by, (counts.get(row.observed_by) ?? 0) + 1)
+  }
+
+  const rows: ObserverRow[] = ((data ?? []) as any[]).map((o) => ({
+    id: o.id,
+    name: o.name,
+    role_note: o.role_note,
+    is_active: o.is_active,
+    sort_order: o.sort_order,
+    useCount: counts.get(o.id) ?? 0,
+  }))
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+      <ObserverAdmin rows={rows} canEdit={canEdit} />
+      {canEdit ? null : <ReadOnlyNote />}
+    </div>
   )
 }
 

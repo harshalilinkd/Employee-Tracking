@@ -45,7 +45,8 @@ export interface DocEvent {
   title: string
   category: string
   impact: string
-  impactTone: ToneKey
+  /** Null for a positive contribution, which has no impact grade. */
+  impactTone: ToneKey | null
   recordedBy: string
 }
 
@@ -411,7 +412,12 @@ export function ReportDocument({
                       <Chip tone="blue">{e.category}</Chip>
                     </span>
                     <span>
-                      <Chip tone={e.impactTone}>{e.impact}</Chip>
+                      {/* Positives carry no impact grade — a dash, not a chip. */}
+                      {e.impactTone ? (
+                        <Chip tone={e.impactTone}>{e.impact}</Chip>
+                      ) : (
+                        <span style={{ color: MUTED }}>{e.impact}</span>
+                      )}
                     </span>
                     <span style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {e.recordedBy}

@@ -733,9 +733,9 @@ export function ImpactMix({ slices, total }: { slices: DonutSlice[]; total: numb
     .reduce((a, s) => a + s.count, 0)
 
   return (
-    <Panel title="Impact Mix" subtitle="How serious the recorded events are" icon={<PieChart size={15} />} iconTone="red">
+    <Panel title="Impact Mix" subtitle="How serious the recorded goofups are" icon={<PieChart size={15} />} iconTone="red">
       {total === 0 ? (
-        <Empty>No events recorded in this period.</Empty>
+        <Empty>No goofups recorded in this period.</Empty>
       ) : (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {/* One bar showing the whole mix at a glance */}

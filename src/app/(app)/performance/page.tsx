@@ -6,7 +6,7 @@ import { RecordCta } from '@/components/app/RecordCta'
 import { ExportCsvButton } from '@/components/app/ExportCsvButton'
 import { LedgerFilters } from '@/components/app/LedgerFilters'
 import { LedgerTable } from '@/components/app/LedgerTable'
-import { SEVERITY_LABELS, isAdmin, type Category, type Severity } from '@/lib/types'
+import { impactLabel, isAdmin, type Category, type Severity } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
 
@@ -49,7 +49,7 @@ export default async function PerformancePage({
   let query = supabase
     .from('performance_events')
     .select(
-      'id, event_ref, type, title, description, event_date, severity, status, created_at, recorded_by, employee:employees(id, full_name), category:categories(id, name), department:departments(id, name), recorder:app_users(full_name)',
+      'id, event_ref, type, title, description, event_date, severity, status, created_at, recorded_by, employee:employees(id, full_name), category:categories(id, name), department:departments(id, name), recorder:app_users(full_name), observer:observers(name)',
     )
     .eq('status', 'active')
     .order('event_date', { ascending: false })
@@ -60,7 +60,10 @@ export default async function PerformancePage({
   if (sp.dept) query = query.eq('department_id', sp.dept)
   if (sp.type === 'positive' || sp.type === 'goofup') query = query.eq('type', sp.type)
   if (sp.cat) query = query.eq('category_id', sp.cat)
-  if (sp.sev) query = query.eq('severity', sp.sev)
+  // Ignored when the type filter has already excluded goofups — see the
+  // dashboard for why a bookmarked ?type=positive&sev=high must not return
+  // an unexplained empty list.
+  if (sp.sev && sp.type !== 'positive') query = query.eq('severity', sp.sev)
 
   const [eventsRes, deptRes, catRes, empRes] = await Promise.all([
     query,
@@ -90,6 +93,7 @@ export default async function PerformancePage({
     category: { id: string; name: string } | { id: string; name: string }[] | null
     department: { id: string; name: string } | { id: string; name: string }[] | null
     recorder: { full_name: string } | { full_name: string }[] | null
+    observer: { name: string } | { name: string }[] | null
   }
 
   let rows = ((eventsRes.data ?? []) as Row[]).map((e) => ({
@@ -98,6 +102,7 @@ export default async function PerformancePage({
     categoryName: one(e.category)?.name ?? 'Uncategorised',
     departmentName: one(e.department)?.name ?? '—',
     recordedBy: one(e.recorder)?.full_name ?? 'Unknown',
+    observedBy: one(e.observer)?.name ?? null,
   }))
 
   // Free-text search is applied here rather than in SQL so it can span the
@@ -115,7 +120,13 @@ export default async function PerformancePage({
   }
 
   const hasFilters = Boolean(
-    sp.q || sp.emp || sp.dept || sp.type || sp.cat || sp.sev || (sp.range && sp.range !== 'quarter'),
+    sp.q ||
+      sp.emp ||
+      sp.dept ||
+      sp.type ||
+      sp.cat ||
+      (sp.sev && sp.type !== 'positive') ||
+      (sp.range && sp.range !== 'quarter'),
   )
 
   const csvRows = rows.map((r) => ({
@@ -127,7 +138,8 @@ export default async function PerformancePage({
     Title: r.title,
     Description: r.description ?? '',
     Category: r.categoryName,
-    Impact: SEVERITY_LABELS[r.severity],
+    Impact: impactLabel(r.type, r.severity),
+    'Observed by': r.observedBy ?? '',
     'Recorded by': r.recordedBy,
   }))
 
@@ -190,6 +202,7 @@ export default async function PerformancePage({
             categoryName: r.categoryName,
             departmentName: r.departmentName,
             recordedBy: r.recordedBy,
+            observedBy: r.observedBy,
           }))}
           categories={(catRes.data ?? []) as Category[]}
           currentAppUserId={session?.appUser?.id ?? ''}

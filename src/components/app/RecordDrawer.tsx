@@ -17,9 +17,11 @@ import { createClient } from '@/lib/supabase/client'
 import { AttachmentPicker, uploadPending, type PendingFile } from './AttachmentPicker'
 import { VoiceDictation } from './VoiceDictation'
 import {
+  NEUTRAL_SEVERITY,
   SEVERITY_HINTS,
   SEVERITY_LABELS,
   SEVERITY_ORDER,
+  hasImpact,
   type Category,
   type EventType,
   type Severity,
@@ -37,6 +39,8 @@ interface Props {
   close: () => void
   employees: EmployeeOption[]
   categories: Category[]
+  /** The Settings-managed master list behind "Who observed this?". */
+  observers: { id: string; name: string }[]
   appUserId: string
   currentUserName: string
   selfEmployeeId: string | null
@@ -82,6 +86,7 @@ export function RecordDrawer({
   close,
   employees,
   categories,
+  observers,
   appUserId,
   currentUserName,
   selfEmployeeId,
@@ -99,6 +104,9 @@ export function RecordDrawer({
   const [date, setDate] = useState(todayIso())
   const [categoryId, setCategoryId] = useState('')
   const [severity, setSeverity] = useState<Severity>('medium')
+  // Who witnessed it, which is often not who is typing it in. Distinct from
+  // recorded_by, which the database pins to the signed-in user and freezes.
+  const [observedBy, setObservedBy] = useState('')
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -116,6 +124,7 @@ export function RecordDrawer({
     setDate(todayIso())
     setCategoryId('')
     setSeverity('medium')
+    setObservedBy('')
     setError('')
     files.forEach((f) => {
       if (f.preview) URL.revokeObjectURL(f.preview)
@@ -179,7 +188,7 @@ export function RecordDrawer({
   if (categoryId !== prevCategoryId) {
     setPrevCategoryId(categoryId)
     const cat = typeCategories.find((c) => c.id === categoryId)
-    if (cat) setSeverity(cat.default_severity)
+    if (cat && type && hasImpact(type)) setSeverity(cat.default_severity)
   }
 
   async function save(addAnother: boolean) {
@@ -205,7 +214,9 @@ export function RecordDrawer({
         description: description.trim() || null,
         event_date: date,
         category_id: categoryId || null,
-        severity,
+        // Impact is a goofup scale; a positive is stored at the neutral grade.
+        severity: type && hasImpact(type) ? severity : NEUTRAL_SEVERITY,
+        observed_by: observedBy || null,
         recorded_by: appUserId,
         // Tags and follow-ups were removed from this form. The columns stay so
         // the data model and the follow-up reporting are unchanged if they return.
@@ -431,7 +442,10 @@ export function RecordDrawer({
           <div className="epi-choices" style={{ display: 'flex', gap: '12px' }}>
             <button
               className="epi-choice"
-              onClick={() => setType('positive')}
+              onClick={() => {
+                setType('positive')
+                setSeverity(NEUTRAL_SEVERITY)
+              }}
               style={choiceStyle(type === 'positive', 'pos')}
             >
               <span
@@ -464,7 +478,10 @@ export function RecordDrawer({
 
             <button
               className="epi-choice"
-              onClick={() => setType('goofup')}
+              onClick={() => {
+                setType('goofup')
+                setSeverity(NEUTRAL_SEVERITY)
+              }}
               style={choiceStyle(type === 'goofup', 'neg')}
             >
               <span
@@ -631,6 +648,9 @@ export function RecordDrawer({
                     </label>
                   </div>
 
+                  {/* Impact grades a goofup. It says nothing about a positive
+                      contribution, so it is not offered for one. */}
+                  {type && hasImpact(type) ? (
                   <div>
                     <span style={{ ...labelRow, marginBottom: '8px' }}>Impact</span>
                     <div
@@ -675,15 +695,44 @@ export function RecordDrawer({
                       {SEVERITY_HINTS[severity]}
                     </p>
                   </div>
+                  ) : null}
 
+                  {/* Two different questions, deliberately separated:
+                      who saw it (editable, from the Settings master) and who
+                      entered it (pinned to the signed-in user by RLS and
+                      frozen by a trigger — it is the audit trail). */}
                   <label style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
                     <span style={labelRow}>Who observed this?</span>
-                    <input
-                      value={currentUserName}
-                      readOnly
-                      title="Recorded-by is immutable and always the signed-in user"
-                      style={{ ...field, color: 'var(--epi-fg-3)', cursor: 'not-allowed' }}
-                    />
+                    {observers.length === 0 ? (
+                      <>
+                        <input
+                          value=""
+                          readOnly
+                          placeholder="No observers set up yet"
+                          style={{ ...field, color: 'var(--epi-fg-3)', cursor: 'not-allowed' }}
+                        />
+                        <span style={{ fontSize: '12px', color: 'var(--epi-fg-3)' }}>
+                          Add names under Settings → Observers to use this field.
+                        </span>
+                      </>
+                    ) : (
+                      <select
+                        value={observedBy}
+                        onChange={(e) => setObservedBy(e.target.value)}
+                        aria-label="Who observed this"
+                        style={field}
+                      >
+                        <option value="">Not specified</option>
+                        {observers.map((o) => (
+                          <option key={o.id} value={o.id}>
+                            {o.name}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                    <span style={{ fontSize: '12px', color: 'var(--epi-fg-3)' }}>
+                      Recorded by {currentUserName} — that cannot be changed.
+                    </span>
                   </label>
                 </div>
               ) : null}

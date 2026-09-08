@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { EventDetail, type DetailEvent } from './EventDetail'
 import { cardStyle, iconStyle, pill, tableHeadStyle } from '@/lib/design'
 import { fmtFull, fmtShort } from '@/lib/format'
-import { SEVERITY_LABELS, type Category } from '@/lib/types'
+import { hasImpact, impactLabel, type Category } from '@/lib/types'
 
 const COLS = '92px minmax(140px,1.4fr) 100px minmax(230px,2.8fr) minmax(130px,1.3fr) 92px minmax(120px,1.1fr)'
 const HEADS = ['Date', 'Employee', 'Type', 'Event', 'Category', 'Impact', 'Recorded by']
@@ -98,7 +98,10 @@ export function LedgerTable({
             </Cell>
             <Cell title={e.description ?? e.title}>{e.title}</Cell>
             <Cell accent>{e.categoryName}</Cell>
-            <Cell bold>{SEVERITY_LABELS[e.severity]}</Cell>
+            {/* Impact grades goofups; a positive has none to show. */}
+            <Cell bold={hasImpact(e.type)} muted={!hasImpact(e.type)}>
+              {impactLabel(e.type, e.severity)}
+            </Cell>
             <Cell muted>{e.recordedBy}</Cell>
           </button>
         ))}
@@ -127,7 +130,9 @@ export function LedgerTable({
               <div style={{ fontSize: '15px', fontWeight: 600, lineHeight: 1.35 }}>{e.title}</div>
               <div style={{ fontSize: '13px', color: 'var(--epi-accent-fg)' }}>{e.employeeName}</div>
               <div style={{ fontSize: '12px', color: 'var(--epi-fg-3)' }}>
-                {e.categoryName} · {SEVERITY_LABELS[e.severity]} impact · {fmtFull(e.event_date)}
+                {e.categoryName}
+                {hasImpact(e.type) ? ` · ${impactLabel(e.type, e.severity)} impact` : ''} ·{' '}
+                {fmtFull(e.event_date)}
               </div>
             </div>
           </button>

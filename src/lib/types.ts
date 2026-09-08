@@ -33,6 +33,32 @@ export const SEVERITY_HINTS: Record<Severity, string> = {
 
 export const SEVERITY_ORDER: Severity[] = ['low', 'medium', 'high', 'critical']
 
+/**
+ * Impact grades how bad a goofup was — "cost money, time or a customer".
+ * None of that scale means anything about a positive contribution, so the
+ * field is not offered when recording one and not shown when reading one
+ * back. This predicate is the single place that rule lives; every screen
+ * that renders or filters on impact asks it rather than testing the type
+ * inline, so the two can never drift apart.
+ */
+export function hasImpact(type: EventType): boolean {
+  return type === 'goofup'
+}
+
+/**
+ * What a positive contribution is stored with. The column is NOT NULL, and
+ * the signal engine multiplies every event by its severity weight — so a
+ * positive has to carry *some* grade. Fixing it at the neutral middle means
+ * recognition_load stays a straight count of recognitions rather than
+ * something a recorder can inflate by grading a compliment "critical".
+ */
+export const NEUTRAL_SEVERITY: Severity = 'medium'
+
+/** Impact for display: the label for a goofup, an em dash for anything else. */
+export function impactLabel(type: EventType, severity: Severity): string {
+  return hasImpact(type) ? SEVERITY_LABELS[severity] : '—'
+}
+
 export const ROLE_LABELS: Record<AppRole, string> = {
   super_admin: 'Super Admin',
   md: 'Management',

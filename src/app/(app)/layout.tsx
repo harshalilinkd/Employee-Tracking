@@ -18,8 +18,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   const supabase = await createClient()
 
-  const [{ data: employees }, { data: categories }, { data: attentionRows, count: attentionTotal }] =
-    await Promise.all([
+  const [
+    { data: employees },
+    { data: categories },
+    { data: observers },
+    { data: attentionRows, count: attentionTotal },
+  ] = await Promise.all([
     supabase
       .from('employees')
       .select('id, full_name, status, department:departments!employees_department_id_fkey(name)')
@@ -30,6 +34,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       .select('id, name, applies_to, default_severity, sort_order, is_active')
       .eq('is_active', true)
       .order('sort_order'),
+    // The "Who observed this?" master list, managed in Settings.
+    supabase
+      .from('observers')
+      .select('id, name')
+      .eq('is_active', true)
+      .order('sort_order')
+      .order('name'),
     // The header alert names the people, not just a number — a count alone
     // gave no idea who or why. RLS scopes this per role, so a department
     // manager sees their own department only.
@@ -77,6 +88,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       employeeId={session.appUser.employee_id}
       employees={employeeOptions}
       categories={(categories ?? []) as Category[]}
+      observers={(observers ?? []) as { id: string; name: string }[]}
       alerts={(attentionRows ?? []).map((a: AttentionRow) => ({
         id: a.employee_id,
         name: a.full_name,

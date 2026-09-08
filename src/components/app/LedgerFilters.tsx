@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { SlidersHorizontal } from 'lucide-react'
 import { cardStyle, selectStyle } from '@/lib/design'
-import { SEVERITY_LABELS, SEVERITY_ORDER } from '@/lib/types'
+import { SEVERITY_LABELS, SEVERITY_ORDER, hasImpact } from '@/lib/types'
 import { ExportCsvButton } from './ExportCsvButton'
 import { SavedViews } from './SavedViews'
 
@@ -54,9 +54,13 @@ export function LedgerFilters({ departments, categories, employees, rows, curren
   const type = params.get('type') ?? ''
   const visibleCategories = type ? categories.filter((c) => c.applies_to === type) : categories
 
+  // Filtering positives by impact would filter on a grade positives do not
+  // carry, so the control goes when the type filter rules goofups out.
+  const showImpact = type !== 'positive'
+
   const hasAny = ['q', 'emp', 'dept', 'type', 'cat', 'sev', 'range'].some((k) => params.get(k))
-  const activeCount = ['emp', 'dept', 'type', 'cat', 'sev', 'range'].filter((k) =>
-    params.get(k),
+  const activeCount = ['emp', 'dept', 'type', 'cat', 'sev', 'range'].filter(
+    (k) => params.get(k) && !(k === 'sev' && params.get('type') === 'positive'),
   ).length
 
   return (
@@ -177,7 +181,16 @@ export function LedgerFilters({ departments, categories, employees, rows, curren
         <select
           aria-label="Type"
           value={type}
-          onChange={(e) => setParam('type', e.target.value)}
+          onChange={(e) => {
+            const nextType = e.target.value
+            // Clearing sev in the same push avoids a filtered-by-impact list
+            // sitting behind a control that is no longer on screen.
+            const next = new URLSearchParams(params.toString())
+            if (nextType) next.set('type', nextType)
+            else next.delete('type')
+            if (nextType && !hasImpact(nextType as 'positive' | 'goofup')) next.delete('sev')
+            router.push(`${pathname}?${next.toString()}`)
+          }}
           style={selectStyle}
         >
           <option value="">All types</option>
@@ -199,19 +212,21 @@ export function LedgerFilters({ departments, categories, employees, rows, curren
           ))}
         </select>
 
-        <select
-          aria-label="Impact"
-          value={params.get('sev') ?? ''}
-          onChange={(e) => setParam('sev', e.target.value)}
-          style={selectStyle}
-        >
-          <option value="">Any impact</option>
-          {SEVERITY_ORDER.map((s) => (
-            <option key={s} value={s}>
-              {SEVERITY_LABELS[s]}
-            </option>
-          ))}
-        </select>
+        {showImpact ? (
+          <select
+            aria-label="Impact"
+            value={params.get('sev') ?? ''}
+            onChange={(e) => setParam('sev', e.target.value)}
+            style={selectStyle}
+          >
+            <option value="">Any impact</option>
+            {SEVERITY_ORDER.map((s) => (
+              <option key={s} value={s}>
+                {SEVERITY_LABELS[s]}
+              </option>
+            ))}
+          </select>
+        ) : null}
 
         <select
           aria-label="Date range"

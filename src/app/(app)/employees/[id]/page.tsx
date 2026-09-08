@@ -15,7 +15,14 @@ import {
 import type { TrendPoint } from '@/components/app/PerformanceTrendCard'
 import { cardStyle, labelCaps, pill, signalTone, tableHeadStyle } from '@/lib/design'
 import { ago, fmtFull, fmtShort } from '@/lib/format'
-import { SEVERITY_LABELS, canRecord, isAdmin, type EmployeeSignal, type Severity } from '@/lib/types'
+import {
+  canRecord,
+  hasImpact,
+  impactLabel,
+  isAdmin,
+  type EmployeeSignal,
+  type Severity,
+} from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
 
@@ -165,8 +172,8 @@ export default async function EmployeeProfile({
     type: e.type,
     title: e.title,
     category: e.categoryName,
-    impact: SEVERITY_LABELS[e.severity],
-    impactTone: IMPACT_TONE[e.severity],
+    impact: impactLabel(e.type, e.severity),
+    impactTone: hasImpact(e.type) ? IMPACT_TONE[e.severity] : null,
     recordedBy: e.recordedBy,
   }))
 
@@ -614,7 +621,7 @@ export default async function EmployeeProfile({
                   {e.title}
                 </Cell>
                 <Cell muted>{e.categoryName}</Cell>
-                <Cell>{SEVERITY_LABELS[e.severity]}</Cell>
+                <Cell muted={!hasImpact(e.type)}>{impactLabel(e.type, e.severity)}</Cell>
                 <Cell muted>{e.recordedBy}</Cell>
                 <Cell mono muted>
                   {e.event_ref}
@@ -649,7 +656,8 @@ export default async function EmployeeProfile({
                   <div style={{ fontSize: '13px', color: 'var(--epi-fg-2)', lineHeight: 1.5 }}>{e.description}</div>
                 ) : null}
                 <div style={{ fontSize: '12px', color: 'var(--epi-fg-3)' }}>
-                  {e.categoryName} · {SEVERITY_LABELS[e.severity]} impact · {e.recordedBy}
+                  {e.categoryName}
+                  {hasImpact(e.type) ? ` · ${impactLabel(e.type, e.severity)} impact` : ''} · {e.recordedBy}
                 </div>
               </div>
             ))}

@@ -7,11 +7,18 @@ import { AlertTriangle, Ban, Check, Loader2, Mails, Pencil, PencilLine, Trash2, 
 import { createClient } from '@/lib/supabase/client'
 import { EmailImport } from './EmailImport'
 import { avatarStyle, cardStyle, initials, pill, subtleButton, tableHeadStyle } from '@/lib/design'
-import { fmtFull } from '@/lib/format'
 import type { EmployeeStatus } from '@/lib/types'
 
+/**
+ * The table shows exactly what the Add/Edit form captures — no more code or
+ * joining-date columns, because nothing collects them any more, and a column
+ * that is a permanent em dash is just noise. Email takes their place.
+ *
+ * The columns stay in the database: existing codes and joining dates are
+ * untouched, and the employee profile and printed report still read them.
+ */
 const DB_COLS =
-  'minmax(170px,2fr) 92px minmax(130px,1.4fr) minmax(130px,1.2fr) 116px minmax(130px,1.2fr) 104px 108px'
+  'minmax(170px,2fr) minmax(130px,1.4fr) minmax(130px,1.2fr) minmax(130px,1.2fr) minmax(150px,1.5fr) 104px 108px'
 
 export interface EmployeeRow {
   id: string
@@ -66,11 +73,10 @@ const inlineField: CSSProperties = {
 /** The columns inline editing can change. */
 type EditableField =
   | 'full_name'
-  | 'employee_code'
   | 'designation_id'
   | 'department_id'
-  | 'joining_date'
   | 'manager_id'
+  | 'contact_email'
   | 'status'
 
 type Draft = Record<string, Partial<Record<EditableField, string | null>>>
@@ -164,11 +170,9 @@ export function EmployeeAdmin({ rows, departments, designations, deptCount, canE
       setRowError(
         failed
           .map(({ id, error }) =>
-            error!.message.includes('employees_employee_code_key')
-              ? `${nameOf(id)}: that employee code is already used by someone else.`
-              : error!.message.includes('row-level security')
-                ? `${nameOf(id)}: your role cannot change the employee database.`
-                : `${nameOf(id)}: ${error!.message}`,
+            error!.message.includes('row-level security')
+              ? `${nameOf(id)}: your role cannot change the employee database.`
+              : `${nameOf(id)}: ${error!.message}`,
           )
           .join(' '),
       )
@@ -342,7 +346,7 @@ export function EmployeeAdmin({ rows, departments, designations, deptCount, canE
         <div
           className="epi-grid-table epi-grid-table-head"
           style={{
-            minWidth: '1044px',
+            minWidth: '1000px',
             display: 'grid',
             gridTemplateColumns: DB_COLS,
             gap: '10px',
@@ -352,11 +356,10 @@ export function EmployeeAdmin({ rows, departments, designations, deptCount, canE
           }}
         >
           <span>Name</span>
-          <span>Code</span>
           <span>Designation</span>
           <span>Department</span>
-          <span>Joined</span>
           <span>Reports to</span>
+          <span>Email</span>
           <span>Status</span>
           <span>Actions</span>
         </div>
@@ -371,7 +374,7 @@ export function EmployeeAdmin({ rows, departments, designations, deptCount, canE
               key={r.id}
               className={`epi-row epi-grid-table${bulk ? ' epi-editing' : ''}`}
               style={{
-                minWidth: '1044px',
+                minWidth: '1000px',
                 display: 'grid',
                 gridTemplateColumns: DB_COLS,
                 gap: '10px',
@@ -408,22 +411,6 @@ export function EmployeeAdmin({ rows, departments, designations, deptCount, canE
                     {r.full_name}
                   </span>
                 </Link>
-              )}
-
-              {bulk ? (
-                <span className="epi-cell-control">
-                  <input
-                    value={valueOf(r, 'employee_code')}
-                    onChange={(e) => edit(r, 'employee_code', e.target.value)}
-                    aria-label={`Code for ${r.full_name}`}
-                    className="epi-mono"
-                    style={{ ...inlineField, fontSize: '12px' }}
-                  />
-                </span>
-              ) : (
-                <span className="epi-mono" style={{ fontSize: '12px', color: 'var(--epi-accent-fg)' }}>
-                  {r.employee_code ?? '—'}
-                </span>
               )}
 
               {bulk ? (
@@ -468,22 +455,6 @@ export function EmployeeAdmin({ rows, departments, designations, deptCount, canE
 
               {bulk ? (
                 <span className="epi-cell-control">
-                  <input
-                    type="date"
-                    value={valueOf(r, 'joining_date')}
-                    onChange={(e) => edit(r, 'joining_date', e.target.value)}
-                    aria-label={`Joining date of ${r.full_name}`}
-                    style={inlineField}
-                  />
-                </span>
-              ) : (
-                <span className="epi-num" style={{ fontSize: '13px', color: 'var(--epi-fg-3)' }}>
-                  {r.joining_date ? fmtFull(r.joining_date) : '—'}
-                </span>
-              )}
-
-              {bulk ? (
-                <span className="epi-cell-control">
                   <select
                     value={valueOf(r, 'manager_id')}
                     onChange={(e) => edit(r, 'manager_id', e.target.value)}
@@ -503,6 +474,21 @@ export function EmployeeAdmin({ rows, departments, designations, deptCount, canE
               ) : (
                 <Cell>{r.managerName}</Cell>
               )}
+
+              {bulk ? (
+                <span className="epi-cell-control">
+                  <input
+                    type="email"
+                    value={valueOf(r, 'contact_email')}
+                    onChange={(e) => edit(r, 'contact_email', e.target.value)}
+                    aria-label={`Email of ${r.full_name}`}
+                    style={{ ...inlineField, fontSize: '12.5px' }}
+                  />
+                </span>
+              ) : (
+                <Cell muted>{r.contact_email ?? '—'}</Cell>
+              )}
+
               {bulk ? (
                 <span className="epi-cell-control">
                   <select
@@ -614,8 +600,17 @@ export function EmployeeAdmin({ rows, departments, designations, deptCount, canE
                 style={{ flex: 1, minWidth: 0, color: 'var(--epi-fg)', textDecoration: 'none' }}
               >
                 <span style={{ display: 'block', fontSize: '15px', fontWeight: 600 }}>{r.full_name}</span>
-                <span className="epi-mono" style={{ display: 'block', fontSize: '12px', color: 'var(--epi-accent-fg)' }}>
-                  {r.employee_code ?? 'No code'}
+                <span
+                  style={{
+                    display: 'block',
+                    fontSize: '12px',
+                    color: 'var(--epi-fg-3)',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {r.contact_email ?? 'No email'}
                 </span>
               </Link>
               <span style={pill(r.status === 'Active' ? 'pos' : r.status === 'On Hold' ? 'warn' : 'muted')}>
@@ -625,7 +620,7 @@ export function EmployeeAdmin({ rows, departments, designations, deptCount, canE
             <div style={{ fontSize: '13px', color: 'var(--epi-fg-2)', lineHeight: 1.6 }}>
               {r.designationName} · {r.departmentName}
               <br />
-              Joined {r.joining_date ? fmtFull(r.joining_date) : '—'} · Reports to {r.managerName}
+              Reports to {r.managerName}
             </div>
             {canEdit ? (
               <button
@@ -878,7 +873,7 @@ function ConfirmDelete({
   )
 }
 
-function Cell({ children }: { children: React.ReactNode }) {
+function Cell({ children, muted }: { children: React.ReactNode; muted?: boolean }) {
   // The inner span carries the truncation: the outer one is a grid cell and
   // is laid out as a flex box, which cannot ellipsis its own bare text.
   return (
@@ -887,7 +882,7 @@ function Cell({ children }: { children: React.ReactNode }) {
         style={{
           display: 'block',
           fontSize: '13px',
-          color: 'var(--epi-fg-2)',
+          color: muted ? 'var(--epi-fg-3)' : 'var(--epi-fg-2)',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
           whiteSpace: 'nowrap',
@@ -914,14 +909,11 @@ function EmployeeModal({
 }) {
   const router = useRouter()
   const [fullName, setFullName] = useState(existing?.full_name ?? '')
-  const [code, setCode] = useState(existing?.employee_code ?? '')
   const [departmentId, setDepartmentId] = useState(existing?.department_id ?? '')
   const [designationId, setDesignationId] = useState(existing?.designation_id ?? '')
   const [managerId, setManagerId] = useState(existing?.manager_id ?? '')
-  const [joiningDate, setJoiningDate] = useState(existing?.joining_date ?? '')
   const [status, setStatus] = useState<EmployeeStatus>(existing?.status ?? 'Active')
   const [email, setEmail] = useState(existing?.contact_email ?? '')
-  const [phone, setPhone] = useState(existing?.contact_phone ?? '')
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
 
@@ -945,16 +937,16 @@ function EmployeeModal({
     setSaving(true)
     const supabase = createClient()
 
+    // employee_code, joining_date and contact_phone are deliberately absent:
+    // an update only writes the keys it sends, so whatever those columns
+    // already hold for an existing employee is left exactly as it was.
     const payload = {
       full_name: fullName.trim(),
-      employee_code: code.trim() || null,
       department_id: departmentId || null,
       designation_id: designationId || null,
       manager_id: managerId || null,
-      joining_date: joiningDate || null,
       status,
       contact_email: email.trim() || null,
-      contact_phone: phone.trim() || null,
     }
 
     const { error: err } = existing
@@ -965,11 +957,9 @@ function EmployeeModal({
 
     if (err) {
       setError(
-        err.message.includes('employees_employee_code_key')
-          ? `Employee code "${code.trim()}" is already used by someone else.`
-          : err.message.includes('row-level security')
-            ? 'Your role cannot change the employee database. Super Admin or HR is required.'
-            : err.message,
+        err.message.includes('row-level security')
+          ? 'Your role cannot change the employee database. Super Admin or HR is required.'
+          : err.message,
       )
       return
     }
@@ -1106,29 +1096,6 @@ function EmployeeModal({
 
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
             <label style={{ flex: '1 1 150px', display: 'flex', flexDirection: 'column', gap: '7px' }}>
-              <span style={label}>Employee code</span>
-              <input
-                className="epi-field"
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                placeholder="RS-58"
-                style={field}
-              />
-            </label>
-            <label style={{ flex: '1 1 150px', display: 'flex', flexDirection: 'column', gap: '7px' }}>
-              <span style={label}>Joining date</span>
-              <input
-                className="epi-field"
-                type="date"
-                value={joiningDate ?? ''}
-                onChange={(e) => setJoiningDate(e.target.value)}
-                style={{ ...field, padding: '0 10px' }}
-              />
-            </label>
-          </div>
-
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-            <label style={{ flex: '1 1 150px', display: 'flex', flexDirection: 'column', gap: '7px' }}>
               <span style={label}>Department</span>
               <select
                 className="epi-field"
@@ -1198,29 +1165,19 @@ function EmployeeModal({
             </label>
           </div>
 
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-            <label style={{ flex: '1 1 150px', display: 'flex', flexDirection: 'column', gap: '7px' }}>
-              <span style={label}>Email</span>
-              <input
-                className="epi-field"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@ldgroup.in"
-                style={field}
-              />
-            </label>
-            <label style={{ flex: '1 1 150px', display: 'flex', flexDirection: 'column', gap: '7px' }}>
-              <span style={label}>Phone</span>
-              <input
-                className="epi-field"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="+91…"
-                style={field}
-              />
-            </label>
-          </div>
+          <label style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
+            <span style={label}>
+              Email <span style={{ fontWeight: 400, color: 'var(--epi-fg-3)' }}>· optional</span>
+            </span>
+            <input
+              className="epi-field"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="name@ldgroup.in"
+              style={field}
+            />
+          </label>
 
           {error ? (
             <div
