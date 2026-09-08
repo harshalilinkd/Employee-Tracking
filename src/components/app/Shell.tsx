@@ -114,10 +114,12 @@ export function Shell({
   user,
   children,
   drawer,
+  attentionCount,
 }: {
   user: ShellUser
   children: ReactNode
   drawer: (args: { open: boolean; intent: RecordIntent; close: () => void }) => ReactNode
+  attentionCount: number
 }) {
   const pathname = usePathname()
   const params = useSearchParams()
@@ -399,16 +401,25 @@ export function Shell({
             </button>
 
             <Link
-              href="/performance"
-              aria-label="Recent activity"
+              href="/?sort=Needs%20attention"
+              aria-label={
+                attentionCount
+                  ? `${attentionCount} ${attentionCount === 1 ? 'employee needs' : 'employees need'} attention`
+                  : 'Nobody needs attention'
+              }
+              title={
+                attentionCount
+                  ? `${attentionCount} ${attentionCount === 1 ? 'employee needs' : 'employees need'} attention`
+                  : 'Nobody needs attention right now'
+              }
               className="epi-alerts-btn"
               style={{
                 width: '36px',
                 height: '36px',
                 borderRadius: '8px',
-                background: 'var(--epi-input)',
-                border: '1px solid var(--epi-border)',
-                color: 'var(--epi-fg-2)',
+                background: attentionCount ? 'var(--epi-red-bg)' : 'var(--epi-input)',
+                border: `1px solid ${attentionCount ? 'var(--epi-red-bd)' : 'var(--epi-border)'}`,
+                color: attentionCount ? 'var(--epi-red)' : 'var(--epi-fg-2)',
                 cursor: 'pointer',
                 position: 'relative',
                 display: 'flex',
@@ -417,6 +428,30 @@ export function Shell({
               }}
             >
               <Bell size={15} />
+              {attentionCount > 0 ? (
+                <span
+                  className="epi-num"
+                  style={{
+                    position: 'absolute',
+                    top: '-6px',
+                    right: '-6px',
+                    minWidth: '18px',
+                    height: '18px',
+                    padding: '0 5px',
+                    borderRadius: '999px',
+                    background: 'var(--epi-red)',
+                    color: '#fff',
+                    fontSize: '10.5px',
+                    fontWeight: 700,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '2px solid var(--epi-surface)',
+                  }}
+                >
+                  {attentionCount > 9 ? '9+' : attentionCount}
+                </span>
+              ) : null}
             </Link>
           </header>
 

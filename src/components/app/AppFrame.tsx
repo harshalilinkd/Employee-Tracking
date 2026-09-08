@@ -20,6 +20,7 @@ export function AppFrame({
   employeeId,
   employees,
   categories,
+  attentionCount,
 }: {
   children: ReactNode
   fullName: string
@@ -29,10 +30,12 @@ export function AppFrame({
   employeeId: string | null
   employees: EmployeeOption[]
   categories: Category[]
+  attentionCount: number
 }) {
   return (
     <Shell
       user={{ fullName, email, role, employeeId }}
+      attentionCount={attentionCount}
       drawer={({ open, intent, close }) =>
         canRecord(role) ? (
           <RecordDrawer
