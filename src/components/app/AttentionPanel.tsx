@@ -31,7 +31,7 @@ export function AttentionPanel({ rows }: { rows: AttentionRow[] }) {
   const watch = rows.length - attention
 
   return (
-    <section style={{ minWidth: 0 }}>
+    <section id="management-attention" style={{ minWidth: 0, scrollMarginTop: '86px' }}>
       <div
         className="epi-section-head epi-attention-head"
         style={{ display: 'flex', alignItems: 'center', gap: '10px', minHeight: '36px', marginBottom: '12px' }}

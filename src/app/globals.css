@@ -1795,3 +1795,15 @@ body {
     transform: translateX(0);
   }
 }
+
+/* The mobile header holds the wordmark, the attention mark and the theme
+   toggle on one line; without a gap the last two touch. */
+@media (max-width: 1023px) {
+  .epi-mobile-logo {
+    gap: 10px !important;
+  }
+
+  .epi-header {
+    gap: 10px !important;
+  }
+}

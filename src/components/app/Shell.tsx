@@ -369,7 +369,7 @@ export function Shell({
               <Wordmark compact />
 
               <Link
-                href="/?sort=Needs%20attention"
+                href="/#management-attention"
                 aria-label={
                   attentionCount
                     ? `${attentionCount} needing attention`
@@ -379,27 +379,36 @@ export function Shell({
                   marginLeft: 'auto',
                   position: 'relative',
                   color: '#fff',
+                  /* A 36px box keeps the mark centred against the wordmark and
+                     gives the badge room to sit inside the header rather than
+                     clipping against its top edge. */
+                  width: '36px',
+                  height: '36px',
+                  flex: '0 0 36px',
+                  borderRadius: '9px',
+                  background: attentionCount ? 'rgba(255,255,255,0.14)' : 'transparent',
                   display: 'flex',
                   alignItems: 'center',
-                  flex: '0 0 auto',
+                  justifyContent: 'center',
                 }}
               >
-                <AlertTriangle size={18} />
+                <AlertTriangle size={17} />
                 {attentionCount > 0 ? (
                   <span
                     className="epi-num"
                     style={{
                       position: 'absolute',
-                      top: '-6px',
-                      right: '-8px',
-                      minWidth: '17px',
-                      height: '17px',
-                      padding: '0 4px',
+                      top: '3px',
+                      right: '2px',
+                      minWidth: '15px',
+                      height: '15px',
+                      padding: '0 3px',
                       borderRadius: '999px',
                       background: '#e0525f',
                       color: '#fff',
-                      fontSize: '10px',
+                      fontSize: '9.5px',
                       fontWeight: 700,
+                      lineHeight: 1,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -484,7 +493,7 @@ export function Shell({
             </button>
 
             <Link
-              href="/?sort=Needs%20attention"
+              href="/#management-attention"
               aria-label={
                 attentionCount
                   ? `${attentionCount} ${attentionCount === 1 ? 'employee needs' : 'employees need'} attention`
