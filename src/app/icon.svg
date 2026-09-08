@@ -1,34 +1,36 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="LD Silk Mills">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Employee Tracking">
   <!--
-    The sidebar wordmark reduced to its monogram.
+    What this system actually does, drawn.
 
-    The letters are drawn as geometry rather than set as text: a favicon is
-    rasterised at 16px in a context with no guaranteed fonts, and a glyph that
-    falls back to a different family stops being the mark. Rects and two arcs
-    render identically everywhere.
+    Every record here is one of two things about one person: a positive
+    contribution or a goofup. The whole app — the signal bands, the net
+    balance, the report — is the arithmetic of those two against each other.
+    So the mark is a diverging bar chart: recognition rises above the line,
+    issues fall below it, and the line is the balance between them.
 
-    The gradient is the app's primary teal, not the darker sidebar fill —
-    against a dark browser chrome the sidebar colour disappears, and a tab
-    icon that cannot be seen is not an icon.
+    A generic chart icon would say "some dashboard". This says what is being
+    counted, and it is still three blocks and a rule at 16px.
+
+    Shapes, not glyphs: a favicon rasterises in a context with no guaranteed
+    fonts, so nothing here depends on one.
   -->
   <defs>
-    <linearGradient id="ld" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+    <linearGradient id="tile" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#17a186"/>
       <stop offset="0.55" stop-color="#0e7c6b"/>
       <stop offset="1" stop-color="#0a5f52"/>
     </linearGradient>
   </defs>
 
-  <rect width="64" height="64" rx="14" fill="url(#ld)"/>
+  <rect width="64" height="64" rx="14" fill="url(#tile)"/>
 
-  <g fill="#ffffff">
-    <!-- L -->
-    <rect x="11" y="19" width="7" height="26"/>
-    <rect x="11" y="38" width="16" height="7"/>
+  <!-- The balance line the two sides are measured against -->
+  <rect x="9" y="34" width="46" height="2.2" rx="1.1" fill="#ffffff" opacity="0.45"/>
 
-    <!-- D: stem, then a bowl bounded by an outer and an inner arc so the
-         counter stays open at 16px instead of filling in -->
-    <rect x="33" y="19" width="7" height="26"/>
-    <path d="M40 19 A13 13 0 0 1 40 45 L40 38 A6 6 0 0 0 40 26 Z"/>
-  </g>
+  <!-- Recognition, above the line -->
+  <rect x="12" y="19" width="10" height="15" rx="2.5" fill="#ffffff"/>
+  <!-- A goofup, below it — amber, the same colour the app gives issues -->
+  <rect x="27" y="36.2" width="10" height="15" rx="2.5" fill="#f3b155"/>
+  <!-- Recognition again, and further ahead -->
+  <rect x="42" y="12" width="10" height="22" rx="2.5" fill="#ffffff"/>
 </svg>
