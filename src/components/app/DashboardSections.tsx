@@ -13,6 +13,7 @@ import {
   Trophy,
 } from 'lucide-react'
 import { Collapsible } from './Collapsible'
+import { ExpandableList } from './ExpandableList'
 import { DASH, avatarStyle, cardStyle, initials, tableHeadStyle } from '@/lib/design'
 
 export interface MonthBar {
@@ -894,7 +895,7 @@ const MEDAL = ['#F5C542', '#C3CAD6', '#D08B54']
  * headings, so they are stated once, and the comparison people actually want
  * (who is ahead) is carried by bar length instead of by reading digits.
  */
-export function RecognitionLeaderboard({ rows }: { rows: LeaderRow[] }) {
+export function RecognitionLeaderboard({ rows, total }: { rows: LeaderRow[]; total: number }) {
   const peak = Math.max(1, ...rows.map((r) => Math.max(r.pos, r.goof)))
 
   return (
@@ -904,8 +905,11 @@ export function RecognitionLeaderboard({ rows }: { rows: LeaderRow[] }) {
       icon={<Trophy size={15} />}
       iconTone="teal"
       right={
+        // "View full" pointed at /reports, which is a per-employee report
+        // rather than a longer leaderboard. The ranking now extends in place,
+        // so this link says what it actually opens.
         <Link href="/reports" style={{ fontSize: '13px', fontWeight: 600 }}>
-          View full →
+          Reports →
         </Link>
       }
     >
@@ -913,27 +917,31 @@ export function RecognitionLeaderboard({ rows }: { rows: LeaderRow[] }) {
         <Empty>No recognition recorded in this period.</Empty>
       ) : (
         <div>
-          {/* labelled once, not once per row */}
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '22px 30px minmax(0,1fr) minmax(60px,1.1fr) 26px',
-              gap: '10px',
-              alignItems: 'center',
-              paddingBottom: '8px',
-              borderBottom: '1px solid var(--epi-border)',
-              ...tableHeadStyle,
-              fontSize: '9.5px',
-            }}
-          >
-            <span />
-            <span />
-            <span>Employee</span>
-            <span>Recognitions · issues</span>
-            <span style={{ textAlign: 'right' }}>Net</span>
-          </div>
-
-          {rows.map((l, i) => (
+          <ExpandableList
+            total={total}
+            noun="ranked"
+            header={
+              /* labelled once, not once per row */
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '22px 30px minmax(0,1fr) minmax(60px,1.1fr) 26px',
+                  gap: '10px',
+                  alignItems: 'center',
+                  paddingBottom: '8px',
+                  borderBottom: '1px solid var(--epi-border)',
+                  ...tableHeadStyle,
+                  fontSize: '9.5px',
+                }}
+              >
+                <span />
+                <span />
+                <span>Employee</span>
+                <span>Recognitions · issues</span>
+                <span style={{ textAlign: 'right' }}>Net</span>
+              </div>
+            }
+            rows={rows.map((l, i) => (
             <Link
               key={l.id}
               href={`/employees/${l.id}`}
@@ -1006,7 +1014,8 @@ export function RecognitionLeaderboard({ rows }: { rows: LeaderRow[] }) {
                 {l.pos - l.goof > 0 ? `+${l.pos - l.goof}` : l.pos - l.goof}
               </span>
             </Link>
-          ))}
+            ))}
+          />
         </div>
       )}
     </Panel>

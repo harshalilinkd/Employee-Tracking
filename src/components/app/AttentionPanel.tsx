@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { ExpandableList } from './ExpandableList'
 import { avatarStyle, cardStyle, initials, pill, tableHeadStyle } from '@/lib/design'
 
 export interface AttentionRow {
@@ -25,10 +26,18 @@ const COLS = 'minmax(150px, 2fr) minmax(110px, 1fr) minmax(105px, 1.2fr)'
  * badge; repeating it as a 30px numeral inside the card only made the panel
  * look padded out.
  */
-export function AttentionPanel({ rows }: { rows: AttentionRow[] }) {
+export function AttentionPanel({
+  rows,
+  total,
+  attentionTotal,
+}: {
+  rows: AttentionRow[]
+  /** Everyone in an Attention or Watch band, not just the rows sent. */
+  total: number
+  attentionTotal: number
+}) {
   const max = Math.max(1, ...rows.map((r) => r.issueLoad))
-  const attention = rows.filter((r) => r.band === 'Attention').length
-  const watch = rows.length - attention
+  const watch = total - attentionTotal
 
   return (
     <section id="management-attention" style={{ minWidth: 0, scrollMarginTop: '86px' }}>
@@ -51,21 +60,21 @@ export function AttentionPanel({ rows }: { rows: AttentionRow[] }) {
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
-            background: rows.length ? 'var(--epi-red-bg)' : 'var(--epi-track)',
-            color: rows.length ? 'var(--epi-red)' : 'var(--epi-fg-3)',
-            border: `1px solid ${rows.length ? 'var(--epi-red-bd)' : 'var(--epi-border)'}`,
+            background: total ? 'var(--epi-red-bg)' : 'var(--epi-track)',
+            color: total ? 'var(--epi-red)' : 'var(--epi-fg-3)',
+            border: `1px solid ${total ? 'var(--epi-red-bd)' : 'var(--epi-border)'}`,
           }}
         >
-          {rows.length}
+          {total}
         </span>
 
-        {rows.length ? (
+        {total ? (
           <span className="epi-head-meta" style={{ fontSize: '13px', color: 'var(--epi-fg-3)' }}>
-            {attention} needing action{watch ? ` · ${watch} on watch` : ''}
+            {attentionTotal} needing action{watch ? ` · ${watch} on watch` : ''}
           </span>
         ) : null}
 
-        {rows.length ? (
+        {total ? (
           <Link
             href="/performance?type=goofup"
             className="epi-head-link"
@@ -76,26 +85,31 @@ export function AttentionPanel({ rows }: { rows: AttentionRow[] }) {
         ) : null}
       </div>
 
-      <div className="epi-table-desktop epi-scroll-x" style={{ ...cardStyle, overflow: 'hidden', overflowX: 'auto' }}>
+      <div className="epi-table-desktop">
         {rows.length === 0 ? (
-          <div style={{ padding: '30px 20px', textAlign: 'center' }}>
+          <div style={{ ...cardStyle, padding: '30px 20px', textAlign: 'center' }}>
             <div style={{ fontSize: '15px', fontWeight: 600, color: 'var(--epi-green)' }}>Nothing needs attention</div>
             <div style={{ fontSize: '13px', color: 'var(--epi-fg-2)', marginTop: '5px' }}>
               No critical, repeated or high-load issues in this period.
             </div>
           </div>
         ) : (
-          <>
-            <div
-              className="epi-grid-table epi-grid-table-head"
-              style={{ minWidth: '308px', display: 'grid', gridTemplateColumns: COLS, ...tableHeadStyle }}
-            >
-              <span>Employee</span>
-              <span>Issue load</span>
-              <span>Reason</span>
-            </div>
-
-            {rows.map((r) => (
+          <ExpandableList
+            scrollX
+            total={total}
+            noun="flagged"
+            containerStyle={{ ...cardStyle, overflow: 'hidden' }}
+            header={
+              <div
+                className="epi-grid-table epi-grid-table-head"
+                style={{ minWidth: '308px', display: 'grid', gridTemplateColumns: COLS, ...tableHeadStyle }}
+              >
+                <span>Employee</span>
+                <span>Issue load</span>
+                <span>Reason</span>
+              </div>
+            }
+            rows={rows.map((r) => (
               <Link
                 key={r.id}
                 href={`/employees/${r.id}`}
@@ -195,7 +209,7 @@ export function AttentionPanel({ rows }: { rows: AttentionRow[] }) {
                 </span>
               </Link>
             ))}
-          </>
+          />
         )}
       </div>
 
@@ -212,7 +226,12 @@ export function AttentionPanel({ rows }: { rows: AttentionRow[] }) {
             </div>
           </div>
         ) : (
-          rows.map((r) => {
+          <ExpandableList
+            total={total}
+            noun="flagged"
+            collapsed={4}
+            gap={10}
+            rows={rows.map((r) => {
             const tone = r.band === 'Attention' ? 'red' : 'orange'
             return (
               <Link
@@ -290,7 +309,8 @@ export function AttentionPanel({ rows }: { rows: AttentionRow[] }) {
                 </span>
               </Link>
             )
-          })
+          })}
+          />
         )}
       </div>
     </section>

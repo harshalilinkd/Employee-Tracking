@@ -14,11 +14,11 @@ import {
   RecognitionLeaderboard,
 } from '@/components/app/DashboardSections'
 import { RecordCta } from '@/components/app/RecordCta'
+import { ExpandableList } from '@/components/app/ExpandableList'
 import {
   DashboardFilters,
   DateRange,
   MatrixControls,
-  ShowAllButton,
 } from '@/components/app/DashboardControls'
 import {
   AlertTriangle,
@@ -35,6 +35,13 @@ import { ago, fmtFull } from '@/lib/format'
 import { SEVERITY_LABELS, type EmployeeSignal, type Severity } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
+
+/**
+ * How many rows the dashboard's people-lists send to the browser. Everything
+ * past this is reachable through the filters rather than by scrolling — the
+ * dashboard is a summary, and a 400-row panel is not one.
+ */
+const LIST_PAYLOAD = 40
 
 /** One label/value line inside a mobile performance card. */
 function CardStat({
@@ -239,7 +246,6 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
 
   const sortKey = sp.sort ?? 'Needs attention'
   const big = 1e9
-  const matrixAll = sp.all === '1'
   const scope = sp.scope === 'department' ? 'department' : 'employee'
 
   const ranked = [...scopedSignals]
@@ -261,7 +267,10 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       }
     })
 
-  const matrix = matrixAll ? ranked : ranked.slice(0, 7)
+  // Expansion is handled in the browser now, so the server ships a bounded
+  // slice rather than every ranked employee. Past this the answer is the
+  // filter bar, not a longer list.
+  const matrix = ranked.slice(0, LIST_PAYLOAD)
   // Meter bars scale against the busiest person on screen, not an absolute.
   const maxPos = Math.max(1, ...ranked.map((r) => r.positive_count))
   const maxGoof = Math.max(1, ...ranked.map((r) => r.goofup_count))
@@ -302,10 +311,17 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
     return 'Needs review'
   }
 
-  const attentionRows = scopedSignals
+  // The panel used to be handed six rows and count them for its own header,
+  // so a roster with 23 people in trouble reported "6". The count now comes
+  // from the filtered set; the slice is only how much markup we ship.
+  const flagged = scopedSignals
     .filter((s) => s.band === 'Attention' || s.band === 'Watch')
     .sort((a, b) => bandRank(a.band) - bandRank(b.band) || Number(b.issue_load) - Number(a.issue_load))
-    .slice(0, 6)
+
+  const attentionTotal = flagged.filter((s) => s.band === 'Attention').length
+
+  const attentionRows = flagged
+    .slice(0, LIST_PAYLOAD)
     .map((s) => ({
       id: s.employee_id,
       name: s.full_name,
@@ -375,10 +391,12 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
     .sort((a, b) => b.pos + b.goof - (a.pos + a.goof))
     .slice(0, 9)
 
-  const leaderboard = scopedSignals
+  const ranking = scopedSignals
     .filter((s) => s.positive_count > 0 || s.goofup_count > 0)
     .sort((a, b) => b.positive_count - a.positive_count || a.goofup_count - b.goofup_count)
-    .slice(0, 6)
+
+  const leaderboard = ranking
+    .slice(0, LIST_PAYLOAD)
     .map((s) => ({
       id: s.employee_id,
       name: s.full_name,
@@ -657,27 +675,34 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
               </>
             ) : (
               <>
-                <div className="epi-table-desktop epi-scroll-x" style={{ ...cardStyle, overflow: 'hidden', overflowX: 'auto' }}>
-                  <div
-                    className="epi-grid-table epi-grid-table-head"
-                    style={{
-                      minWidth: '780px',
-                      display: 'grid',
-                      gridTemplateColumns: MATRIX_COLS,
-                      gap: '10px',
-                      padding: '10px 16px',
-                      borderBottom: '1px solid var(--epi-border)',
-                      ...tableHeadStyle,
-                    }}
-                  >
-                    <span>Employee</span>
-                    <span>Department</span>
-                    <span>Recognitions</span>
-                    <span>Goofups</span>
-                    <span>Performance signal</span>
-                    <span>Last activity</span>
-                  </div>
-                  {matrix.map((m) => (
+                <div className="epi-table-desktop">
+                  <ExpandableList
+                    scrollX
+                    collapsed={7}
+                    total={ranked.length}
+                    containerStyle={{ ...cardStyle, overflow: 'hidden' }}
+                    header={
+                      <div
+                        className="epi-grid-table epi-grid-table-head"
+                        style={{
+                          minWidth: '780px',
+                          display: 'grid',
+                          gridTemplateColumns: MATRIX_COLS,
+                          gap: '10px',
+                          padding: '10px 16px',
+                          borderBottom: '1px solid var(--epi-border)',
+                          ...tableHeadStyle,
+                        }}
+                      >
+                        <span>Employee</span>
+                        <span>Department</span>
+                        <span>Recognitions</span>
+                        <span>Goofups</span>
+                        <span>Performance signal</span>
+                        <span>Last activity</span>
+                      </div>
+                    }
+                    rows={matrix.map((m) => (
                     <Link
                       key={m.employee_id}
                       href={`/employees/${m.employee_id}`}
@@ -756,14 +781,19 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                         {ago(m.days_since_any)}
                       </span>
                     </Link>
-                  ))}
+                    ))}
+                  />
                 </div>
 
                 {/* On a phone the six-column matrix becomes a label/value
                     card per person — a horizontally scrolling table hides the
                     signal, which is the column that matters most. */}
                 <div className="epi-cards-mobile">
-                  {matrix.map((m) => (
+                  <ExpandableList
+                    collapsed={4}
+                    gap={10}
+                    total={ranked.length}
+                    rows={matrix.map((m) => (
                     <div
                       key={m.employee_id}
                       style={{
@@ -815,9 +845,9 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                         View report <ArrowRight size={14} />
                       </Link>
                     </div>
-                  ))}
+                    ))}
+                  />
                 </div>
-                <ShowAllButton shownAll={matrixAll} total={ranked.length} />
               </>
             )}
           </Collapsible>
@@ -827,7 +857,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           className="epi-attention-first"
           style={{ minWidth: 0, display: 'flex', flexDirection: 'column', gap: '18px' }}
         >
-          <AttentionPanel rows={attentionRows} />
+          <AttentionPanel rows={attentionRows} total={flagged.length} attentionTotal={attentionTotal} />
         </div>
       </div>
 
@@ -849,7 +879,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         <DepartmentOverview rows={deptOverview} />
         <PerformanceMomentum points={momentum} />
         <ImpactMix slices={donutSlices} total={donutTotal} />
-        <RecognitionLeaderboard rows={leaderboard} />
+        <RecognitionLeaderboard rows={leaderboard} total={ranking.length} />
 
         <section style={{ minWidth: 0, width: '100%', display: 'flex' }}>
           <div style={{ ...cardStyle, flex: 1, padding: '18px 20px 8px', display: 'flex', flexDirection: 'column' }}>

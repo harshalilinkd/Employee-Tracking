@@ -352,27 +352,3 @@ export function MatrixControls() {
     </>
   )
 }
-
-export function ShowAllButton({ shownAll, total }: { shownAll: boolean; total: number }) {
-  const setParams = useSetParams()
-  if (total <= 7) return null
-  return (
-    <button
-      onClick={() => setParams({ all: shownAll ? '' : '1' })}
-      style={{
-        width: '100%',
-        marginTop: '10px',
-        height: '40px',
-        borderRadius: '10px',
-        background: 'var(--epi-surface)',
-        border: '1px solid var(--epi-border)',
-        color: 'var(--epi-fg-2)',
-        fontSize: '14px',
-        fontWeight: 600,
-        cursor: 'pointer',
-      }}
-    >
-      {shownAll ? 'Show fewer' : `Show all ${total} employees →`}
-    </button>
-  )
-}
