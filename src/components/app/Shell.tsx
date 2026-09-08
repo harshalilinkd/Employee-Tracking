@@ -12,8 +12,8 @@ import {
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import {
+  AlertTriangle,
   BarChart3,
-  Bell,
   ClipboardList,
   LayoutDashboard,
   LogOut,
@@ -22,6 +22,7 @@ import {
   Search,
   Settings,
   Sun,
+  X,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { initials, primaryButton } from '@/lib/design'
@@ -128,6 +129,7 @@ export function Shell({
   const [recordOpen, setRecordOpen] = useState(false)
   const [intent, setIntent] = useState<RecordIntent>({})
   const [query, setQuery] = useState('')
+  const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
     const saved = (localStorage.getItem('epi-theme') as 'dark' | 'light' | null) ?? 'light'
@@ -142,6 +144,26 @@ export function Shell({
       return nextTheme
     })
   }, [])
+
+  // The drawer must not survive a navigation — otherwise tapping a link
+  // leaves it open over the page it just went to.
+  useEffect(() => {
+    setMenuOpen(false)
+  }, [pathname])
+
+  useEffect(() => {
+    if (!menuOpen) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMenuOpen(false)
+    }
+    window.addEventListener('keydown', onKey)
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      document.body.style.overflow = prev
+    }
+  }, [menuOpen])
 
   const open = useCallback((next?: RecordIntent) => {
     setIntent(next ?? {})
@@ -323,9 +345,70 @@ export function Shell({
             {/* Mobile header band — the wordmark on the brand colour, matching
                 the sidebar it replaces on a phone. */}
             <div className="epi-mobile-logo" style={{ display: 'none', alignItems: 'center', gap: '12px', flex: 1 }}>
-              <Menu size={20} style={{ color: '#fff', flex: '0 0 20px' }} />
+              <button
+                onClick={() => setMenuOpen(true)}
+                aria-label="Open menu"
+                aria-expanded={menuOpen}
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  flex: '0 0 32px',
+                  border: 0,
+                  background: 'transparent',
+                  color: '#fff',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: 0,
+                }}
+              >
+                <Menu size={20} />
+              </button>
+
               <Wordmark compact />
-              <Bell size={18} style={{ color: '#fff', marginLeft: 'auto', flex: '0 0 18px' }} />
+
+              <Link
+                href="/?sort=Needs%20attention"
+                aria-label={
+                  attentionCount
+                    ? `${attentionCount} needing attention`
+                    : 'Nobody needs attention'
+                }
+                style={{
+                  marginLeft: 'auto',
+                  position: 'relative',
+                  color: '#fff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  flex: '0 0 auto',
+                }}
+              >
+                <AlertTriangle size={18} />
+                {attentionCount > 0 ? (
+                  <span
+                    className="epi-num"
+                    style={{
+                      position: 'absolute',
+                      top: '-6px',
+                      right: '-8px',
+                      minWidth: '17px',
+                      height: '17px',
+                      padding: '0 4px',
+                      borderRadius: '999px',
+                      background: '#e0525f',
+                      color: '#fff',
+                      fontSize: '10px',
+                      fontWeight: 700,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    {attentionCount > 9 ? '9+' : attentionCount}
+                  </span>
+                ) : null}
+              </Link>
             </div>
 
             <div className="epi-crumb" style={{ minWidth: 0, flex: '0 1 auto' }}>
@@ -427,7 +510,7 @@ export function Shell({
                 justifyContent: 'center',
               }}
             >
-              <Bell size={15} />
+              <AlertTriangle size={15} />
               {attentionCount > 0 ? (
                 <span
                   className="epi-num"
@@ -467,6 +550,176 @@ export function Shell({
             {children}
           </main>
         </div>
+
+        {/* Mobile menu. The bottom bar covers navigation, but the sidebar it
+            replaces also held the account and the only way to sign out — on a
+            phone there was no route to either. */}
+        {menuOpen ? (
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Menu"
+            onMouseDown={(e) => {
+              if (e.target === e.currentTarget) setMenuOpen(false)
+            }}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 90,
+              background: 'rgba(4, 20, 17, 0.5)',
+              backdropFilter: 'blur(3px)',
+              WebkitBackdropFilter: 'blur(3px)',
+              display: 'flex',
+            }}
+          >
+            <div
+              style={{
+                width: 'min(280px, 84vw)',
+                height: '100%',
+                background: 'linear-gradient(180deg, var(--epi-sidebar) 0%, var(--epi-sidebar-2) 100%)',
+                color: '#fff',
+                padding: '18px 14px 16px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '22px',
+                overflowY: 'auto',
+                animation: 'epiDrawerIn 220ms cubic-bezier(0.2,0.8,0.2,1)',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '0 6px' }}>
+                <Wordmark compact />
+                <button
+                  onClick={() => setMenuOpen(false)}
+                  aria-label="Close menu"
+                  style={{
+                    marginLeft: 'auto',
+                    width: '30px',
+                    height: '30px',
+                    borderRadius: '8px',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    background: 'transparent',
+                    color: 'rgba(255,255,255,0.8)',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <X size={15} />
+                </button>
+              </div>
+
+              <nav style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                <div
+                  style={{
+                    fontSize: '10px',
+                    fontWeight: 700,
+                    letterSpacing: '0.16em',
+                    textTransform: 'uppercase',
+                    color: 'rgba(255,255,255,0.42)',
+                    padding: '0 10px 8px',
+                  }}
+                >
+                  Workspace
+                </div>
+                {NAV.map((n) => {
+                  const active = n.href === '/' ? pathname === '/' : pathname.startsWith(n.href)
+                  return (
+                    <Link
+                      key={n.href}
+                      href={n.href}
+                      onClick={() => setMenuOpen(false)}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '11px',
+                        height: '46px',
+                        padding: '0 12px',
+                        borderRadius: '10px',
+                        fontSize: '14.5px',
+                        fontWeight: active ? 600 : 500,
+                        textDecoration: 'none',
+                        color: active ? '#fff' : 'rgba(255,255,255,0.7)',
+                        background: active ? 'rgba(255,255,255,0.12)' : 'transparent',
+                      }}
+                    >
+                      <n.Icon size={17} />
+                      {n.label}
+                    </Link>
+                  )
+                })}
+              </nav>
+
+              <div
+                style={{
+                  marginTop: 'auto',
+                  borderTop: '1px solid rgba(255,255,255,0.12)',
+                  paddingTop: '14px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px',
+                }}
+              >
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                  <span
+                    style={{
+                      width: '34px',
+                      height: '34px',
+                      flex: '0 0 34px',
+                      borderRadius: '999px',
+                      background: 'rgba(255,255,255,0.14)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '12.5px',
+                      fontWeight: 700,
+                    }}
+                  >
+                    {initials(user.fullName)}
+                  </span>
+                  <span style={{ minWidth: 0 }}>
+                    <span
+                      style={{
+                        display: 'block',
+                        fontSize: '13.5px',
+                        fontWeight: 600,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {user.fullName}
+                    </span>
+                    <span style={{ display: 'block', fontSize: '11.5px', color: 'rgba(255,255,255,0.55)' }}>
+                      {ROLE_LABELS[user.role]}
+                    </span>
+                  </span>
+                </div>
+
+                <button
+                  onClick={signOut}
+                  style={{
+                    height: '44px',
+                    borderRadius: '10px',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    background: 'transparent',
+                    color: '#fff',
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '9px',
+                  }}
+                >
+                  <LogOut size={15} />
+                  Sign out
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : null}
 
         <nav
           className="epi-bottom-nav"

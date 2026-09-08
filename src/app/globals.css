@@ -1785,3 +1785,13 @@ body {
     padding: 0 4px !important;
   }
 }
+
+/* Mobile menu slides in from the edge it is anchored to. */
+@keyframes epiDrawerIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
