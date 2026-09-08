@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="LD Silk Mills">
+  <!--
+    The sidebar wordmark reduced to its monogram.
+
+    The letters are drawn as geometry rather than set as text: a favicon is
+    rasterised at 16px in a context with no guaranteed fonts, and a glyph that
+    falls back to a different family stops being the mark. Rects and two arcs
+    render identically everywhere.
+
+    The gradient is the app's primary teal, not the darker sidebar fill —
+    against a dark browser chrome the sidebar colour disappears, and a tab
+    icon that cannot be seen is not an icon.
+  -->
+  <defs>
+    <linearGradient id="ld" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#17a186"/>
+      <stop offset="0.55" stop-color="#0e7c6b"/>
+      <stop offset="1" stop-color="#0a5f52"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="64" height="64" rx="14" fill="url(#ld)"/>
+
+  <g fill="#ffffff">
+    <!-- L -->
+    <rect x="11" y="19" width="7" height="26"/>
+    <rect x="11" y="38" width="16" height="7"/>
+
+    <!-- D: stem, then a bowl bounded by an outer and an inner arc so the
+         counter stays open at 16px instead of filling in -->
+    <rect x="33" y="19" width="7" height="26"/>
+    <path d="M40 19 A13 13 0 0 1 40 45 L40 38 A6 6 0 0 0 40 26 Z"/>
+  </g>
+</svg>
