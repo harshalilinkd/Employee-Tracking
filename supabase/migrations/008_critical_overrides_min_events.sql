@@ -1,0 +1,24 @@
+-- =====================================================================
+-- 008: a Critical goofup flags immediately, ignoring the 3-event floor
+--
+-- SPEC §5 makes "No signal" mandatory below min_events_for_signal, so that
+-- nobody is judged on thin data. That reasoning holds for patterns — two
+-- late reports are not yet a trend — but not for a Critical event.
+--
+-- A safety or compliance breach is a FACT, not a pattern. Waiting for a
+-- third record before surfacing it would mean the dashboard stayed silent
+-- about the most serious thing in the system.
+--
+-- So the band CASE now tests critical_goofups FIRST, above the floor.
+-- Everything else keeps the floor exactly as before.
+--
+-- The trend label deliberately does NOT follow: a band can fire on one
+-- critical event, but a trend still needs enough records to exist.
+-- Reporting "Stable" off a single event would be a claim the data cannot
+-- support, so trend_label stays "Not enough data" below the floor.
+--
+-- The full view body lives in 009 (008 was applied, then a careless
+-- self-referential CREATE OR REPLACE broke it; 009 drops and rebuilds).
+-- =====================================================================
+
+-- See 009_repair_signal_view.sql for the authoritative definition.

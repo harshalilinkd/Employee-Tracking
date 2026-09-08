@@ -1,0 +1,1787 @@
+@import 'tailwindcss';
+
+/* =====================================================================
+   Design tokens — ported verbatim from the Claude Design canvas
+   ("Employee Performance Intelligence.dc.html"). Dark is the default;
+   [data-epi-theme="light"] overrides.
+
+   Additions beyond the canvas CSS: --epi-accent (which lived only in the
+   canvas's pal() helper) and the -bg / -bd tint pairs, because pill()
+   computed rgba() from a hex at runtime and CSS variables cannot.
+   Values are the same tints the canvas used: 0.12 fill, 0.28 border.
+   ===================================================================== */
+
+/* =====================================================================
+   Palette — LD Silk Mills
+   Teal/green primary on a cool off-white ground, matching the approved
+   design. Light is the reference; dark keeps the same hues lifted for a
+   dark ground so the two themes read as one product.
+   ===================================================================== */
+
+:root,
+[data-epi-theme='light'] {
+  --epi-canvas: #eff4f7;
+  --epi-sidebar: #0b3d34;
+  --epi-sidebar-2: #072b25;
+  --epi-surface: #ffffff;
+  --epi-input: #ffffff;
+  --epi-hover: #f4f8fa;
+  --epi-elev: #ffffff;
+  --epi-raised: #f2f7f9;
+
+  --epi-fg: #0e2b26;
+  --epi-fg-strong: #0a201c;
+  --epi-fg-2: #52706a;
+  --epi-fg-3: #8298a0;
+
+  --epi-border: #e6eef1;
+  --epi-border-2: #d5e2e7;
+  --epi-border-3: #bccdd4;
+  --epi-border-soft: #eef3f6;
+  --epi-track: #eaf0f3;
+  --epi-dot: #c6d5db;
+
+  --epi-header-bg: rgba(255, 255, 255, 0.88);
+  --epi-nav-bg: #ffffff;
+  --epi-scrim: rgba(8, 34, 29, 0.42);
+
+  /* Brand */
+  --epi-teal: #0e7c6b;
+  --epi-teal-bg: #dcf1eb;
+  --epi-teal-bd: #b7e1d6;
+  --epi-violet: #0e7c6b;
+  --epi-violet-bg: #dcf1eb;
+  --epi-violet-bd: #b7e1d6;
+  --epi-accent: #0e7c6b;
+  --epi-accent-fg: #0e7c6b;
+  --epi-accent-bg: #dcf1eb;
+  --epi-accent-bd: #b7e1d6;
+  --epi-link: #0e7c6b;
+  --epi-ring: rgba(14, 124, 107, 0.22);
+
+  /* Semantic */
+  --epi-green: #16a37a;
+  --epi-green-bg: #e2f6ef;
+  --epi-green-bd: #bfe8da;
+  --epi-orange: #d9962a;
+  --epi-orange-bg: #fdf4e3;
+  --epi-orange-bd: #f6e2bb;
+  --epi-warn: #d9962a;
+  --epi-warn-bg: #fdf4e3;
+  --epi-warn-bd: #f6e2bb;
+  --epi-warn-fg: #a8720f;
+  --epi-red: #e0525f;
+  --epi-red-bg: #fdebed;
+  --epi-red-bd: #f7ccd2;
+  --epi-blue: #2f6fd0;
+  --epi-blue-bg: #e9f1fd;
+  --epi-blue-bd: #cbdefa;
+  --epi-purple: #6d5ce0;
+  --epi-purple-bg: #ece9fd;
+  --epi-purple-bd: #d7d0fa;
+
+  /* Legacy aliases kept so existing pill() calls keep working */
+  --epi-pos: #16a37a;
+  --epi-pos-bg: #e2f6ef;
+  --epi-pos-bd: #bfe8da;
+  --epi-pos-fg: #0f7a5b;
+  --epi-neg: #d9962a;
+  --epi-neg-bg: #fdf4e3;
+  --epi-neg-bd: #f6e2bb;
+  --epi-neg-fg: #a8720f;
+
+  --epi-shadow-card: 0 1px 2px rgba(14, 43, 38, 0.04), 0 6px 18px rgba(14, 43, 38, 0.05);
+  --epi-shadow-lg: 0 8px 20px rgba(14, 43, 38, 0.1), 0 28px 56px rgba(14, 43, 38, 0.14);
+}
+
+[data-epi-theme='dark'] {
+  --epi-canvas: #071411;
+  --epi-sidebar: #041d18;
+  --epi-sidebar-2: #02120f;
+  --epi-surface: #0d211d;
+  --epi-input: #112a25;
+  --epi-hover: #16332c;
+  --epi-elev: #133029;
+  --epi-raised: #1a3d35;
+
+  --epi-fg: #e6f1ee;
+  --epi-fg-strong: #f2f9f7;
+  --epi-fg-2: rgba(230, 241, 238, 0.76);
+  --epi-fg-3: rgba(230, 241, 238, 0.55);
+
+  --epi-border: rgba(255, 255, 255, 0.1);
+  --epi-border-2: rgba(255, 255, 255, 0.16);
+  --epi-border-3: rgba(255, 255, 255, 0.26);
+  --epi-border-soft: rgba(255, 255, 255, 0.07);
+  --epi-track: rgba(255, 255, 255, 0.09);
+  --epi-dot: rgba(255, 255, 255, 0.18);
+
+  --epi-header-bg: rgba(7, 20, 17, 0.88);
+  --epi-nav-bg: #071411;
+  --epi-scrim: rgba(0, 0, 0, 0.66);
+
+  --epi-teal: #4fc3a8;
+  --epi-teal-bg: rgba(79, 195, 168, 0.13);
+  --epi-teal-bd: rgba(79, 195, 168, 0.28);
+  --epi-violet: #4fc3a8;
+  --epi-violet-bg: rgba(79, 195, 168, 0.13);
+  --epi-violet-bd: rgba(79, 195, 168, 0.28);
+  --epi-accent: #4fc3a8;
+  --epi-accent-fg: #7ad6c1;
+  --epi-accent-bg: rgba(79, 195, 168, 0.13);
+  --epi-accent-bd: rgba(79, 195, 168, 0.28);
+  --epi-link: #4fc3a8;
+  --epi-ring: rgba(79, 195, 168, 0.28);
+
+  --epi-green: #58cfa2;
+  --epi-green-bg: rgba(88, 207, 162, 0.13);
+  --epi-green-bd: rgba(88, 207, 162, 0.28);
+  --epi-orange: #e6b458;
+  --epi-orange-bg: rgba(230, 180, 88, 0.13);
+  --epi-orange-bd: rgba(230, 180, 88, 0.28);
+  --epi-warn: #e6b458;
+  --epi-warn-bg: rgba(230, 180, 88, 0.13);
+  --epi-warn-bd: rgba(230, 180, 88, 0.28);
+  --epi-warn-fg: #f0d6a4;
+  --epi-red: #ef8189;
+  --epi-red-bg: rgba(239, 129, 137, 0.13);
+  --epi-red-bd: rgba(239, 129, 137, 0.3);
+  --epi-blue: #74a8ee;
+  --epi-blue-bg: rgba(116, 168, 238, 0.13);
+  --epi-blue-bd: rgba(116, 168, 238, 0.28);
+  --epi-purple: #a494f0;
+  --epi-purple-bg: rgba(164, 148, 240, 0.13);
+  --epi-purple-bd: rgba(164, 148, 240, 0.28);
+
+  --epi-pos: #58cfa2;
+  --epi-pos-bg: rgba(88, 207, 162, 0.13);
+  --epi-pos-bd: rgba(88, 207, 162, 0.28);
+  --epi-pos-fg: #a7e6cd;
+  --epi-neg: #e6b458;
+  --epi-neg-bg: rgba(230, 180, 88, 0.13);
+  --epi-neg-bd: rgba(230, 180, 88, 0.28);
+  --epi-neg-fg: #f0d6a4;
+
+  --epi-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.02);
+  --epi-shadow-lg: 0 20px 44px rgba(0, 0, 0, 0.55);
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--epi-canvas);
+  color: var(--epi-fg);
+  font-family: var(--font-inter), Inter, system-ui, sans-serif;
+  font-size: 15px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: var(--epi-link);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--epi-link);
+  text-decoration: underline;
+}
+
+input,
+select,
+textarea,
+button {
+  font-family: inherit;
+}
+
+::placeholder {
+  color: var(--epi-fg-3);
+}
+
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--epi-border-3);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--epi-fg-3);
+}
+
+/* Accessibility: the canvas relies on hover for affordance; keyboard users
+   need an equivalent. WCAG AA focus indication, not a design departure. */
+:focus-visible {
+  outline: 2px solid var(--epi-pos);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.epi-row:hover {
+  background: var(--epi-hover);
+}
+
+.epi-mono {
+  font-family: var(--font-mono), 'JetBrains Mono', ui-monospace, monospace;
+}
+
+.epi-num {
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes epiUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes epiFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes epiPanel {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes epiIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes epiShimmer {
+  0% {
+    background-position: -400px 0;
+  }
+  100% {
+    background-position: 400px 0;
+  }
+}
+
+.epi-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--epi-track) 0%,
+    var(--epi-hover) 50%,
+    var(--epi-track) 100%
+  );
+  background-size: 800px 100%;
+  animation: epiShimmer 1.4s linear infinite;
+  border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Centered modal entrance — scale + lift, not a slide. */
+@keyframes epiModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.965);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes epiScrimIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(6px);
+  }
+}
+
+/* Focus ring on the modal's own inputs, tinted to the brand. */
+.epi-field:focus {
+  border-color: #12645a !important;
+  box-shadow: 0 0 0 3px var(--epi-ring);
+}
+
+.epi-choice:hover {
+  transform: translateY(-1px);
+}
+
+@keyframes epiSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.epi-spin {
+  animation: epiSpin 800ms linear infinite;
+}
+
+/* On phones the modal fills the sheet rather than floating in the middle. */
+@media (max-width: 640px) {
+  .epi-modal {
+    max-width: 100% !important;
+    max-height: 100% !important;
+    height: 100%;
+    border-radius: 0 !important;
+    border: 0 !important;
+  }
+  .epi-modal-overlay {
+    padding: 0 !important;
+  }
+  .epi-choices {
+    flex-direction: column;
+  }
+}
+
+
+/* =====================================================================
+   Responsive pass
+   Breakpoints per SPEC §7: 1440+ / 1280 / tablet / 430 / 390 / 320.
+   The desktop layout is not shrunk — the pieces re-flow.
+   ===================================================================== */
+
+/* Tablet and below */
+@media (max-width: 1023px) {
+  .epi-main {
+    padding: 18px 16px 104px !important;
+  }
+}
+
+/* Phones */
+@media (max-width: 767px) {
+  .epi-main {
+    padding: 16px 14px 104px !important;
+  }
+
+  /* Header: brand + actions on one row, search full width beneath, so the
+     notification button stops orphaning onto a line of its own. */
+  .epi-header {
+    padding: 10px 14px !important;
+    gap: 8px !important;
+  }
+  .epi-search {
+    order: 10;
+    flex: 1 0 100% !important;
+    min-width: 0 !important;
+  }
+
+  /* Filter bars become an even two-column grid instead of ragged wrapping. */
+  .epi-filterbar {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px !important;
+    align-items: stretch;
+  }
+  .epi-filterbar > * {
+    width: 100%;
+    min-width: 0;
+  }
+  /* The touch-target block below sets `min-height: 44px` on every control
+     inside .epi-main, and min-height beats height — so the 38px asked for
+     here never applied. 40px is released from that floor explicitly: still a
+     comfortable target, and six stacked 44px controls filled the screen. */
+  .epi-filterbar select,
+  .epi-filterbar input,
+  .epi-filterbar button {
+    width: 100%;
+    height: 40px !important;
+    min-height: 40px !important;
+    font-size: 13px !important;
+    padding: 0 9px !important;
+  }
+  .epi-filter-wide {
+    grid-column: 1 / -1;
+  }
+
+  /* Two KPI tiles per row rather than one tall stack of six. */
+  .epi-kpis {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .epi-h1 {
+    font-size: 22px !important;
+  }
+  .epi-page-head {
+    gap: 12px !important;
+  }
+
+  /* Section headings and their controls stack instead of colliding. */
+  .epi-section-head {
+    align-items: flex-start !important;
+  }
+
+  .epi-bottom-nav {
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom)) !important;
+  }
+}
+
+/* Small phones */
+@media (max-width: 400px) {
+  .epi-kpis {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  .epi-h1 {
+    font-size: 20px !important;
+  }
+}
+
+
+/* =====================================================================
+   Text contrast
+   All body, label, table-header and meta text renders black in the light
+   theme. Hierarchy now comes from size and weight rather than from grey,
+   which is what made the smaller text hard to read.
+   ===================================================================== */
+
+[data-epi-theme='light'] body,
+[data-epi-theme='light'] h1,
+[data-epi-theme='light'] h2,
+[data-epi-theme='light'] h3,
+[data-epi-theme='light'] p,
+[data-epi-theme='light'] span,
+[data-epi-theme='light'] div,
+[data-epi-theme='light'] label,
+[data-epi-theme='light'] td,
+[data-epi-theme='light'] th,
+[data-epi-theme='light'] li {
+  color: inherit;
+}
+
+/* Form controls inherit the same black rather than the browser default. */
+[data-epi-theme='light'] input,
+[data-epi-theme='light'] select,
+[data-epi-theme='light'] textarea,
+[data-epi-theme='light'] option {
+  color: #000000;
+}
+
+/* Placeholders stay grey on purpose: black placeholder text reads as a value
+   that has already been filled in. */
+[data-epi-theme='light'] ::placeholder {
+  color: #6b6b73 !important;
+  opacity: 1;
+}
+
+/* Disabled controls keep a visible but clearly inactive tone. */
+[data-epi-theme='light'] :disabled {
+  color: #4a4a52;
+}
+
+
+/* =====================================================================
+   Mobile touch targets — SPEC §8 asks for a 44px minimum.
+   Desktop keeps its compact 30-36px controls; only phones get bumped.
+   ===================================================================== */
+@media (max-width: 767px) {
+  .epi-main button,
+  .epi-main select,
+  .epi-main input,
+  .epi-main textarea,
+  .epi-main a[data-tap],
+  .epi-header button,
+  .epi-header a,
+  .epi-modal button,
+  .epi-modal select,
+  .epi-modal input {
+    min-height: 44px;
+  }
+
+  /* Square icon-only buttons need width as well as height. */
+  .epi-header button,
+  .epi-header a {
+    min-width: 44px;
+  }
+
+  /* The header's search sits on its own row, so it can be a touch shorter
+     than the buttons beside it without being hard to hit. */
+  .epi-search input {
+    min-height: 44px;
+  }
+
+  /* Four impact choices do not fit across a 360px screen. */
+  .epi-impact {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  /* Anything still scrolling sideways says so, rather than looking cut off. */
+  .epi-scroll-x {
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+  }
+  .epi-scroll-hint {
+    display: block !important;
+    font-size: 12px;
+    color: var(--epi-fg-3);
+    margin: 6px 2px 0;
+  }
+
+  /* Tables that have a card view hide the grid entirely. */
+  .epi-table-desktop {
+    display: none !important;
+  }
+  .epi-cards-mobile {
+    display: flex !important;
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+.epi-scroll-hint {
+  display: none;
+}
+.epi-cards-mobile {
+  display: none;
+}
+
+/* =====================================================================
+   Table gridlines
+   Row dividers were --epi-border-soft, which at 7% on white was almost
+   invisible — tables read as floating text rather than tables. Bumped so
+   every row separator is actually visible, in both themes.
+   ===================================================================== */
+
+/* Column separators for grid tables that opt in. */
+.epi-gridlines > * + * {
+  border-left: 1px solid var(--epi-border-soft);
+  padding-left: 12px;
+}
+
+/* =====================================================================
+   Excel-style gridlines
+   Apply .epi-xls to a grid row (and its header row). Every cell then gets
+   a right and bottom border, so the table reads as a true grid rather than
+   rows of floating text. The container supplies the outer frame.
+   ===================================================================== */
+
+.epi-xls > * {
+  border-right: 1px solid var(--epi-border-soft);
+  border-bottom: 1px solid var(--epi-border-soft);
+}
+.epi-xls > *:last-child {
+  border-right: 0;
+}
+.epi-xls-head > * {
+  border-right: 1px solid var(--epi-border);
+  border-bottom: 1px solid var(--epi-border);
+  background: var(--epi-canvas);
+}
+.epi-xls-head > *:last-child {
+  border-right: 0;
+}
+
+/* =====================================================================
+   Horizontal overflow guard
+   A single non-shrinkable child was pushing the whole page wider than the
+   viewport, which shoved the sidebar off-screen and clipped every card.
+   Wide tables scroll inside their own container; the page itself never does.
+   ===================================================================== */
+
+/* `overflow-x: hidden` here silently broke every position:sticky in the app
+   — the sidebar and the header both. Hiding one axis computes the other to
+   `auto`, which turns <body> into a scroll container, and sticky elements
+   then anchor to that box instead of the viewport, so they scroll away.
+   `clip` gives the same overflow guard without creating a scroll container. */
+html,
+body {
+  overflow-x: clip;
+  max-width: 100%;
+}
+
+.epi-main {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Flex and grid children default to min-width:auto, so one wide descendant
+   stops every ancestor from shrinking. Inline minWidth on the scrollable
+   table bodies still wins, so those keep their width and scroll. */
+.epi-main section,
+.epi-main > div,
+.epi-main > div > div {
+  min-width: 0;
+}
+
+@media (max-width: 767px) {
+  /* Native selects carry an intrinsic minimum that overflows a 2-up grid. */
+  .epi-filterbar select,
+  .epi-filterbar input,
+  .epi-filterbar button {
+    min-width: 0 !important;
+    max-width: 100%;
+  }
+
+  /* One KPI per row below 420px — two 165px cards plus the gap did not fit. */
+  .epi-kpis {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .epi-kpis {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
+/* =====================================================================
+   Dashboard controls
+   Filters collapse behind a button on phones; on desktop they are always
+   open and the toggle is hidden, so nothing is buried on a big screen.
+   ===================================================================== */
+
+.epi-filter-toggle {
+  display: none !important;
+}
+
+/* Desktop: the panel dissolves so its four selects become direct children
+   of the controls flex row — dates and filters end up on one single line. */
+.epi-filter-panel {
+  display: contents !important;
+}
+
+@media (max-width: 767px) {
+  .epi-filter-toggle {
+    display: flex !important;
+  }
+  /* Mobile: the panel is a real box again — hidden until Filters is tapped,
+     then a 2x2 grid on its own line below the button and the dates. */
+  .epi-filter-panel {
+    display: none !important;
+    order: 99;
+    width: 100%;
+  }
+  .epi-filter-panel.epi-open {
+    display: grid !important;
+  }
+  /* From/To sit next to the Filters button and share the leftover width. */
+  /* Charts go single-column on phones; two 1fr columns would be unreadable. */
+  .epi-chart-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .epi-hide-mobile {
+    display: none !important;
+  }
+  /* Two KPI cards per row, as asked. */
+  .epi-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+}
+
+@media (max-width: 420px) {
+  /* Overrides the earlier single-column rule: two-up is what was asked for
+     and the cards stack their icon above the number to fit. */
+  .epi-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+/* =====================================================================
+   Excel-style gridlines
+   One mechanism for every table in the app. .epi-grid-table collapses the
+   row's `gap` and hoists its padding into the cells, so adjacent borders
+   meet and form continuous lines instead of dashes. Borders are !important
+   because every one of these rows also carries inline styles.
+   ===================================================================== */
+
+:root,
+[data-epi-theme='dark'] {
+  --epi-grid: rgba(255, 255, 255, 0.16);
+}
+
+[data-epi-theme='light'] {
+  --epi-grid: #e2ebee;
+}
+
+.epi-grid-table,
+.epi-xls,
+.epi-xls-head {
+  gap: 0 !important;
+  padding: 0 !important;
+  border-bottom: 0 !important;
+}
+
+.epi-grid-table > *,
+.epi-xls > *,
+.epi-xls-head > * {
+  padding: 10px 12px !important;
+  min-width: 0;
+  border-right: 1px solid var(--epi-grid) !important;
+  border-bottom: 1px solid var(--epi-grid) !important;
+  /* Every cell fills the full row height and centres its own content.
+     Previously the row centred its cells, so each cell was only as tall as
+     its content — an avatar cell was 40px, a text cell 17px — and since the
+     border sits on the cell, every cell drew its line at a different height.
+     That is why the gridlines looked crooked. Stretching the cells makes
+     each row's borders one straight line. */
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* Truncation moves to the cell's child, because a flex container cannot
+   ellipsis its own bare text. */
+.epi-grid-table > * > *,
+.epi-xls > * > * {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Headers may wrap — two-word labels like "Performance signal" need it,
+   and the header sits above every row so it costs no alignment. */
+.epi-grid-table-head > *,
+.epi-xls-head > * {
+  white-space: normal;
+  line-height: 1.3;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+}
+
+.epi-grid-table > *:last-child,
+.epi-xls > *:last-child,
+.epi-xls-head > *:last-child {
+  border-right: 0 !important;
+}
+
+/* The header keeps a tint so it reads as a header, not just another row. */
+.epi-grid-table-head > *,
+.epi-xls-head > * {
+  background: var(--epi-canvas);
+}
+
+@media (max-width: 1100px) {
+  .epi-chart-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Date range lives in the page header on desktop and in the filters row on
+   mobile. Two renders, one visible at a time. */
+.epi-dates-inline {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  /* `contents` so the two labels become direct children of the controls
+     flex row and sit beside the Filters button. */
+  .epi-dates-inline {
+    display: contents;
+  }
+}
+
+/* =====================================================================
+   Data table finish — the ERP details
+   ===================================================================== */
+
+:root,
+[data-epi-theme='dark'] {
+  --epi-zebra: rgba(255, 255, 255, 0.022);
+}
+
+[data-epi-theme='light'] {
+  --epi-zebra: #fafcfd;
+}
+
+/* The header row is child 1, so data rows are 2, 3, 4 ... */
+.epi-grid-table.epi-row:nth-child(even) {
+  background: var(--epi-zebra);
+}
+
+.epi-grid-table.epi-row {
+  transition: background 110ms ease;
+}
+
+.epi-grid-table.epi-row:hover {
+  background: var(--epi-hover);
+}
+
+/* Figures line up on their decimal, the way a ledger should read. */
+.epi-grid-table .epi-num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* =====================================================================
+   Form controls inside data tables
+   A data cell is a nowrap, overflow-hidden flex box sized for a line of
+   text. A 32px <select> dropped into one gets clipped top and bottom and
+   sits off-centre, which is what made the role column look like it was
+   spilling out of the table. Any cell holding a control opts out.
+   ===================================================================== */
+
+/* Wrap a control in <span class="epi-cell-control"> so the cell keeps the
+   gridlines while the control inside it is free to be its own height. An
+   earlier attempt used :has() on the cell, but in these tables the <select>
+   *is* the grid cell — there was no parent to match, so the control kept
+   inheriting the text-cell padding and clipped. */
+.epi-grid-table > .epi-cell-control {
+  overflow: visible;
+  padding: 5px 8px !important;
+  display: flex;
+  align-items: center;
+}
+
+.epi-cell-control > select,
+.epi-cell-control > input,
+.epi-cell-control > button {
+  box-sizing: border-box;
+  height: 32px;
+  width: 100%;
+  min-width: 0;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+/* =====================================================================
+   Inline row editing
+   A data cell is a nowrap, overflow-hidden flex box sized for text. Drop a
+   30px <select> into it and the control gets clipped and sits off-centre.
+   Editing rows opt into their own cell rules instead of fighting those.
+   ===================================================================== */
+
+/* Editing cells are just cell-controls; sizing comes from that one rule. */
+.epi-grid-table.epi-editing > * {
+  padding: 5px 7px !important;
+}
+
+/* The name cell pairs an avatar with an input; the input takes what is left
+   rather than claiming 100% of the row and overflowing it. */
+.epi-edit-name {
+  gap: 8px;
+}
+
+.epi-edit-name > input {
+  flex: 1 1 auto;
+  width: auto;
+}
+
+/* Report KPI strip and letterhead stack on narrow screens. */
+@media (max-width: 900px) {
+  .epi-report-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .epi-signoff {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+
+/* =====================================================================
+   The report document
+   Rendered identically on screen and on paper: fixed hex colours, no theme
+   tokens, no dark-mode variant. It is a document, not an app screen.
+   ===================================================================== */
+
+.epi-doc {
+  width: 100%;
+  border: 1px solid #e2e7e4;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 10px 34px rgba(10, 30, 26, 0.08);
+}
+
+/* The document keeps its own light palette even when the app is dark. */
+[data-epi-theme='dark'] .epi-doc {
+  color: #0d2b28;
+}
+
+@media print {
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+
+  html body .epi-bottom-nav,
+  html body .epi-sidebar,
+  html body .epi-header,
+  html body header,
+  html body .epi-no-print,
+  html body .epi-print-hide,
+  html body .epi-scroll-hint {
+    display: none !important;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+  }
+
+  body .epi-main,
+  body main {
+    padding: 0 !important;
+  }
+
+  /* Edge to edge, one sheet, no card chrome around the document itself. */
+  .epi-doc {
+    max-width: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Nothing inside the document may split across a sheet. */
+  .epi-doc > div > div {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* The last few millimetres. With the assessment gone the signature block
+     fits, but only once the document stops carrying screen-sized padding. */
+  .epi-doc > div {
+    padding: 12px 18px 0 !important;
+  }
+}
+
+/* =====================================================================
+   Reports screen on small viewports
+   ===================================================================== */
+
+/* The verb half of an action label — dropped on phones so PDF / Print / CSV
+   fit one row together. */
+@media (max-width: 767px) {
+  .epi-verb {
+    display: none !important;
+  }
+}
+
+@media (max-width: 767px) {
+  /* A six-column track, so the row of three buttons divides evenly and the
+     two date fields split the row above it. Previously Download PDF took a
+     full row of its own and Print/CSV a second, which is three rows of
+     chrome above the report for three taps. */
+  .epi-report-actions {
+    width: 100%;
+    display: grid !important;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 8px !important;
+  }
+
+  .epi-report-actions > select {
+    grid-column: 1 / -1;
+    width: 100% !important;
+    height: 38px !important;
+    min-height: 38px !important;
+  }
+
+  .epi-report-actions > label {
+    grid-column: span 3;
+    min-width: 0;
+    height: 38px !important;
+    min-height: 38px !important;
+    padding: 0 8px !important;
+  }
+
+  .epi-report-actions > label input[type='date'] {
+    min-width: 0;
+    width: 100%;
+    font-size: 12px !important;
+    height: 30px !important;
+    min-height: 30px !important;
+  }
+
+  /* Three equal thirds: PDF, Print, CSV. */
+  .epi-report-actions > button {
+    grid-column: span 2;
+    width: 100%;
+    justify-content: center;
+    height: 38px !important;
+    min-height: 38px !important;
+    padding: 0 6px !important;
+    font-size: 12.5px !important;
+    gap: 5px !important;
+  }
+}
+
+
+/* =====================================================================
+   Mobile dashboard — compact KPIs, one row of controls
+   This block was lost once when the file was truncated during the print
+   work, which is why the cards went back to stacking. It lives at the end
+   so it stays last in the cascade.
+   ===================================================================== */
+
+@media (max-width: 767px) {
+  /* --- KPI cards: icon beside the text, not above it --- */
+  .epi-kpis {
+    gap: 8px !important;
+  }
+
+  /* Icon beside the text, not stacked above it. Stacking added a whole
+     row of height to each card for no information. */
+  .epi-kpis > div {
+    padding: 11px 12px !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 9px !important;
+  }
+
+  .epi-kpis > div > span:first-child {
+    width: 26px !important;
+    height: 26px !important;
+    flex: 0 0 26px !important;
+    border-radius: 8px !important;
+  }
+
+  .epi-kpis > div > span:first-child svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .epi-kpis > div > div > div:first-child {
+    font-size: 11.5px !important;
+    line-height: 1.25;
+  }
+
+  .epi-kpis > div > div > .epi-num {
+    font-size: 22px !important;
+    line-height: 1.1 !important;
+  }
+
+  .epi-kpis > div > div > div:last-child {
+    font-size: 10.5px !important;
+  }
+
+  /* --- Filters + From + To on one line ---
+     Flex could not do this. A native date input has an intrinsic minimum
+     width, and in a flex row the item refuses to shrink under it no matter
+     what width you set — which is why this kept wrapping. Grid with
+     `minmax(0, 1fr)` tracks CAN go below intrinsic minimum, so the two
+     dates are forced into whatever space is left beside the button. */
+  .epi-controls {
+    display: grid !important;
+    grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
+    column-gap: 6px !important;
+    row-gap: 8px !important;
+  }
+
+  .epi-controls > .epi-filter-toggle {
+    grid-column: 1;
+    grid-row: 1;
+    padding: 0 9px !important;
+    font-size: 12px !important;
+    gap: 5px !important;
+    height: 34px !important;
+  }
+
+  /* The chevron is pure decoration next to a button that already says
+     "Filters" and carries aria-expanded. */
+  .epi-filter-toggle > span:last-child {
+    display: none !important;
+  }
+
+  /* Only the two date labels are direct children here — the filter panel's
+     own labels sit inside it and are not `display: contents` on mobile. */
+  .epi-dates-inline > label:nth-of-type(1) {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .epi-dates-inline > label:nth-of-type(2) {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  .epi-dates-inline > label {
+    min-width: 0 !important;
+    gap: 3px !important;
+    flex: none !important;
+  }
+
+  .epi-dates-inline svg {
+    display: none !important;
+  }
+
+  .epi-dates-inline span {
+    font-size: 11px !important;
+    flex: 0 0 auto;
+  }
+
+  .epi-dates-inline > label input[type='date'] {
+    height: 34px !important;
+    font-size: 12.5px !important;
+    padding: 0 3px !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    border-radius: 8px !important;
+  }
+
+  .epi-dates-inline > label input[type='date']::-webkit-calendar-picker-indicator {
+    width: 14px;
+    height: 14px;
+    padding: 0;
+    margin-left: 1px;
+    opacity: 0.55;
+  }
+
+  .epi-dates-inline > label input[type='date']::-webkit-datetime-edit,
+  .epi-dates-inline > label input[type='date']::-webkit-datetime-edit-fields-wrapper {
+    padding: 0;
+  }
+
+  /* The count and the expanded panel each take a full row of the grid. */
+  .epi-controls > span {
+    grid-column: 1 / -1;
+    font-size: 12px !important;
+  }
+
+  .epi-filter-panel.epi-open {
+    grid-column: 1 / -1;
+  }
+}
+
+/* =====================================================================
+   Dashboard charts on a phone
+   Two of these were 520px tables inside a 340px card. Scrolling technically
+   worked but read as a broken layout, so they are made to fit instead: the
+   meters go (the figure beside them says the same thing) and the columns
+   compress to what a phone can actually show.
+   ===================================================================== */
+
+@media (max-width: 767px) {
+  /* --- Department Overview: figures without the meters --- */
+  .epi-dept-table {
+    min-width: 0 !important;
+  }
+
+  .epi-dept-table .epi-grid-table {
+    grid-template-columns: minmax(84px, 1.5fr) 46px 46px 46px 34px !important;
+    gap: 4px !important;
+  }
+
+  .epi-meter-bar {
+    display: none !important;
+  }
+
+  /* --- Issue heat: narrower name column and tighter month cells --- */
+  /* The heat grid keeps scrolling — a month-by-employee matrix cannot
+     usefully compress — but the name column and cells shrink so more of it
+     is visible before the swipe. */
+  .epi-heat > div {
+    min-width: 560px;
+  }
+
+  .epi-heat [style*='grid-template-columns'] {
+    gap: 4px !important;
+  }
+}
+
+/* =====================================================================
+   Mobile pass — the remaining screens
+   ===================================================================== */
+
+@media (max-width: 767px) {
+  /* Page headings and their action buttons stack rather than fighting for
+     one line, and the button spans the width so it is easy to hit. */
+  .epi-page-head {
+    align-items: flex-start !important;
+  }
+
+  /* Two category tables side by side do not fit a phone. */
+  .epi-chart-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Settings tabs scroll instead of wrapping into three ragged lines. */
+  .epi-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .epi-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .epi-tabs > a {
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+
+  /* Modal dialogs use the full width of a phone rather than a centred card
+     with 20px of scrim either side. */
+  .epi-modal {
+    max-width: none !important;
+    max-height: calc(100vh - 24px) !important;
+  }
+
+  .epi-modal-overlay {
+    padding: 12px !important;
+  }
+}
+
+/* =====================================================================
+   Mobile chrome — the header becomes the brand band
+   On a phone the sidebar is gone, so the header carries the wordmark on the
+   brand colour, as in the approved design.
+   ===================================================================== */
+
+@media (max-width: 1023px) {
+  .epi-header {
+    background: linear-gradient(180deg, var(--epi-sidebar) 0%, var(--epi-sidebar-2) 100%) !important;
+    border-bottom: 0 !important;
+    backdrop-filter: none !important;
+    padding: 12px 14px !important;
+  }
+
+  /* The search sits below the band on its own light row. */
+  .epi-header .epi-search {
+    flex: 1 0 100% !important;
+    order: 9;
+  }
+
+  .epi-header .epi-search input {
+    background: rgba(255, 255, 255, 0.14) !important;
+    border-color: rgba(255, 255, 255, 0.16) !important;
+    color: #fff !important;
+  }
+
+  .epi-header .epi-search input::placeholder {
+    color: rgba(255, 255, 255, 0.6) !important;
+  }
+
+  .epi-header .epi-search svg {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+
+  /* Record already has a home in the bottom bar, and the band carries its
+     own bell — so both go. The theme toggle stays, restyled for the band. */
+  .epi-record-btn,
+  .epi-alerts-btn {
+    display: none !important;
+  }
+
+  .epi-theme-btn {
+    background: rgba(255, 255, 255, 0.14) !important;
+    border-color: rgba(255, 255, 255, 0.18) !important;
+    color: #fff !important;
+    order: 8;
+  }
+}
+
+/* =====================================================================
+   Mobile-first dashboard order
+   An MD opening this on a phone must see what needs attention before
+   anything else. On desktop the two sit side by side; on a phone the
+   attention panel is promoted above the performance matrix.
+   ===================================================================== */
+
+@media (max-width: 1023px) {
+  .epi-attention-first {
+    order: -1;
+  }
+}
+
+
+/* =====================================================================
+   Performance ledger — mobile layout
+   Phones: title on the left with Record + export icon pinned top-right,
+   then a search box with a Filters button beside it. The six dropdowns
+   live behind that button, collapsed by default, and open as a compact
+   2-up grid. Desktop is untouched — the panel is display:contents there,
+   so the selects stay direct children of the flex filter bar.
+   ===================================================================== */
+
+/* Shown only on phones; the desktop twin sits in the filter bar. */
+.epi-only-mobile {
+  display: none !important;
+}
+
+@media (max-width: 767px) {
+  .epi-only-mobile {
+    display: flex !important;
+  }
+
+  /* Title and the action buttons share one row instead of the buttons
+     wrapping onto a line of their own. */
+  .epi-ledger-head {
+    flex-wrap: nowrap !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+  }
+  .epi-ledger-title {
+    flex: 1 1 auto !important;
+    min-width: 0;
+  }
+  .epi-ledger-actions {
+    flex: 0 0 auto;
+    align-self: flex-start;
+  }
+  /* The 44px touch floor makes these two buttons tall; 40px is still a
+     comfortable target and keeps them level with the heading. */
+  .epi-ledger-actions button {
+    height: 40px !important;
+    min-height: 40px !important;
+  }
+  .epi-ledger-actions .epi-only-mobile {
+    width: 40px !important;
+    min-width: 40px !important;
+    padding: 0 !important;
+  }
+
+  /* Row 1 of the bar: search takes the space, Filters button takes the rest.
+     Overrides the generic two-column .epi-filterbar grid. */
+  .epi-ledger-bar {
+    grid-template-columns: 1fr auto !important;
+    gap: 8px !important;
+  }
+  .epi-ledger-bar .epi-ledger-search {
+    grid-column: auto !important;
+    height: 40px !important;
+    min-height: 40px !important;
+  }
+  .epi-ledger-toggle {
+    width: auto !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    padding: 0 12px !important;
+  }
+
+  /* Row 2: the collapsed dropdowns. */
+  .epi-ledger-panel {
+    display: none !important;
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+  }
+  .epi-ledger-panel.epi-open {
+    display: grid !important;
+  }
+  /* Compact controls, as asked — the 44px touch floor is released here
+     because six full-height selects filled the screen. */
+  .epi-ledger-panel select,
+  .epi-ledger-panel button {
+    width: 100%;
+    height: 34px !important;
+    min-height: 34px !important;
+    min-width: 0 !important;
+    max-width: 100%;
+    font-size: 12.5px !important;
+    padding: 0 8px !important;
+  }
+  /* Reset spans the row so it never sits half-width next to nothing. */
+  .epi-ledger-panel > button:last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+
+/* =====================================================================
+   The report document on phones
+   The document is laid out for A4, so on a 390px screen every one of its
+   multi-column blocks has to re-flow. Nothing is hidden that carries
+   information — only the masthead's decorative tagline goes. These rules
+   are screen-only: the @media print block above is a separate cascade and
+   still gets the full A4 layout.
+   ===================================================================== */
+
+@media screen and (max-width: 767px) {
+  /* --- masthead --- */
+  .epi-doc-mast {
+    padding: 12px 14px !important;
+    gap: 10px !important;
+  }
+  /* PEOPLE / PROCESS / PERFORMANCE is decoration, and it was taking three
+     wrapped lines to say so. */
+  .epi-doc-nav,
+  .epi-doc-mast > span:last-child > span:nth-child(2) {
+    display: none !important;
+  }
+  .epi-doc-mast > span:last-child {
+    gap: 0 !important;
+    white-space: nowrap;
+  }
+  .epi-doc-mast > span:first-child > span:first-child {
+    font-size: 20px !important;
+  }
+  .epi-doc-mast > span:first-child > span:last-child {
+    font-size: 14px !important;
+    letter-spacing: 0.12em !important;
+  }
+
+  .epi-doc-body {
+    padding: 14px 13px 0 !important;
+  }
+
+  /* --- hero: the signal badge drops below the identity block --- */
+  .epi-doc-hero {
+    flex-direction: column;
+    align-items: stretch !important;
+    padding: 14px !important;
+    gap: 12px !important;
+  }
+  .epi-doc-hero-name {
+    font-size: 21px !important;
+  }
+  .epi-doc-signal {
+    padding: 10px 14px !important;
+  }
+
+  /* Each fact stays on one line and wraps as a whole; the vertical rules
+     between them stop making sense once they wrap, so they go. */
+  .epi-doc-facts {
+    gap: 6px 14px !important;
+    margin-top: 12px !important;
+  }
+  .epi-doc-facts > span {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    font-size: 12px !important;
+  }
+  .epi-doc-facts > span[aria-hidden='true'] {
+    display: none !important;
+  }
+
+  /* --- section rules wrap instead of squeezing the period label --- */
+  .epi-doc-rule {
+    flex-wrap: wrap;
+    gap: 4px 10px !important;
+    margin: 16px 0 10px !important;
+  }
+  .epi-doc-rule > span:first-child {
+    font-size: 12px !important;
+    letter-spacing: 0.12em !important;
+  }
+  .epi-doc-rule > span:nth-child(2) {
+    width: 26px !important;
+  }
+  .epi-doc-rule > span:last-child {
+    font-size: 11px !important;
+  }
+
+  /* --- KPIs: two up, not four across an overflowing row --- */
+  .epi-doc-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 9px !important;
+  }
+  .epi-doc-kpis > div {
+    padding: 11px 12px !important;
+  }
+  .epi-doc-kpis > div > div:nth-child(2) {
+    font-size: 24px !important;
+    margin-top: 7px !important;
+  }
+
+  /* --- chart and insights stack --- */
+  .epi-doc-split {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+    margin-top: 14px !important;
+  }
+
+  /* --- detailed events: a six-column grid becomes a stacked card ---
+     The header row's labels are replaced by the chips themselves, which
+     already say what they are. */
+  .epi-doc-table > div:first-child {
+    display: none !important;
+  }
+  .epi-doc-table > div {
+    grid-template-columns: auto 1fr !important;
+    gap: 6px 8px !important;
+    padding: 10px 12px !important;
+  }
+  .epi-doc-table > div > span:nth-child(1) {
+    grid-column: 2;
+    justify-self: end;
+    font-size: 11px;
+    color: #6b7a77;
+  }
+  .epi-doc-table > div > span:nth-child(2) {
+    grid-column: 1;
+  }
+  .epi-doc-table > div > span:nth-child(3) {
+    grid-column: 1 / -1;
+    white-space: normal !important;
+    font-weight: 600;
+    font-size: 12.5px;
+    line-height: 1.35;
+  }
+  .epi-doc-table > div > span:nth-child(4) {
+    grid-column: 1;
+  }
+  .epi-doc-table > div > span:nth-child(5) {
+    grid-column: 2;
+    justify-self: start;
+  }
+  .epi-doc-table > div > span:nth-child(6) {
+    grid-column: 1 / -1;
+    white-space: normal !important;
+    font-size: 11px;
+    color: #6b7a77;
+  }
+  /* The "RECORDED BY" column header is gone, so the value labels itself. */
+  .epi-doc-table > div > span:nth-child(6)::before {
+    content: 'Recorded by ';
+  }
+
+  /* --- signatures stack, with rules between rather than beside --- */
+  .epi-doc-sign {
+    grid-template-columns: 1fr !important;
+  }
+  .epi-doc-sign > div {
+    padding: 12px 14px !important;
+    border-left: 0 !important;
+  }
+  .epi-doc-sign > div + div {
+    border-top: 1px solid #e2e7e4;
+  }
+
+  /* --- footer --- */
+  .epi-doc-foot {
+    padding: 10px 14px 12px !important;
+    font-size: 8.5px !important;
+    letter-spacing: 0.1em !important;
+  }
+  .epi-doc-foot > span:nth-child(2) {
+    margin: 0 7px !important;
+  }
+}
+
+
+/* =====================================================================
+   Dashboard section headers on phones
+   Title, count, meta and controls were all competing for one 360px line,
+   so every one of them wrapped mid-phrase. They get explicit rows instead.
+   ===================================================================== */
+
+@media (max-width: 767px) {
+  .epi-section-head {
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    row-gap: 8px;
+    min-height: 0 !important;
+  }
+
+  .epi-section-head > h2 {
+    font-size: 16px !important;
+  }
+
+  /* The collapse chevron is a 24px square, but the 44px touch floor was
+     stretching only its height — which is the tall thin box that looked
+     like a rendering artefact next to the heading. */
+  .epi-section-head > button[aria-expanded] {
+    width: 30px !important;
+    min-width: 30px !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    flex: 0 0 30px !important;
+  }
+
+  /* Section controls take their own full-width row under the title. */
+  .epi-head-right {
+    flex: 1 1 100%;
+    margin-left: 0 !important;
+    justify-content: flex-start !important;
+  }
+
+  /* By employee / By department as a full-width segmented control rather
+     than two pills squeezed against a dropdown that no longer exists. */
+  .epi-scope-toggle {
+    width: 100%;
+  }
+  .epi-scope-toggle button {
+    flex: 1 1 0;
+    min-width: 0;
+    height: 34px !important;
+    min-height: 34px !important;
+  }
+
+  /* Management Attention: the title owns row one; the count, the note and
+     the View all link share row two. */
+  .epi-attention-head > h2 {
+    flex: 1 1 100%;
+  }
+  .epi-head-meta {
+    font-size: 12.5px !important;
+  }
+  .epi-head-link {
+    margin-left: auto !important;
+    white-space: nowrap;
+  }
+}
+
+
+/* =====================================================================
+   Reports on phones — second pass
+   The first pass made the document re-flow; this one reclaims the space
+   it was still spending on gutters, padding and oversized type. Screen
+   only: the @media print cascade is untouched and still renders A4.
+   ===================================================================== */
+
+@media screen and (max-width: 767px) {
+  /* --- controls: three tighter rows --- */
+  .epi-report-actions {
+    gap: 7px !important;
+  }
+  .epi-report-actions > select,
+  .epi-report-actions > label,
+  .epi-report-actions > button {
+    height: 36px !important;
+    min-height: 36px !important;
+  }
+  .epi-report-actions > label input[type='date'] {
+    height: 28px !important;
+    min-height: 28px !important;
+  }
+
+  /* --- the document runs edge to edge ---
+     28px of page gutter is a lot of width to hand back when the events
+     table and the chart are the things that need it. The card chrome goes
+     with it, because a rounded card pinned to both edges reads as a
+     mistake rather than a card. */
+  .epi-doc {
+    margin-left: -14px;
+    margin-right: -14px;
+    width: auto !important;
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
+    box-shadow: none;
+  }
+  .epi-doc-body {
+    padding: 13px 12px 0 !important;
+  }
+
+  /* --- hero --- */
+  .epi-doc-hero {
+    padding: 13px !important;
+    gap: 11px !important;
+  }
+  .epi-doc-hero-name {
+    font-size: 20px !important;
+  }
+  .epi-doc-signal {
+    padding: 9px 13px !important;
+    gap: 9px !important;
+  }
+
+  .epi-doc-rule {
+    margin: 14px 0 9px !important;
+  }
+
+  /* --- KPI tiles: same four figures, a third less height --- */
+  .epi-doc-kpis {
+    gap: 8px !important;
+  }
+  .epi-doc-kpis > div {
+    padding: 10px 11px !important;
+  }
+  .epi-doc-kpis > div > div:first-child {
+    gap: 8px !important;
+  }
+  .epi-doc-kpis > div > div:first-child > span:first-child {
+    width: 24px !important;
+    height: 24px !important;
+    flex: 0 0 24px !important;
+  }
+  .epi-doc-kpis > div > div:first-child > span:first-child svg {
+    width: 13px;
+    height: 13px;
+  }
+  .epi-doc-kpis > div > div:first-child > span:last-child {
+    font-size: 9px !important;
+    letter-spacing: 0.1em !important;
+    line-height: 1.25;
+  }
+  .epi-doc-kpis > div > div:nth-child(2) {
+    font-size: 22px !important;
+    margin-top: 5px !important;
+  }
+  .epi-doc-kpis > div > div:nth-child(3) {
+    font-size: 10.5px !important;
+    margin-top: 2px !important;
+  }
+
+  /* --- cards inside the document --- */
+  .epi-doc-card,
+  .epi-doc-split > div {
+    padding: 12px 13px !important;
+  }
+  .epi-doc-split {
+    gap: 10px !important;
+    margin-top: 12px !important;
+  }
+  /* The blocks between sections were each spending 17px on a margin. */
+  .epi-doc-body > div[style*='margin-top'] {
+    margin-top: 12px !important;
+  }
+
+  /* --- events --- */
+  .epi-doc-table > div {
+    padding: 9px 11px !important;
+  }
+
+  /* --- signatures: three near-empty blocks, tightened --- */
+  .epi-doc-sign > div {
+    padding: 10px 13px !important;
+    gap: 10px !important;
+  }
+  .epi-doc-sign > div span span:nth-child(2) {
+    margin-top: 3px !important;
+  }
+  .epi-doc-sign > div span span:nth-child(3) {
+    font-size: 10.5px !important;
+    margin-top: 1px !important;
+  }
+}
+
+/* Small phones: the last few millimetres. */
+@media screen and (max-width: 400px) {
+  .epi-doc-body {
+    padding: 12px 10px 0 !important;
+  }
+  .epi-doc-hero-name {
+    font-size: 18px !important;
+  }
+  .epi-doc-kpis > div > div:nth-child(2) {
+    font-size: 20px !important;
+  }
+  .epi-report-actions > button {
+    font-size: 12px !important;
+    padding: 0 4px !important;
+  }
+}

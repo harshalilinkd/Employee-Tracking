@@ -1,0 +1,2115 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root, [data-epi-theme="dark"] {
+    --epi-canvas:#0B0A14; --epi-sidebar:#0A0913; --epi-surface:#0F0E1B; --epi-input:#11101D;
+    --epi-hover:#141327; --epi-elev:#1A1830; --epi-raised:#221F3A;
+    --epi-fg:#F5F4FB; --epi-fg-strong:rgba(245,244,251,0.86); --epi-fg-2:rgba(245,244,251,0.66); --epi-fg-3:rgba(245,244,251,0.38);
+    --epi-border:rgba(255,255,255,0.08); --epi-border-2:rgba(255,255,255,0.14); --epi-border-3:rgba(255,255,255,0.24);
+    --epi-border-soft:rgba(255,255,255,0.05); --epi-track:rgba(255,255,255,0.06); --epi-dot:rgba(255,255,255,0.18);
+    --epi-header-bg:rgba(11,10,20,0.92); --epi-nav-bg:rgba(10,9,19,0.96); --epi-scrim:rgba(5,5,10,0.62);
+    --epi-pos:#A084FF; --epi-neg:#F59E0B; --epi-warn:#F4C419; --epi-accent-fg:#CBB9FF; --epi-link:#A084FF;
+    --epi-pos-fg:#E4DBFF; --epi-neg-fg:#FCD9A0; --epi-warn-fg:#FBEBB0;
+    --epi-shadow-lg:0 24px 48px rgba(0,0,0,0.5);
+    --epi-shadow-card:0 1px 0 rgba(255,255,255,0.02);
+    --epi-ring:rgba(124,92,255,0.25);
+  }
+  [data-epi-theme="light"] {
+    --epi-canvas:#F4F4F6; --epi-sidebar:#FFFFFF; --epi-surface:#FFFFFF; --epi-input:#FFFFFF;
+    --epi-hover:#F4F4F5; --epi-elev:#FFFFFF; --epi-raised:#F4F4F5;
+    --epi-fg:#0A0A0A; --epi-fg-strong:rgba(10,10,10,0.86); --epi-fg-2:#52525B; --epi-fg-3:#71717A;
+    --epi-border:rgba(10,10,10,0.10); --epi-border-2:rgba(10,10,10,0.16); --epi-border-3:rgba(10,10,10,0.26);
+    --epi-border-soft:rgba(10,10,10,0.07); --epi-track:rgba(10,10,10,0.07); --epi-dot:rgba(10,10,10,0.18);
+    --epi-header-bg:rgba(250,250,250,0.92); --epi-nav-bg:rgba(255,255,255,0.96); --epi-scrim:rgba(10,10,10,0.42);
+    --epi-pos:#5B3BDB; --epi-neg:#92400E; --epi-warn:#A16207; --epi-accent-fg:#5B3BDB; --epi-link:#6948E8;
+    --epi-pos-fg:#44288C; --epi-neg-fg:#92400E; --epi-warn-fg:#A16207;
+    --epi-shadow-lg:0 4px 12px rgba(10,10,10,0.06), 0 24px 48px rgba(10,10,10,0.10);
+    --epi-shadow-card:0 1px 2px rgba(10,10,10,0.04), 0 8px 24px rgba(10,10,10,0.05);
+    --epi-ring:rgba(124,92,255,0.25);
+  }
+  html, body { margin:0; padding:0; background:var(--epi-canvas); }
+  * { box-sizing:border-box; }
+  a { color:var(--epi-link); text-decoration:none; }
+  a:hover { color:var(--epi-link); text-decoration:underline; }
+  input, select, textarea, button { font-family:inherit; }
+  ::placeholder { color:var(--epi-fg-3); }
+  ::-webkit-scrollbar { width:9px; height:9px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:var(--epi-border-3); border-radius:999px; }
+  ::-webkit-scrollbar-thumb:hover { background:var(--epi-fg-3); }
+  @keyframes epiUp { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+  @keyframes epiFade { from { opacity:0; } to { opacity:1; } }
+  @keyframes epiPanel { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:none; } }
+</style>
+</helmet>
+
+<div data-epi-theme="{{ theme }}" style="min-height:100vh;background:var(--epi-canvas);color:var(--epi-fg);font-family:'Inter',sans-serif;font-size:15px;display:flex;align-items:stretch">
+
+  <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+    <aside style="width:244px;flex:0 0 244px;background:var(--epi-sidebar);border-right:1px solid var(--epi-border);padding:20px 14px;display:flex;flex-direction:column;gap:22px;position:sticky;top:0;height:100vh">
+      <div style="display:flex;gap:11px;align-items:center;padding:0 6px">
+        <div style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#A084FF 0%,#7C5CFF 50%,#5B3BDB 100%);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:#fff;box-shadow:0 0 24px rgba(124,92,255,0.25)">EP</div>
+        <div style="display:flex;flex-direction:column;gap:1px;min-width:0">
+          <span style="font-size:13px;font-weight:700;letter-spacing:-0.01em;line-height:1.15">Employee</span>
+          <span style="font-size:13px;font-weight:700;letter-spacing:-0.01em;line-height:1.15;color:var(--epi-fg-2)">Performance Intelligence</span>
+        </div>
+      </div>
+
+      <nav style="display:flex;flex-direction:column;gap:2px">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--epi-fg-3);padding:0 8px 8px">Workspace</div>
+        <sc-for list="{{ navMain }}" as="n" hint-placeholder-count="5">
+          <button onClick="{{ n.go }}" style="{{ n.style }}">
+            <span style="{{ n.dot }}"></span>
+            <span style="flex:1;text-align:left">{{ n.label }}</span>
+            <span style="{{ n.badgeStyle }}">{{ n.badge }}</span>
+          </button>
+        </sc-for>
+      </nav>
+
+      <div style="margin-top:auto;border-top:1px solid var(--epi-border);padding-top:14px;display:flex;gap:10px;align-items:center">
+        <div style="width:32px;height:32px;border-radius:999px;background:var(--epi-raised);border:1px solid var(--epi-border-2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">{{ userInitials }}</div>
+        <div style="min-width:0;flex:1">
+          <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ userName }}</div>
+          <div style="font-size:12px;color:var(--epi-fg-3)">{{ userRole }}</div>
+        </div>
+        <a href="Login.dc.html" title="Sign out" style="width:28px;height:28px;border-radius:8px;background:transparent;border:1px solid var(--epi-border);color:var(--epi-fg-3);font-size:13px;display:flex;align-items:center;justify-content:center;text-decoration:none">⏎</a>
+      </div>
+    </aside>
+  </sc-if>
+
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+
+    <header style="position:sticky;top:0;z-index:30;background:var(--epi-header-bg);border-bottom:1px solid var(--epi-border);padding:12px 20px;display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+      <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+        <div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#A084FF,#5B3BDB);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800">EP</div>
+      </sc-if>
+      <div style="min-width:0;flex:0 1 auto">
+        <div style="font-size:12px;color:var(--epi-fg-3);display:flex;gap:6px;align-items:center">
+          <span>Performance</span><span>/</span><span style="color:var(--epi-fg-2)">{{ crumb }}</span>
+        </div>
+      </div>
+      <div style="flex:1 1 220px;min-width:160px;position:relative">
+        <input value="{{ q }}" onChange="{{ setQ }}" placeholder="Search employees, events, departments…" style="width:100%;height:36px;border-radius:8px;background:var(--epi-input);border:1px solid var(--epi-border);color:var(--epi-fg);padding:0 12px 0 32px;font-size:14px;outline:none" />
+        <span style="position:absolute;left:11px;top:9px;color:var(--epi-fg-3);font-size:13px">⌕</span>
+        <sc-if value="{{ hasQ }}">
+          <div style="position:absolute;top:42px;left:0;right:0;background:var(--epi-elev);border:1px solid var(--epi-border-2);border-radius:12px;box-shadow:var(--epi-shadow-lg);padding:8px;z-index:40;animation:epiFade 120ms ease-out;max-height:360px;overflow:auto">
+            <div style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--epi-fg-3);padding:6px 8px">People</div>
+            <sc-for list="{{ searchPeople }}" as="s" hint-placeholder-count="2">
+              <button onClick="{{ s.go }}" style="width:100%;display:flex;gap:10px;align-items:center;padding:8px;border-radius:8px;background:transparent;border:0;color:var(--epi-fg);cursor:pointer;text-align:left" style-hover="background:var(--epi-raised)">
+                <span style="width:26px;height:26px;border-radius:999px;background:var(--epi-raised);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">{{ s.initials }}</span>
+                <span style="flex:1;font-size:14px">{{ s.name }}</span>
+                <span style="font-size:12px;color:var(--epi-fg-3)">{{ s.meta }}</span>
+              </button>
+            </sc-for>
+            <div style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--epi-fg-3);padding:10px 8px 6px;border-top:1px solid var(--epi-border);margin-top:6px">Events</div>
+            <sc-for list="{{ searchEvents }}" as="s" hint-placeholder-count="2">
+              <button onClick="{{ s.go }}" style="width:100%;display:flex;gap:10px;align-items:center;padding:8px;border-radius:8px;background:transparent;border:0;color:var(--epi-fg);cursor:pointer;text-align:left" style-hover="background:var(--epi-raised)">
+                <span style="{{ s.iconStyle }}">{{ s.icon }}</span>
+                <span style="flex:1;font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ s.title }}</span>
+                <span style="font-size:12px;color:var(--epi-fg-3)">{{ s.meta }}</span>
+              </button>
+            </sc-for>
+            <sc-if value="{{ searchEmpty }}">
+              <div style="padding:14px 8px;font-size:14px;color:var(--epi-fg-2)">No matches for “{{ q }}”.</div>
+            </sc-if>
+          </div>
+        </sc-if>
+      </div>
+      <button onClick="{{ openRecord }}" style="height:36px;padding:0 14px;border-radius:8px;border:0;background:linear-gradient(135deg,#A084FF 0%,#7C5CFF 50%,#5B3BDB 100%);color:#fff;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:7px;transition:box-shadow 200ms cubic-bezier(0.2,0.8,0.2,1)" style-hover="box-shadow:0 0 0 4px rgba(124,92,255,0.18)">
+        <span style="font-size:15px">+</span><span>Record Performance</span>
+      </button>
+      <button onClick="{{ toggleTheme }}" title="{{ themeTitle }}" style="width:36px;height:36px;border-radius:8px;background:var(--epi-input);border:1px solid var(--epi-border);color:var(--epi-fg-2);cursor:pointer;font-size:14px">{{ themeIcon }}</button>
+      <button onClick="{{ noop }}" style="width:36px;height:36px;border-radius:8px;background:var(--epi-input);border:1px solid var(--epi-border);color:var(--epi-fg-2);cursor:pointer;position:relative">
+        ☍<span style="position:absolute;top:7px;right:7px;width:6px;height:6px;border-radius:999px;background:#F59E0B"></span>
+      </button>
+    </header>
+
+    <main style="flex:1;min-width:0;padding:24px 20px 96px;animation:epiUp 200ms cubic-bezier(0.2,0.8,0.2,1)">
+
+      <!-- ============ OVERVIEW ============ -->
+      <sc-if value="{{ isOverview }}" hint-placeholder-val="{{ true }}" data-screen-label="Overview">
+        <div style="max-width:1360px;margin:0 auto;display:flex;flex-direction:column;gap:24px">
+
+          <div style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap">
+            <div style="flex:1 1 320px;min-width:0">
+              <h1 style="margin:0;font-size:28px;font-weight:700;letter-spacing:-0.02em">{{ greeting }}</h1>
+              <p style="margin:6px 0 0;font-size:15px;color:var(--epi-fg-2)">Here's what is happening across your workforce.</p>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <sc-for list="{{ ranges }}" as="r" hint-placeholder-count="4">
+                <button onClick="{{ r.go }}" style="{{ r.style }}">{{ r.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+            <span style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--epi-fg-3)">Filters</span>
+            <select value="{{ fEmp }}" onChange="{{ setEmp }}" style="height:32px;border-radius:8px;background:var(--epi-input);border:1px solid var(--epi-border-2);color:var(--epi-fg);font-size:13px;padding:0 8px;font-weight:600">
+              <sc-for list="{{ empFilterOptions }}" as="o" hint-placeholder-count="4"><option value="{{ o }}">{{ o }}</option></sc-for>
+            </select>
+            <select value="{{ fDept }}" onChange="{{ setDept }}" style="height:32px;border-radius:8px;background:var(--epi-input);border:1px solid var(--epi-border);color:var(--epi-fg);font-size:13px;padding:0 8px">
+              <sc-for list="{{ deptOptions }}" as="o" hint-placeholder-count="3"><option value="{{ o }}">{{ o }}</option></sc-for>
+            </select>
+            <select value="{{ fType }}" onChange="{{ setType }}" style="height:32px;border-radius:8px;background:var(--epi-input);border:1px solid var(--epi-border);color:var(--epi-fg);font-size:13px;padding:0 8px">
+              <sc-for list="{{ typeOptions }}" as="o" hint-placeholder-count="3"><option value="{{ o }}">{{ o }}</option></sc-for>
+            </select>
+            <select value="{{ fSeverity }}" onChange="{{ setSeverity }}" style="height:32px;border-radius:8px;background:var(--epi-input);border:1px solid var(--epi-border);color:var(--epi-fg);font-size:13px;padding:0 8px">
+              <sc-for list="{{ severityOptions }}" as="o" hint-placeholder-count="3"><option value="{{ o }}">{{ o }}</option></sc-for>
+            </select>
+            <span style="font-size:13px;color:var(--epi-fg-3)">{{ filterSummary }}</span>
+            <sc-if value="{{ empFocused }}">
+              <button onClick="{{ clearEmp }}" style="height:32px;padding:0 12px;border-radius:999px;background:rgba(124,92,255,0.14);border:1px solid rgba(124,92,255,0.32);color:var(--epi-accent-fg);font-size:13px;font-weight:600;cursor:pointer">Focused on {{ fEmp }} ✕</button>
+            </sc-if>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1px;background:var(--epi-border);border:1px solid var(--epi-border);border-radius:14px;overflow:hidden;box-shadow:var(--epi-shadow-card)">
+            <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="5">
+              <div style="background:var(--epi-surface);padding:18px 20px;display:flex;flex-direction:column;gap:9px;transition:background 120ms cubic-bezier(0.2,0.8,0.2,1)" style-hover="background:var(--epi-hover)">
+                <span style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--epi-fg-3)">{{ k.label }}</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:30px;font-weight:500;letter-spacing:-0.03em;line-height:1;font-variant-numeric:tabular-nums">{{ k.value }}</span>
+                <span style="{{ k.deltaStyle }}">{{ k.delta }}</span>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:stretch">
+            <section style="flex:1 1 620px;min-width:0">
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap">
+                <button onClick="{{ secMatrix.toggle }}" style="{{ secMatrix.chev }}">{{ secMatrix.icon }}</button>
+                <h2 style="margin:0;font-size:18px;font-weight:700;letter-spacing:-0.018em">{{ matrixTitle }}</h2>
+                <span style="font-size:13px;color:var(--epi-fg-3);flex:1">{{ matrixCount }}</span>
+                <div style="display:flex;gap:2px;padding:3px;border-radius:999px;background:var(--epi-input);border:1px solid var(--epi-border)">
+                  <sc-for list="{{ scopeTabs }}" as="t" hint-placeholder-count="2">
+                    <button onClick="{{ t.go }}" style="{{ t.style }}">{{ t.label }}</button>
+                  </sc-for>
+                </div>
+                <select value="{{ sortBy }}" onChange="{{ setSort }}" style="height:30px;border-radius:8px;background:var(--epi-input);border:1px solid var(--epi-border);color:var(--epi-fg);font-size:13px;padding:0 8px">
+                  <sc-for list="{{ sortOptions }}" as="o" hint-placeholder-count="4"><option value="{{ o }}">{{ o }}</option></sc-for>
+                </select>
+              </div>
+
+              <sc-if value="{{ showDeptMatrix }}">
+                <div style="border:1px solid var(--epi-border);border-radius:14px;overflow:hidden;overflow-x:auto;background:var(--epi-surface);box-shadow:var(--epi-shadow-card)">
+                  <div style="min-width:640px;display:grid;grid-template-columns:minmax(150px,2fr) 84px 60px 60px minmax(90px,1fr) 96px;gap:8px;padding:10px 16px;background:var(--epi-surface);border-bottom:1px solid var(--epi-border);font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--epi-fg-3)">
+                    <span>Department</span><span style="text-align:right">People</span><span style="text-align:right">Pos</span><span style="text-align:right">Goof</span><span>Issue load</span><span>Signal</span>
+                  </div>
+                  <sc-for list="{{ deptMatrix }}" as="d" hint-placeholder-count="6">
+                    <div>
+                      <div onClick="{{ d.toggle }}" style="min-width:640px;display:grid;grid-template-columns:minmax(150px,2fr) 84px 60px 60px minmax(90px,1fr) 96px;gap:8px;padding:12px 16px;border-bottom:1px solid var(--epi-border-soft);cursor:pointer;align-items:center;transition:background 120ms cubic-bezier(0.2,0.8,0.2,1)" style-hover="background:var(--epi-hover)">
+                        <span style="display:flex;gap:9px;align-items:center;min-width:0">
+                          <span style="{{ d.chev }}">{{ d.icon }}</span>
+                          <span style="font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ d.name }}</span>
+                        </span>
+                        <span style="font-size:13px;text-align:right;color:var(--epi-fg-2);font-variant-numeric:tabular-nums">{{ d.count }}</span>
+                        <span style="font-size:14px;text-align:right;font-variant-numeric:tabular-nums;color:var(--epi-pos)">{{ d.pos }}</span>
+                        <span style="{{ d.goofStyle }}">{{ d.goof }}</span>
+                        <span style="display:flex;gap:8px;align-items:center;min-width:0">
+                          <span style="flex:1;height:5px;border-radius:999px;background:var(--epi-track);overflow:hidden"><span style="{{ d.loadBar }}"></span></span>
+                          <span style="font-size:12px;color:var(--epi-fg-3);font-variant-numeric:tabular-nums">{{ d.load }}</span>
+                        </span>
+                        <span style="{{ d.signalStyle }}">{{ d.signal }}</span>
+                      </div>
+                      <sc-if value="{{ d.open }}">
+                        <div style="background:var(--epi-canvas);border-bottom:1px solid var(--epi-border-soft)">
+                          <sc-for list="{{ d.emps }}" as="m" hint-placeholder-count="3">
+                            <div onClick="{{ m.go }}" style="min-width:640px;display:grid;grid-template-columns:minmax(150px,2fr) 84px 60px 60px minmax(90px,1fr) 96px;gap:8px;padding:10px 16px 10px 40px;cursor:pointer;align-items:center" style-hover="background:var(--epi-hover)">
+                              <span style="display:flex;gap:10px;align-items:center;min-width:0">
+                                <span style="{{ m.avatarStyle }}">{{ m.initials }}</span>
+                                <span style="min-width:0">
+                                  <span style="display:block;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.name }}</span>
+                                  <span style="display:block;font-size:12px;color:var(--epi-fg-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.role }}</span>
+                                </span>
+                              </span>
+                              <span style="font-size:12px;text-align:right;color:var(--epi-fg-3)">{{ m.last }}</span>
+                              <span style="font-size:13px;text-align:right;font-variant-numeric:tabular-nums;color:var(--epi-pos)">{{ m.pos }}</span>
+                              <span style="{{ m.goofStyle }}">{{ m.goof }}</span>
+                              <span style="{{ m.trendStyle }}">{{ m.trend }}</span>
+                              <span style="{{ m.signalStyle }}">{{ m.signal }}</span>
+                            </div>
+                          </sc-for>
+                        </div>
+                      </sc-if>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ showEmpMatrix }}" hint-placeholder-val="{{ true }}">
+                <div style="border:1px solid var(--epi-border);border-radius:14px;overflow:hidden;overflow-x:auto;background:var(--epi-surface);box-shadow:var(--epi-shadow-card)">
+                  <div style="min-width:760px;display:grid;grid-template-columns:minmax(160px,2.4fr) minmax(90px,1.1fr) 66px 66px 104px 108px 104px;gap:8px;padding:10px 16px;background:var(--epi-surface);border-bottom:1px solid var(--epi-border);font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--epi-fg-3)">
+                    <span>Employee</span><span>Department</span><span style="text-align:right">Pos</span><span style="text-align:right">Goof</span><span>Net trend</span><span>Last activity</span><span>Signal</span>
+                  </div>
+                  <sc-for list="{{ matrix }}" as="m" hint-placeholder-count="6">
+                    <div onClick="{{ m.go }}" style="min-width:760px;display:grid;grid-template-columns:minmax(160px,2.4fr) minmax(90px,1.1fr) 66px 66px 104px 108px 104px;gap:8px;padding:12px 16px;border-bottom:1px solid var(--epi-border-soft);cursor:pointer;align-items:center;transition:background 120ms cubic-bezier(0.2,0.8,0.2,1)" style-hover="background:var(--epi-hover)">
+                      <div style="display:flex;gap:10px;align-items:center;min-width:0">
+                        <span style="{{ m.avatarStyle }}">{{ m.initials }}</span>
+                        <span style="min-width:0">
+                          <span style="display:block;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.name }}</span>
+                          <span style="display:block;font-size:12px;color:var(--epi-fg-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.role }}</span>
+                        </span>
+                      </div>
+                      <span style="font-size:13px;color:var(--epi-fg-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.dept }}</span>
+                      <span style="font-size:14px;text-align:right;font-variant-numeric:tabular-nums;color:var(--epi-pos)">{{ m.pos }}</span>
+                      <span style="{{ m.goofStyle }}">{{ m.goof }}</span>
+                      <span style="{{ m.trendStyle }}">{{ m.trend }}</span>
+                      <span style="font-size:13px;color:var(--epi-fg-3);white-space:nowrap">{{ m.last }}</span>
+                      <span style="{{ m.signalStyle }}">{{ m.signal }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ showEmpCards }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-direction:column;gap:10px">
+                  <sc-for list="{{ matrix }}" as="m" hint-placeholder-count="4">
+                    <div onClick="{{ m.go }}" style="border:1px solid var(--epi-border);border-radius:12px;background:var(--epi-surface);box-shadow:var(--epi-shadow-card);padding:14px;display:flex;flex-direction:column;gap:10px">
+                      <div style="display:flex;gap:10px;align-items:center">
+                        <span style="{{ m.avatarStyle }}">{{ m.initials }}</span>
+                        <span style="flex:1;min-width:0">
+                          <span style="display:block;font-size:15px;font-weight:600">{{ m.name }}</span>
+                          <span style="display:block;font-size:12px;color:var(--epi-fg-3)">{{ m.role }} · {{ m.dept }}</span>
+                        </span>
+                        <span style="{{ m.signalStyle }}">{{ m.signal }}</span>
+                      </div>
+                      <div style="display:flex;gap:16px;font-size:13px;color:var(--epi-fg-2)">
+                        <span><b style="color:var(--epi-pos)">{{ m.pos }}</b> positive</span>
+                        <span><b style="color:var(--epi-neg)">{{ m.goof }}</b> goofups</span>
+                        <span>{{ m.last }}</span>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ canExpandMatrix }}">
+                <button onClick="{{ toggleMatrixAll }}" style="{{ expandBtnStyle }}">{{ expandBtnLabel }}</button>
+              </sc-if>
+            </section>
+
+            <section style="flex:1 1 300px;min-width:0;display:flex;flex-direction:column;gap:20px">
+              <div>
+                <h2 style="margin:0 0 12px;font-size:18px;font-weight:700;letter-spacing:-0.018em">Needs attention</h2>
+                <div style="border:1px solid var(--epi-border);border-radius:14px;background:var(--epi-surface);box-shadow:var(--epi-shadow-card);overflow:hidden">
+                  <sc-for list="{{ attention }}" as="a" hint-placeholder-count="3">
+                    <div onClick="{{ a.go }}" style="padding:14px 16px;border-bottom:1px solid var(--epi-border-soft);cursor:pointer;display:flex;flex-direction:column;gap:6px" style-hover="background:var(--epi-hover)">
+                      <div style="display:flex;gap:8px;align-items:center">
+                        <span style="{{ a.signalStyle }}">{{ a.signal }}</span>
+                        <span style="font-size:14px;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ a.name }}</span>
+                      </div>
+                      <span style="font-size:13px;color:var(--epi-fg-2);line-height:1.45">{{ a.reason }}</span>
+                    </div>
+                  </sc-for>
+                  <sc-if value="{{ attentionEmpty }}">
+                    <div style="padding:22px 16px;text-align:center">
+                      <div style="font-size:14px;font-weight:600">Nothing needs attention</div>
+                      <div style="font-size:13px;color:var(--epi-fg-2);margin-top:4px">No recurring or high-severity issues in this period.</div>
+                    </div>
+                  </sc-if>
+                </div>
+              </div>
+
+              <div>
+                <h2 style="margin:0 0 12px;font-size:18px;font-weight:700;letter-spacing:-0.018em">Open follow-ups</h2>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <sc-for list="{{ followUps }}" as="f" hint-placeholder-count="3">
+                    <div onClick="{{ f.go }}" style="border:1px solid var(--epi-border);border-left:2px solid #F59E0B;border-radius:10px;background:var(--epi-surface);box-shadow:var(--epi-shadow-card);padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;gap:4px" style-hover="background:var(--epi-hover)">
+                      <span style="font-size:14px;font-weight:600">{{ f.name }}</span>
+                      <span style="font-size:13px;color:var(--epi-fg-2);line-height:1.45">{{ f.title }}</span>
+                      <span style="font-size:12px;color:var(--epi-warn)">Due {{ f.due }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:stretch">
+            <section style="flex:1 1 480px;min-width:0;display:flex;flex-direction:column">
+              <h2 style="margin:0 0 4px;font-size:18px;font-weight:700;letter-spacing:-0.018em">Performance trend</h2>
+              <p style="margin:0 0 16px;font-size:13px;color:var(--epi-fg-3)">Recognition and issue volume, month by month</p>
+              <div style="flex:1;border:1px solid var(--epi-border);border-radius:14px;background:var(--epi-surface);box-shadow:var(--epi-shadow-card);padding:20px;display:flex;flex-direction:column">
+                <div style="position:relative;display:flex;gap:14px;align-items:flex-end;flex:1;min-height:172px">
+                  <span style="position:absolute;left:0;right:0;top:0;height:1px;background:var(--epi-border-soft);pointer-events:none"></span>
+                  <span style="position:absolute;left:0;right:0;top:33%;height:1px;background:var(--epi-border-soft);pointer-events:none"></span>
+                  <span style="position:absolute;left:0;right:0;top:66%;height:1px;background:var(--epi-border-soft);pointer-events:none"></span>
+                  <span style="position:absolute;left:0;right:0;bottom:26px;height:1px;background:var(--epi-border);pointer-events:none"></span>
+                  <sc-for list="{{ trendBars }}" as="b" hint-placeholder-count="6">
+                    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;justify-content:flex-end">
+                      <div style="display:flex;gap:4px;align-items:flex-end;height:100%;width:100%;justify-content:center">
+                        <div style="{{ b.posStyle }}" title="{{ b.posLabel }}"></div>
+                        <div style="{{ b.goofStyle }}" title="{{ b.goofLabel }}"></div>
+                      </div>
+                      <span style="font-size:12px;color:var(--epi-fg-3)">{{ b.label }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+                <div style="display:flex;gap:18px;margin-top:16px;padding-top:14px;border-top:1px solid var(--epi-border);font-size:13px;color:var(--epi-fg-2)">
+                  <span style="display:flex;gap:7px;align-items:center"><span style="width:9px;height:9px;border-radius:2px;background:linear-gradient(180deg,#A084FF,#7C5CFF)"></span>Recognition</span>
+                  <span style="display:flex;gap:7px;align-items:center"><span style="width:9px;height:9px;border-radius:2px;background:linear-gradient(180deg,#FBBF24,#F59E0B)"></span>Issues</span>
+                  <span style="margin-left:auto">{{ trendNote }}</span>
+                </div>
+              </div>
+            </section>
+
+            <section style="flex:1 1 340px;min-width:0;display:flex;flex-direction:column">
+              <h2 style="margin:0 0 4px;font-size:18px;font-weight:700;letter-spacing:-0.018em">Department overview</h2>
+              <p style="margin:0 0 16px;font-size:13px;color:var(--epi-fg-3)">Where activity concentrates — recognition vs issues</p>
+              <div style="flex:1;border:1px solid var(--epi-border);border-radius:14px;background:var(--epi-surface);box-shadow:var(--epi-shadow-card);padding:6px 18px 14px;display:flex;flex-direction:column;justify-content:flex-start">
+                <sc-for list="{{ deptRows }}" as="d" hint-placeholder-count="5">
+                  <div style="padding:12px 0;border-bottom:1px solid var(--epi-border-soft);display:flex;flex-direction:column;gap:7px">
+                    <div style="display:flex;gap:10px;align-items:baseline">
+                      <span style="font-size:14px;font-weight:600;flex:1">{{ d.name }}</span>
+                      <span style="font-size:13px;color:var(--epi-pos);font-variant-numeric:tabular-nums">{{ d.pos }}</span>
+                      <span style="font-size:13px;color:var(--epi-neg);font-variant-numeric:tabular-nums">{{ d.goof }}</span>
+                      <span style="{{ d.trendStyle }}">{{ d.trend }}</span>
+                    </div>
+                    <div style="height:7px;border-radius:999px;background:var(--epi-track);display:flex;overflow:hidden">
+                      <div style="{{ d.posBar }}"></div>
+                      <div style="{{ d.goofBar }}"></div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </section>
+          </div>
+
+          <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:stretch">
+            <section style="flex:1 1 460px;min-width:0;display:flex;flex-direction:column">
+              <h2 style="margin:0 0 4px;font-size:18px;font-weight:700;letter-spacing:-0.018em">Performance momentum</h2>
+              <p style="margin:0 0 16px;font-size:13px;color:var(--epi-fg-3)">Net monthly balance — is the workforce trending up or down</p>
+              <div style="flex:1;border:1px solid var(--epi-border);border-radius:14px;background:var(--epi-surface);box-shadow:var(--epi-shadow-card);padding:20px;display:flex;flex-direction:column;justify-content:center">
+                <svg viewBox="0 0 100 40" preserveAspectRatio="none" style="width:100%;height:148px;display:block">
+                  <defs>
+                    <linearGradient id="epiMomentumFill" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#A084FF" stop-opacity="0.45"></stop>
+                      <stop offset="55%" stop-color="#7C5CFF" stop-opacity="0.16"></stop>
+                      <stop offset="100%" stop-color="#7C5CFF" stop-opacity="0"></stop>
+                    </linearGradient>
+                  </defs>
+                  <line x1="0" y1="20" x2="100" y2="20" stroke="var(--epi-border-2)" stroke-width="1" vector-effect="non-scaling-stroke"></line>
+                  <path d="{{ momentum.area }}" fill="url(#epiMomentumFill)"></path>
+                  <path d="{{ momentum.line }}" fill="none" stroke="#A084FF" stroke-width="2.25" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke" style="filter:drop-shadow(0 0 6px rgba(124,92,255,0.55))"></path>
+                </svg>
+                <div style="display:flex;margin-top:12px;padding-top:12px;border-top:1px solid var(--epi-border)">
+                  <sc-for list="{{ momentum.points }}" as="pt" hint-placeholder-count="6">
+                    <div style="flex:1;text-align:center;display:flex;flex-direction:column;gap:3px">
+                      <span style="{{ pt.valStyle }}">{{ pt.val }}</span>
+                      <span style="font-size:12px;color:var(--epi-fg-3)">{{ pt.label }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </section>
+
+            <section style="flex:1 1 300px;min-width:0;display:flex;flex-direction:column">
+              <h2 style="margin:0 0 4px;font-size:18px;font-weight:700;letter-spacing:-0.018em">Impact mix</h2>
+              <p style="margin:0 0 16px;font-size:13px;color:var(--epi-fg-3)">How serious the recorded events actually are</p>
+              <div style="flex:1;border:1px solid var(--epi-border);border-radius:14px;background:var(--epi-surface);box-shadow:var(--epi-shadow-card);padding:20px;display:flex;gap:22px;align-items:center;flex-wrap:wrap">
+                <svg viewBox="0 0 42 42" style="width:126px;height:126px;flex:0 0 126px;transform:rotate(-90deg)">
+                  <circle cx="21" cy="21" r="15.9155" fill="none" stroke="var(--epi-track)" stroke-width="6.5"></circle>
+                  <sc-for list="{{ donut.slices }}" as="d" hint-placeholder-count="4">
+                    <circle cx="21" cy="21" r="15.9155" fill="none" stroke="{{ d.color }}" stroke-width="6.5" stroke-dasharray="{{ d.dash }}" stroke-dashoffset="{{ d.offset }}" style="transition:stroke-dasharray 420ms cubic-bezier(0.2,0.8,0.2,1)"></circle>
+                  </sc-for>
+                </svg>
+                <div style="flex:1 1 130px;display:flex;flex-direction:column;gap:10px">
+                  <div style="display:flex;flex-direction:column;gap:1px;margin-bottom:2px">
+                    <span style="font-size:24px;font-weight:700;letter-spacing:-0.02em;font-variant-numeric:tabular-nums">{{ donut.total }}</span>
+                    <span style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--epi-fg-3)">Events</span>
+                  </div>
+                  <sc-for list="{{ donut.slices }}" as="d" hint-placeholder-count="4">
+                    <div style="display:flex;gap:9px;align-items:center;font-size:13px">
+                      <span style="{{ d.dot }}"></span>
+                      <span style="flex:1;color:var(--epi-fg-strong)">{{ d.name }}</span>
+                      <span style="color:var(--epi-fg-3);font-variant-numeric:tabular-nums">{{ d.pct }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <sc-if value="{{ isEmpScope }}" hint-placeholder-val="{{ true }}">
+            <section>
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px;flex-wrap:wrap">
+                <button onClick="{{ secDetail.toggle }}" style="{{ secDetail.chev }}">{{ secDetail.icon }}</button>
+                <h2 style="margin:0;font-size:18px;font-weight:700;letter-spacing:-0.018em">Recognition leaderboard</h2>
+              </div>
+              <p style="margin:0 0 16px;font-size:13px;color:var(--epi-fg-3);padding-left:36px">Who is being recognised most, and what sits against it</p>
+              <sc-if value="{{ secDetail.open }}" hint-placeholder-val="{{ true }}">
+                <div style="border:1px solid var(--epi-border);border-radius:14px;background:var(--epi-surface);box-shadow:var(--epi-shadow-card);padding:8px 20px 16px">
+                  <sc-for list="{{ leaderboard }}" as="l" hint-placeholder-count="8">
+                    <div onClick="{{ l.go }}" style="padding:11px 0;border-bottom:1px solid var(--epi-border-soft);display:flex;gap:14px;align-items:center;cursor:pointer">
+                      <span style="{{ l.rankStyle }}">{{ l.rank }}</span>
+                      <span style="flex:0 1 170px;min-width:0">
+                        <span style="display:block;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ l.name }}</span>
+                        <span style="display:block;font-size:12px;color:var(--epi-fg-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ l.dept }}</span>
+                      </span>
+                      <span style="flex:1;min-width:80px;display:flex;flex-direction:column;gap:4px">
+                        <span style="height:8px;border-radius:999px;background:var(--epi-track);display:flex;overflow:hidden">
+                          <span style="{{ l.posBar }}"></span>
+                          <span style="{{ l.goofBar }}"></span>
+                        </span>
+                        <span style="font-size:12px;color:var(--epi-fg-3)">{{ l.note }}</span>
+                      </span>
+                      <span style="font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--epi-pos);width:28px;text-align:right">{{ l.pos }}</span>
+                      <span style="{{ l.goofStyle }}">{{ l.goof }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </section>
+          </sc-if>
+
+          <section>
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px;flex-wrap:wrap">
+              <button onClick="{{ secHeat.toggle }}" style="{{ secHeat.chev }}">{{ secHeat.icon }}</button>
+              <h2 style="margin:0;font-size:18px;font-weight:700;letter-spacing:-0.018em">{{ heatTitle }}</h2>
+            </div>
+            <p style="margin:0 0 16px;font-size:13px;color:var(--epi-fg-3);padding-left:36px">{{ heatSub }}</p>
+            <sc-if value="{{ secHeat.open }}" hint-placeholder-val="{{ true }}">
+            <div style="border:1px solid var(--epi-border);border-radius:14px;background:var(--epi-surface);box-shadow:var(--epi-shadow-card);padding:18px 20px;overflow-x:auto">
+              <div style="min-width:520px;display:flex;flex-direction:column;gap:6px">
+                <div style="display:grid;grid-template-columns:minmax(130px,1.4fr) repeat(6,minmax(40px,1fr));gap:6px;align-items:center">
+                  <span></span>
+                  <sc-for list="{{ heatMonths }}" as="m" hint-placeholder-count="6">
+                    <span style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--epi-fg-3);text-align:center">{{ m }}</span>
+                  </sc-for>
+                </div>
+                <sc-for list="{{ heat }}" as="h" hint-placeholder-count="5">
+                  <div style="display:grid;grid-template-columns:minmax(130px,1.4fr) repeat(6,minmax(40px,1fr));gap:6px;align-items:center">
+                    <span style="font-size:13px;color:var(--epi-fg-strong);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ h.name }}</span>
+                    <sc-for list="{{ h.cells }}" as="c" hint-placeholder-count="6">
+                      <span style="{{ c.style }}" title="{{ c.title }}">{{ c.label }}</span>
+                    </sc-for>
+                  </div>
+                </sc-for>
+                <div style="display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--epi-border-soft)">
+                  <span style="font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--epi-fg-3)">Lighter</span>
+                  <span style="flex:1;max-width:180px;height:6px;border-radius:999px;background:linear-gradient(90deg,rgba(245,158,11,0.12),rgba(245,158,11,0.42),rgba(245,158,11,0.74))"></span>
+                  <span style="font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--epi-fg-3)">Heavier</span>
+                  <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--epi-fg-3)">weighted severity</span>
+                </div>
+              </div>
+            </div>
+            </sc-if>
+          </section>
+
+          <section>
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+              <button onClick="{{ secActivity.toggle }}" style="{{ secActivity.chev }}">{{ secActivity.icon }}</button>
+              <h2 style="margin:0;font-size:18px;font-weight:700;letter-spacing:-0.018em">Recent performance activity</h2>
+              <button onClick="{{ goPerformance }}" style="margin-left:auto;background:transparent;border:0;color:var(--epi-link);font-size:14px;font-weight:600;cursor:pointer">View all →</button>
+            </div>
+            <sc-if value="{{ secActivity.open }}" hint-placeholder-val="{{ true }}">
+            <div style="border:1px solid var(--epi-border);border-radius:14px;background:var(--epi-surface);box-shadow:var(--epi-shadow-card);overflow:hidden">
+              <sc-for list="{{ recent }}" as="e" hint-placeholder-count="6">
+                <div onClick="{{ e.go }}" style="display:flex;gap:14px;padding:14px 16px;border-bottom:1px solid var(--epi-border-soft);cursor:pointer;align-items:flex-start" style-hover="background:var(--epi-hover)">
+                  <span style="{{ e.iconStyle }}">{{ e.icon }}</span>
+                  <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
+                    <div style="font-size:14px;font-weight:600;line-height:1.35">{{ e.title }}</div>
+                    <div style="font-size:13px;color:var(--epi-fg-2);display:flex;gap:8px;flex-wrap:wrap">
+                      <span style="color:var(--epi-accent-fg)">{{ e.empName }}</span><span>·</span><span>{{ e.category }}</span><span>·</span><span>{{ e.severity }} impact</span><span>·</span><span>{{ e.recordedBy }}</span>
+                    </div>
+                  </div>
+                  <span style="font-size:12px;color:var(--epi-fg-3);white-space:nowrap;font-variant-numeric:tabular-nums">{{ e.dateShort }}</span>
+                </div>
+              </sc-for>
+              <sc-if value="{{ recentEmpty }}">
+                <div style="padding:44px 20px;text-align:center;display:flex;flex-direction:column;gap:10px;align-items:center">
+                  <div style="width:40px;height:40px;border-radius:12px;background:var(--epi-elev);border:1px solid var(--epi-border);display:flex;align-items:center;justify-content:center">◌</div>
+                  <div style="font-size:15px;font-weight:600">No performance records yet</div>
+                  <div style="font-size:14px;color:var(--epi-fg-2);max-width:380px">Once your team starts recording employee performance, activity will appear here.</div>
+                  <button onClick="{{ openRecord }}" style="margin-top:6px;height:34px;padding:0 14px;border-radius:8px;border:0;background:linear-gradient(135deg,#A084FF,#5B3BDB);color:#fff;font-weight:600;cursor:pointer">+ Record Performance</button>
+                </div>
+              </sc-if>
+            </div>
+            </sc-if>
+          </section>
+        </div>
+      </sc-if>
+
+      <!-- ============ EMPLOYEE PROFILE ============ -->
+      <sc-if value="{{ isProfile }}" data-screen-label="Employee profile">
+        <div style="max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:22px">
+          <button onClick="{{ goBack }}" style="align-self:flex-start;background:transparent;border:0;color:var(--epi-fg-2);font-size:14px;cursor:pointer;padding:0">← Back</button>
+
+          <div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
+            <div style="width:56px;height:56px;border-radius:16px;background:var(--epi-raised);border:1px solid var(--epi-border-2);display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700">{{ p.initials }}</div>
+            <div style="flex:1 1 260px;min-width:0">
+              <h1 style="margin:0;font-size:28px;font-weight:700;letter-spacing:-0.02em">{{ p.name }}</h1>
+              <p style="margin:5px 0 0;font-size:15px;color:var(--epi-fg-2)">{{ p.role }} · {{ p.dept }} · <span style="font-family:'JetBrains Mono',monospace;font-size:13px">{{ p.code }}</span></p>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button onClick="{{ recordPositive }}" style="height:36px;padding:0 14px;border-radius:8px;background:rgba(124,92,255,0.12);border:1px solid rgba(124,92,255,0.32);color:var(--epi-pos);font-size:14px;font-weight:600;cursor:pointer">+ Positive Contribution</button>
+              <button onClick="{{ recordGoofup }}" style="height:36px;padding:0 14px;border-radius:8px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.32);color:var(--epi-neg);font-size:14px;font-weight:600;cursor:pointer">+ Goofup</button>
+            </div>
+          </div>
+
+          <div style="border:1px solid var(--epi-border);border-radius:14px;background:var(--epi-surface);box-shadow:var(--epi-shadow-card);padding:20px;display:flex;gap:24px;flex-wrap:wrap;align-items:center">
+            <div style="flex:1 1 260px;min-width:0">
+              <div style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--epi-fg-3)">Performance signal</div>
+              <div style="{{ p.signalBig }}">{{ p.signalLabel }}</div>
+              <div style="font-size:13px;color:var(--epi-fg-2);margin-top:8px;line-height:1.5">{{ p.signalWhy }}</div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:18px;flex:1 1 340px">
+              <sc-for list="{{ p.stats }}" as="s" hint-placeholder-count="4">
+                <div>
+                  <div style="font-size:26px;font-weight:700;letter-spacing:-0.02em;font-variant-numeric:tabular-nums;color:{{ s.color }}">{{ s.value }}</div>
+                  <div style="font-size:12px;color:var(--epi-fg-3);margin-top:3px">{{ s.label }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <sc-if value="{{ showReasons }}">
+            <div style="border:1px solid var(--epi-border);border-radius:14px;background:var(--epi-canvas);padding:16px 20px">
+              <div style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--epi-fg-3);margin-bottom:10px">Why this signal</div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <sc-for list="{{ p.reasons }}" as="r" hint-placeholder-count="3">
+                  <div style="display:flex;gap:10px;font-size:14px;color:var(--epi-fg-strong);line-height:1.45">
+                    <span style="{{ r.dot }}"></span><span style="flex:1">{{ r.text }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+
+          <div style="display:flex;gap:4px;border-bottom:1px solid var(--epi-border);overflow:auto">
+            <sc-for list="{{ profileTabs }}" as="t" hint-placeholder-count="5">
+              <button onClick="{{ t.go }}" style="{{ t.style }}">{{ t.label }}</button>
+            </sc-for>
+          </div>
+
+          <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start">
+            <section style="flex:1 1 560px;min-width:0">
+              <sc-if value="{{ p.notesTab }}">
+                <div style="border:1px solid var(--epi-border-2);border-radius:14px;background:var(--epi-surface);box-shadow:var(--epi-shadow-card);padding:20px;display:flex;flex-direction:column;gap:12px">
+                  <div style="display:flex;gap:8px;align-items:center">
+                    <span style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--epi-warn)">Management only</span>
+                  </div>
+                  <sc-for list="{{ p.notes }}" as="n" hint-placeholder-count="2">
+                    <div style="border-left:2px solid var(--epi-border-2);padding:2px 0 2px 14px;display:flex;flex-direction:column;gap:4px">
+                      <div style="font-size:14px;line-height:1.5">{{ n.text }}</div>
+                      <div style="font-size:12px;color:var(--epi-fg-3)">{{ n.by }} · {{ n.date }}</div>
+                    </div>
+                  </sc-for>
+                  <textarea placeholder="Add a private management note…" rows="3" style="width:100%;border-radius:10px;background:var(--epi-input);border:1px solid var(--epi-border);color:var(--epi-fg);padding:10px 12px;font-size:14px;resize:vertical;outline:none"></textarea>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ p.timelineTab }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;flex-direction:column;gap:26px">
+                  <sc-for list="{{ p.groups }}" as="g" hint-placeholder-count="2">
+                    <div>
+                      <div style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--epi-fg-3);margin-bottom:14px">{{ g.label }}</div>
+                      <div style="display:flex;flex-direction:column">
+                        <sc-for list="{{ g.events }}" as="e" hint-placeholder-count="3">
+                          <div onClick="{{ e.go }}" style="display:flex;gap:16px;cursor:pointer;padding-bottom:20px">
+                            <div style="width:52px;flex:0 0 52px;text-align:right;font-size:12px;font-weight:600;color:var(--epi-fg-2);font-variant-numeric:tabular-nums;padding-top:3px">{{ e.dateShort }}</div>
+                            <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:4px">
+                              <span style="{{ e.iconStyle }}">{{ e.icon }}</span>
+                              <span style="width:1px;flex:1;background:var(--epi-border);min-height:16px"></span>
+                            </div>
+                            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:5px;padding-top:2px">
+                              <div style="font-size:15px;font-weight:600;line-height:1.35">{{ e.title }}</div>
+                              <div style="font-size:14px;color:var(--epi-fg-2);line-height:1.5">{{ e.desc }}</div>
+                              <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:2px">
+                                <span style="{{ e.catStyle }}">{{ e.category }}</span>
+                                <span style="{{ e.sevStyle }}">{{ e.severity }} impact</span>
+                                <span style="font-size:12px;color:var(--epi-fg-3)">Recorded by {{ e.recordedBy }}</span>
+                                <span style="{{ e.followStyle }}">{{ e.followLabel }}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </sc-for>
+                      </div>
+                    </div>
+                  </sc-for>
+                  <sc-if value="{{ p.timelineEmpty }}">
+                    <div style="border:1px dashed var(--epi-border-2);border-radius:14px;padding:44px 20px;text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center">
+                      <div style="font-size:15px;font-weight:600">No records in this view</div>
+                      <div style="font-size:14px;color:var(--epi-fg-2);max-width:360px">Change the tab or record the first performance event for {{ p.name }}.</div>
+                      <button onClick="{{ openRecord }}" style="margin-top:6px;height:34px;padding:0 14px;border-radius:8px;border:0;background:linear-gradient(135deg,#A084FF,#5B3BDB);color:#fff;font-weight:600;cursor:pointer">+ Record Performance</button>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-if>
+            </section>
+
+            <aside style="flex:1 1 280px;min-width:0;display:flex;flex-direction:column;gap:18px">
+              <div style="border:1px solid var(--epi-border);border-radius:14px;background:var(--epi-surface);box-shadow:var(--epi-shadow-card);padding:18px">
+                <div style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--epi-fg-3);margin-bottom:14px">Category pattern</div>
+                <div style="display:flex;flex-direction:column;gap:11px">
+                  <sc-for list="{{ p.cats }}" as="c" hint-placeholder-count="4">
+                    <div style="display:flex;flex-direction:column;gap:5px">
+                      <div style="display:flex;font-size:13px"><span style="flex:1;color:var(--epi-fg-strong)">{{ c.name }}</span><span style="color:var(--epi-fg-3)">{{ c.count }}</span></div>
+                      <div style="height:4px;border-radius:999px;background:var(--epi-track)"><div style="{{ c.bar }}"></div></div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="border:1px solid var(--epi-border);border-radius:14px;background:var(--epi-surface);box-shadow:var(--epi-shadow-card);padding:18px">
+                <div style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--epi-fg-3);margin-bottom:14px">Six-month trend</div>
+                <div style="display:flex;gap:8px;align-items:flex-end;height:96px">
+                  <sc-for list="{{ p.trend }}" as="b" hint-placeholder-count="6">
+                    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end">
+                      <div style="display:flex;gap:3px;align-items:flex-end;height:100%;justify-content:center;width:100%">
+                        <div style="{{ b.posStyle }}"></div>
+                        <div style="{{ b.goofStyle }}"></div>
+                      </div>
+                      <span style="font-size:11px;color:var(--epi-fg-3)">{{ b.label }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="border:1px solid var(--epi-border);border-radius:14px;background:var(--epi-surface);box-shadow:var(--epi-shadow-card);padding:18px;display:flex;flex-direction:column;gap:10px">
+                <div style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--epi-fg-3)">Record</div>
+                <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--epi-fg-2)">Employee code</span><span style="font-family:'JetBrains Mono',monospace">{{ p.code }}</span></div>
+                <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--epi-fg-2)">Joined</span><span>{{ p.doj }}</span></div>
+                <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--epi-fg-2)">Reports to</span><span>{{ p.mgr }}</span></div>
+                <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--epi-fg-2)">Status</span><span style="color:var(--epi-pos)">{{ p.status }}</span></div>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ PERFORMANCE LEDGER ============ -->
+      <sc-if value="{{ isPerformance }}" data-screen-label="Performance activity">
+        <div style="max-width:1360px;margin:0 auto;display:flex;flex-direction:column;gap:20px">
+          <div style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap">
+            <div style="flex:1 1 300px">
+              <h1 style="margin:0;font-size:26px;font-weight:700;letter-spacing:-0.02em">Performance activity</h1>
+              <p style="margin:6px 0 0;font-size:14px;color:var(--epi-fg-2)">{{ ledgerCount }}</p>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button onClick="{{ exportCsv }}" style="height:34px;padding:0 13px;border-radius:8px;background:var(--epi-input);border:1px solid var(--epi-border-2);color:var(--epi-fg);font-size:14px;font-weight:600;cursor:pointer">Export CSV</button>
+              <button onClick="{{ openRecord }}" style="height:34px;padding:0 13px;border-radius:8px;border:0;background:linear-gradient(135deg,#A084FF,#5B3BDB);color:#fff;font-size:14px;font-weight:600;cursor:pointer">+ Record</button>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:8px;flex-wrap:wrap;padding:12px;border:1px solid var(--epi-border);border-radius:12px;background:var(--epi-surface);box-shadow:var(--epi-shadow-card)">
+            <input value="{{ ledgerQ }}" onChange="{{ setLedgerQ }}" placeholder="Search performance records…" style="flex:1 1 200px;height:34px;border-radius:8px;background:var(--epi-input);border:1px solid var(--epi-border);color:var(--epi-fg);padding:0 12px;font-size:14px;outline:none" />
+            <select value="{{ fEmp }}" onChange="{{ setEmp }}" style="height:34px;border-radius:8px;background:var(--epi-input);border:1px solid var(--epi-border-2);color:var(--epi-fg);font-size:13px;padding:0 8px;font-weight:600">
+              <sc-for list="{{ empFilterOptions }}" as="o" hint-placeholder-count="4"><option value="{{ o }}">{{ o }}</option></sc-for>
+            </select>
+            <select value="{{ fDept }}" onChange="{{ setDept }}" style="height:34px;border-radius:8px;background:var(--epi-input);border:1px solid var(--epi-border);color:var(--epi-fg);font-size:13px;padding:0 8px">
+              <sc-for list="{{ deptOptions }}" as="o" hint-placeholder-count="3"><option value="{{ o }}">{{ o }}</option></sc-for>
+            </select>
+            <select value="{{ fType }}" onChange="{{ setType }}" style="height:34px;border-radius:8px;background:var(--epi-input);border:1px solid var(--epi-border);color:var(--epi-fg);font-size:13px;padding:0 8px">
+              <sc-for list="{{ typeOptions }}" as="o" hint-placeholder-count="3"><option value="{{ o }}">{{ o }}</option></sc-for>
+            </select>
+            <select value="{{ fCategory }}" onChange="{{ setCategory }}" style="height:34px;border-radius:8px;background:var(--epi-input);border:1px solid var(--epi-border);color:var(--epi-fg);font-size:13px;padding:0 8px">
+              <sc-for list="{{ categoryOptions }}" as="o" hint-placeholder-count="3"><option value="{{ o }}">{{ o }}</option></sc-for>
+            </select>
+            <select value="{{ fSeverity }}" onChange="{{ setSeverity }}" style="height:34px;border-radius:8px;background:var(--epi-input);border:1px solid var(--epi-border);color:var(--epi-fg);font-size:13px;padding:0 8px">
+              <sc-for list="{{ severityOptions }}" as="o" hint-placeholder-count="3"><option value="{{ o }}">{{ o }}</option></sc-for>
+            </select>
+            <select value="{{ fRange }}" onChange="{{ setRange }}" style="height:34px;border-radius:8px;background:var(--epi-input);border:1px solid var(--epi-border);color:var(--epi-fg);font-size:13px;padding:0 8px">
+              <sc-for list="{{ rangeOptions }}" as="o" hint-placeholder-count="3"><option value="{{ o }}">{{ o }}</option></sc-for>
+            </select>
+            <button onClick="{{ clearFilters }}" style="height:34px;padding:0 12px;border-radius:8px;background:transparent;border:1px solid var(--epi-border);color:var(--epi-fg-2);font-size:13px;cursor:pointer">Reset</button>
+          </div>
+
+          <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+            <div style="border:1px solid var(--epi-border);border-radius:14px;overflow:hidden;overflow-x:auto;background:var(--epi-surface);box-shadow:var(--epi-shadow-card)">
+              <div style="min-width:940px;display:grid;grid-template-columns:76px minmax(120px,1.4fr) 92px minmax(200px,2.6fr) minmax(110px,1.2fr) 84px minmax(100px,1fr) 96px;gap:10px;padding:10px 16px;background:var(--epi-surface);border-bottom:1px solid var(--epi-border);font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--epi-fg-3)">
+                <span>Date</span><span>Employee</span><span>Type</span><span>Event</span><span>Category</span><span>Impact</span><span>Recorded by</span><span>Status</span>
+              </div>
+              <sc-for list="{{ ledger }}" as="e" hint-placeholder-count="8">
+                <div onClick="{{ e.go }}" style="min-width:940px;display:grid;grid-template-columns:76px minmax(120px,1.4fr) 92px minmax(200px,2.6fr) minmax(110px,1.2fr) 84px minmax(100px,1fr) 96px;gap:10px;padding:12px 16px;border-bottom:1px solid var(--epi-border-soft);cursor:pointer;align-items:center;font-size:14px" style-hover="background:var(--epi-hover)">
+                  <span style="{{ e.dateStyle }}">{{ e.dateShort }}</span>
+                  <span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600">{{ e.empName }}</span>
+                  <span style="{{ e.typeStyle }}">{{ e.typeLabel }}</span>
+                  <span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ e.title }}</span>
+                  <span style="font-size:13px;color:var(--epi-fg-2);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ e.category }}</span>
+                  <span style="{{ e.sevStyle }}">{{ e.severity }}</span>
+                  <span style="font-size:13px;color:var(--epi-fg-2);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ e.recordedBy }}</span>
+                  <span style="{{ e.statusStyle }}">{{ e.status }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <sc-for list="{{ ledger }}" as="e" hint-placeholder-count="5">
+                <div onClick="{{ e.go }}" style="border:1px solid var(--epi-border);border-radius:12px;background:var(--epi-surface);box-shadow:var(--epi-shadow-card);padding:14px;display:flex;gap:12px">
+                  <span style="{{ e.iconStyle }}">{{ e.icon }}</span>
+                  <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:5px">
+                    <div style="font-size:15px;font-weight:600;line-height:1.35">{{ e.title }}</div>
+                    <div style="font-size:13px;color:var(--epi-accent-fg)">{{ e.empName }}</div>
+                    <div style="font-size:12px;color:var(--epi-fg-3)">{{ e.category }} · {{ e.severity }} impact · {{ e.dateFull }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ ledgerEmpty }}">
+            <div style="border:1px dashed var(--epi-border-2);border-radius:14px;padding:52px 20px;text-align:center;display:flex;flex-direction:column;gap:10px;align-items:center">
+              <div style="font-size:16px;font-weight:600">No records match these filters</div>
+              <div style="font-size:14px;color:var(--epi-fg-2);max-width:380px">Try widening the date range or clearing the department and category filters.</div>
+              <button onClick="{{ clearFilters }}" style="margin-top:6px;height:34px;padding:0 14px;border-radius:8px;background:var(--epi-raised);border:1px solid var(--epi-border-2);color:var(--epi-fg);font-weight:600;cursor:pointer">Reset filters</button>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <!-- ============ EMPLOYEES / DATABASE ============ -->
+      <sc-if value="{{ isDatabase }}" data-screen-label="Employee database">
+        <div style="max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:20px">
+          <h1 style="margin:0;font-size:26px;font-weight:700;letter-spacing:-0.02em">Settings</h1>
+          <div style="display:flex;gap:4px;border-bottom:1px solid var(--epi-border);overflow:auto">
+            <sc-for list="{{ settingsTabs }}" as="t" hint-placeholder-count="5">
+              <button onClick="{{ t.go }}" style="{{ t.style }}">{{ t.label }}</button>
+            </sc-for>
+          </div>
+          <div style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap">
+            <div style="flex:1 1 300px">
+              <h2 style="margin:0;font-size:18px;font-weight:700;letter-spacing:-0.018em">Employee database</h2>
+              <p style="margin:6px 0 0;font-size:14px;color:var(--epi-fg-2)">{{ dbCount }}</p>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button onClick="{{ noop }}" style="height:34px;padding:0 13px;border-radius:8px;background:var(--epi-input);border:1px solid var(--epi-border-2);color:var(--epi-fg);font-size:14px;font-weight:600;cursor:pointer">Import</button>
+              <button onClick="{{ noop }}" style="height:34px;padding:0 13px;border-radius:8px;border:0;background:linear-gradient(135deg,#A084FF,#5B3BDB);color:#fff;font-size:14px;font-weight:600;cursor:pointer">+ Add employee</button>
+            </div>
+          </div>
+          <div style="border:1px solid var(--epi-border);border-radius:14px;overflow:hidden;overflow-x:auto;background:var(--epi-surface);box-shadow:var(--epi-shadow-card)">
+            <div style="min-width:860px;display:grid;grid-template-columns:minmax(150px,2fr) 96px minmax(110px,1.4fr) minmax(110px,1.2fr) 96px minmax(110px,1.2fr) 88px;gap:10px;padding:10px 16px;background:var(--epi-surface);border-bottom:1px solid var(--epi-border);font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--epi-fg-3)">
+              <span>Name</span><span>Code</span><span>Designation</span><span>Department</span><span>Joined</span><span>Reports to</span><span>Status</span>
+            </div>
+            <sc-for list="{{ dbRows }}" as="r" hint-placeholder-count="8">
+              <div onClick="{{ r.go }}" style="min-width:860px;display:grid;grid-template-columns:minmax(150px,2fr) 96px minmax(110px,1.4fr) minmax(110px,1.2fr) 96px minmax(110px,1.2fr) 88px;gap:10px;padding:12px 16px;border-bottom:1px solid var(--epi-border-soft);cursor:pointer;align-items:center;font-size:14px" style-hover="background:var(--epi-hover)">
+                <span style="display:flex;gap:10px;align-items:center;min-width:0"><span style="{{ r.avatarStyle }}">{{ r.initials }}</span><span style="font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.name }}</span></span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--epi-fg-2)">{{ r.code }}</span>
+                <span style="font-size:13px;color:var(--epi-fg-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.role }}</span>
+                <span style="font-size:13px;color:var(--epi-fg-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.dept }}</span>
+                <span style="font-size:13px;color:var(--epi-fg-3);font-variant-numeric:tabular-nums">{{ r.doj }}</span>
+                <span style="font-size:13px;color:var(--epi-fg-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.mgr }}</span>
+                <span style="{{ r.statusStyle }}">{{ r.status }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <p style="margin:0;font-size:13px;color:var(--epi-fg-3)">Employees with performance history are archived, never deleted.</p>
+        </div>
+      </sc-if>
+
+      <!-- ============ REPORTS ============ -->
+      <sc-if value="{{ isReports }}" data-screen-label="Reports">
+        <div style="max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:22px">
+          <div style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap">
+            <div style="flex:1 1 300px">
+              <h1 style="margin:0;font-size:26px;font-weight:700;letter-spacing:-0.02em">Employee performance report</h1>
+              <p style="margin:6px 0 0;font-size:14px;color:var(--epi-fg-2)">{{ reportPeriod }}</p>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <select value="{{ reportEmp }}" onChange="{{ setReportEmp }}" style="height:34px;border-radius:8px;background:var(--epi-input);border:1px solid var(--epi-border-2);color:var(--epi-fg);font-size:13px;padding:0 8px">
+                <sc-for list="{{ empNames }}" as="o" hint-placeholder-count="4"><option value="{{ o }}">{{ o }}</option></sc-for>
+              </select>
+              <button onClick="{{ doPrint }}" style="height:34px;padding:0 13px;border-radius:8px;background:var(--epi-input);border:1px solid var(--epi-border-2);color:var(--epi-fg);font-size:14px;font-weight:600;cursor:pointer">Print</button>
+              <button onClick="{{ exportCsv }}" style="height:34px;padding:0 13px;border-radius:8px;background:var(--epi-input);border:1px solid var(--epi-border-2);color:var(--epi-fg);font-size:14px;font-weight:600;cursor:pointer">Export CSV</button>
+            </div>
+          </div>
+
+          <div style="border:1px solid var(--epi-border);border-radius:14px;background:var(--epi-surface);box-shadow:var(--epi-shadow-card);padding:20px;display:flex;gap:24px;flex-wrap:wrap;align-items:center">
+            <div style="flex:1 1 240px">
+              <div style="font-size:18px;font-weight:700">{{ rp.name }}</div>
+              <div style="font-size:14px;color:var(--epi-fg-2);margin-top:3px">{{ rp.role }} · {{ rp.dept }}</div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:18px;flex:1 1 320px">
+              <sc-for list="{{ rp.stats }}" as="s" hint-placeholder-count="4">
+                <div>
+                  <div style="font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;color:{{ s.color }}">{{ s.value }}</div>
+                  <div style="font-size:12px;color:var(--epi-fg-3);margin-top:3px">{{ s.label }}</div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="{{ rp.signalStyle }}">{{ rp.signal }}</div>
+          </div>
+
+          <section>
+            <h2 style="margin:0 0 12px;font-size:18px;font-weight:700">Detailed events</h2>
+            <div style="border:1px solid var(--epi-border);border-radius:14px;overflow:hidden;overflow-x:auto;background:var(--epi-surface);box-shadow:var(--epi-shadow-card)">
+              <div style="min-width:800px;display:grid;grid-template-columns:78px 92px minmax(200px,3fr) minmax(110px,1.2fr) 84px minmax(100px,1fr);gap:10px;padding:10px 16px;background:var(--epi-surface);border-bottom:1px solid var(--epi-border);font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--epi-fg-3)">
+                <span>Date</span><span>Type</span><span>Event</span><span>Category</span><span>Impact</span><span>Recorded by</span>
+              </div>
+              <sc-for list="{{ rp.events }}" as="e" hint-placeholder-count="6">
+                <div onClick="{{ e.go }}" style="min-width:800px;display:grid;grid-template-columns:78px 92px minmax(200px,3fr) minmax(110px,1.2fr) 84px minmax(100px,1fr);gap:10px;padding:12px 16px;border-bottom:1px solid var(--epi-border-soft);align-items:center;font-size:14px;cursor:pointer" style-hover="background:var(--epi-hover)">
+                  <span style="font-size:13px;color:var(--epi-fg-2);font-variant-numeric:tabular-nums">{{ e.dateShort }}</span>
+                  <span style="{{ e.typeStyle }}">{{ e.typeLabel }}</span>
+                  <span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ e.title }}</span>
+                  <span style="font-size:13px;color:var(--epi-fg-2);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ e.category }}</span>
+                  <span style="{{ e.sevStyle }}">{{ e.severity }}</span>
+                  <span style="font-size:13px;color:var(--epi-fg-2);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ e.recordedBy }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </section>
+
+          <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start">
+            <section style="flex:1 1 340px;min-width:0">
+              <h2 style="margin:0 0 12px;font-size:18px;font-weight:700">Department comparison</h2>
+              <div style="border:1px solid var(--epi-border);border-radius:14px;background:var(--epi-surface);box-shadow:var(--epi-shadow-card);padding:6px 18px 14px">
+                <sc-for list="{{ deptRows }}" as="d" hint-placeholder-count="5">
+                  <div style="padding:11px 0;border-bottom:1px solid var(--epi-border-soft);display:flex;flex-direction:column;gap:6px">
+                    <div style="display:flex;gap:10px;font-size:14px"><span style="flex:1">{{ d.name }}</span><span style="color:var(--epi-pos)">{{ d.pos }}</span><span style="color:var(--epi-neg)">{{ d.goof }}</span></div>
+                    <div style="height:4px;border-radius:999px;background:var(--epi-track);display:flex;overflow:hidden"><div style="{{ d.posBar }}"></div><div style="{{ d.goofBar }}"></div></div>
+                  </div>
+                </sc-for>
+              </div>
+            </section>
+            <section style="flex:1 1 340px;min-width:0">
+              <h2 style="margin:0 0 12px;font-size:18px;font-weight:700">Category analysis</h2>
+              <div style="border:1px solid var(--epi-border);border-radius:14px;background:var(--epi-surface);box-shadow:var(--epi-shadow-card);padding:6px 18px 14px">
+                <sc-for list="{{ catRows }}" as="c" hint-placeholder-count="6">
+                  <div style="padding:11px 0;border-bottom:1px solid var(--epi-border-soft);display:flex;flex-direction:column;gap:6px">
+                    <div style="display:flex;gap:10px;font-size:14px"><span style="flex:1">{{ c.name }}</span><span style="color:var(--epi-fg-3)">{{ c.count }} · {{ c.pct }}</span></div>
+                    <div style="height:4px;border-radius:999px;background:var(--epi-track)"><div style="{{ c.bar }}"></div></div>
+                  </div>
+                </sc-for>
+              </div>
+            </section>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ INSIGHTS ============ -->
+      <sc-if value="{{ isInsights }}" data-screen-label="Insights">
+        <div style="max-width:1240px;margin:24px auto 0;display:flex;flex-direction:column;gap:20px;padding-top:24px;border-top:1px solid var(--epi-border)">
+          <div>
+            <h2 style="margin:0;font-size:18px;font-weight:700;letter-spacing:-0.018em">Management insights</h2>
+            <p style="margin:6px 0 0;font-size:14px;color:var(--epi-fg-2)">Generated from {{ eventTotal }} recorded events. {{ reportPeriod }}</p>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <sc-for list="{{ insights }}" as="i" hint-placeholder-count="4">
+              <div style="border:1px solid var(--epi-border);border-radius:14px;background:var(--epi-surface);box-shadow:var(--epi-shadow-card);padding:18px 20px;display:flex;gap:16px;align-items:flex-start">
+                <span style="{{ i.tagStyle }}">{{ i.tag }}</span>
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
+                  <div style="font-size:16px;font-weight:600;line-height:1.4">{{ i.text }}</div>
+                  <div style="font-size:13px;color:var(--epi-fg-3)">{{ i.basis }}</div>
+                </div>
+                <sc-if value="{{ i.hasAction }}">
+                  <button onClick="{{ i.go }}" style="background:transparent;border:0;color:var(--epi-link);font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap">{{ i.action }} →</button>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ SETTINGS ============ -->
+      <sc-if value="{{ isSettings }}" data-screen-label="Settings">
+        <div style="max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:20px">
+          <h1 style="margin:0;font-size:26px;font-weight:700;letter-spacing:-0.02em">{{ settingsTitle }}</h1>
+          <div style="display:flex;gap:4px;border-bottom:1px solid var(--epi-border);overflow:auto">
+            <sc-for list="{{ settingsTabs }}" as="t" hint-placeholder-count="4">
+              <button onClick="{{ t.go }}" style="{{ t.style }}">{{ t.label }}</button>
+            </sc-for>
+          </div>
+
+          <sc-if value="{{ tabCategories }}">
+            <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start">
+              <div style="flex:1 1 320px;min-width:0;border:1px solid var(--epi-border);border-radius:14px;background:var(--epi-surface);box-shadow:var(--epi-shadow-card);padding:18px">
+                <div style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--epi-pos);margin-bottom:14px">Positive categories</div>
+                <div style="display:flex;flex-wrap:wrap;gap:8px">
+                  <sc-for list="{{ posCats }}" as="c" hint-placeholder-count="8">
+                    <span style="padding:6px 11px;border-radius:999px;background:rgba(124,92,255,0.10);border:1px solid rgba(124,92,255,0.24);font-size:13px;color:var(--epi-pos-fg)">{{ c }}</span>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="flex:1 1 320px;min-width:0;border:1px solid var(--epi-border);border-radius:14px;background:var(--epi-surface);box-shadow:var(--epi-shadow-card);padding:18px">
+                <div style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--epi-neg);margin-bottom:14px">Goofup categories</div>
+                <div style="display:flex;flex-wrap:wrap;gap:8px">
+                  <sc-for list="{{ goofCats }}" as="c" hint-placeholder-count="8">
+                    <span style="padding:6px 11px;border-radius:999px;background:rgba(245,158,11,0.10);border:1px solid rgba(245,158,11,0.24);font-size:13px;color:var(--epi-neg-fg)">{{ c }}</span>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="flex:1 1 240px;min-width:0;border:1px solid var(--epi-border);border-radius:14px;background:var(--epi-surface);box-shadow:var(--epi-shadow-card);padding:18px">
+                <div style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--epi-fg-3);margin-bottom:14px">Severity levels</div>
+                <div style="display:flex;flex-direction:column;gap:10px">
+                  <sc-for list="{{ sevLevels }}" as="s" hint-placeholder-count="4">
+                    <div style="display:flex;gap:10px;align-items:center;font-size:14px">
+                      <span style="{{ s.dot }}"></span><span style="flex:1">{{ s.name }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--epi-fg-3)">weight {{ s.weight }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ tabAccess }}">
+            <div style="border:1px solid var(--epi-border);border-radius:14px;overflow:hidden;overflow-x:auto;background:var(--epi-surface);box-shadow:var(--epi-shadow-card)">
+              <div style="min-width:900px;display:grid;grid-template-columns:minmax(150px,2fr) minmax(120px,1.4fr) minmax(110px,1.2fr) minmax(160px,2fr) 88px 104px;gap:10px;padding:10px 16px;background:var(--epi-surface);border-bottom:1px solid var(--epi-border);font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--epi-fg-3)">
+                <span>User</span><span>Role</span><span>Department</span><span>Access</span><span>Status</span><span>Last active</span>
+              </div>
+              <sc-for list="{{ users }}" as="u" hint-placeholder-count="5">
+                <div style="min-width:900px;display:grid;grid-template-columns:minmax(150px,2fr) minmax(120px,1.4fr) minmax(110px,1.2fr) minmax(160px,2fr) 88px 104px;gap:10px;padding:12px 16px;border-bottom:1px solid var(--epi-border-soft);align-items:center;font-size:14px">
+                  <span style="font-weight:600">{{ u.name }}</span>
+                  <span style="font-size:13px;color:var(--epi-fg-2)">{{ u.role }}</span>
+                  <span style="font-size:13px;color:var(--epi-fg-2)">{{ u.dept }}</span>
+                  <span style="display:flex;gap:5px;flex-wrap:wrap">
+                    <sc-for list="{{ u.perms }}" as="p" hint-placeholder-count="3">
+                      <span style="padding:3px 8px;border-radius:4px;background:rgba(124,92,255,0.12);border:1px solid rgba(124,92,255,0.24);font-size:11px;font-weight:600;color:var(--epi-accent-fg)">{{ p }}</span>
+                    </sc-for>
+                  </span>
+                  <span style="{{ u.statusStyle }}">{{ u.status }}</span>
+                  <span style="font-size:13px;color:var(--epi-fg-3)">{{ u.last }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ tabAudit }}">
+            <div style="border:1px solid var(--epi-border);border-radius:14px;background:var(--epi-surface);box-shadow:var(--epi-shadow-card);overflow:hidden">
+              <sc-for list="{{ audit }}" as="a" hint-placeholder-count="6">
+                <div style="display:flex;gap:14px;padding:13px 16px;border-bottom:1px solid var(--epi-border-soft);align-items:flex-start">
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--epi-fg-3);white-space:nowrap;padding-top:2px">{{ a.time }}</span>
+                  <span style="{{ a.actStyle }}">{{ a.action }}</span>
+                  <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px">
+                    <div style="font-size:14px">{{ a.what }}</div>
+                    <sc-if value="{{ a.hasDiff }}">
+                      <div style="font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--epi-fg-3)">{{ a.diff }}</div>
+                    </sc-if>
+                  </div>
+                  <span style="font-size:13px;color:var(--epi-fg-2);white-space:nowrap">{{ a.by }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ tabGeneral }}">
+            <div style="display:flex;flex-direction:column;gap:12px;max-width:620px">
+              <sc-for list="{{ generalRows }}" as="g" hint-placeholder-count="4">
+                <div style="border:1px solid var(--epi-border);border-radius:12px;background:var(--epi-surface);box-shadow:var(--epi-shadow-card);padding:16px 18px;display:flex;gap:16px;align-items:center">
+                  <div style="flex:1;min-width:0">
+                    <div style="font-size:14px;font-weight:600">{{ g.label }}</div>
+                    <div style="font-size:13px;color:var(--epi-fg-2);margin-top:3px">{{ g.help }}</div>
+                  </div>
+                  <span style="{{ g.valueStyle }}">{{ g.value }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+    </main>
+  </div>
+
+  <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+    <nav style="position:fixed;bottom:0;left:0;right:0;z-index:40;background:var(--epi-nav-bg);border-top:1px solid var(--epi-border);display:flex;padding:8px 6px 10px">
+      <sc-for list="{{ bottomNav }}" as="n" hint-placeholder-count="5">
+        <button onClick="{{ n.go }}" style="{{ n.style }}">
+          <span style="font-size:15px">{{ n.icon }}</span>
+          <span style="font-size:11px;font-weight:600">{{ n.label }}</span>
+        </button>
+      </sc-for>
+    </nav>
+  </sc-if>
+
+  <!-- ============ RECORD DRAWER ============ -->
+  <sc-if value="{{ recordOpen }}">
+    <div style="position:fixed;inset:0;z-index:60;background:var(--epi-scrim);display:flex;justify-content:flex-end;animation:epiFade 200ms ease-out">
+      <div onClick="{{ closeRecord }}" style="flex:1"></div>
+      <div style="{{ drawerStyle }}">
+        <div style="display:flex;gap:12px;align-items:flex-start;padding-bottom:16px;border-bottom:1px solid var(--epi-border)">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--epi-fg-3)">Record performance</div>
+            <h2 style="margin:6px 0 0;font-size:22px;font-weight:700;letter-spacing:-0.02em">What happened?</h2>
+          </div>
+          <button onClick="{{ toggleQuick }}" style="{{ quickToggleStyle }}">{{ quickToggleLabel }}</button>
+          <button onClick="{{ closeRecord }}" style="width:32px;height:32px;border-radius:8px;background:var(--epi-input);border:1px solid var(--epi-border);color:var(--epi-fg-2);cursor:pointer;font-size:15px">✕</button>
+        </div>
+
+        <div style="display:flex;gap:12px;padding:18px 0">
+          <button onClick="{{ pickPositive }}" style="{{ posChoiceStyle }}">
+            <span style="font-size:18px">✓</span>
+            <span style="display:flex;flex-direction:column;gap:2px;text-align:left">
+              <span style="font-size:15px;font-weight:600">Positive Contribution</span>
+              <span style="font-size:12px;opacity:0.7">Recognition, ownership, problem solved</span>
+            </span>
+          </button>
+          <button onClick="{{ pickGoofup }}" style="{{ goofChoiceStyle }}">
+            <span style="font-size:18px">⚠</span>
+            <span style="display:flex;flex-direction:column;gap:2px;text-align:left">
+              <span style="font-size:15px;font-weight:600">Goofup</span>
+              <span style="font-size:12px;opacity:0.7">Mistake, delay, process or quality issue</span>
+            </span>
+          </button>
+        </div>
+
+        <sc-if value="{{ hasDraftType }}">
+          <div style="display:flex;flex-direction:column;gap:16px;animation:epiPanel 200ms cubic-bezier(0.2,0.8,0.2,1)">
+            <label style="display:flex;flex-direction:column;gap:6px">
+              <span style="font-size:14px;font-weight:600">Employee <span style="color:var(--epi-neg)">*</span></span>
+              <select value="{{ draft.employee }}" onChange="{{ setDraftEmployee }}" style="height:38px;border-radius:8px;background:var(--epi-input);border:1px solid var(--epi-border-2);color:var(--epi-fg);font-size:14px;padding:0 10px">
+                <sc-for list="{{ empPickList }}" as="o" hint-placeholder-count="4"><option value="{{ o }}">{{ o }}</option></sc-for>
+              </select>
+            </label>
+
+            <label style="display:flex;flex-direction:column;gap:6px">
+              <span style="font-size:14px;font-weight:600">Event title <span style="color:var(--epi-neg)">*</span></span>
+              <input value="{{ draft.title }}" onChange="{{ setDraftTitle }}" placeholder="Short summary, e.g. Solved urgent production issue" style="height:38px;border-radius:8px;background:var(--epi-input);border:1px solid var(--epi-border-2);color:var(--epi-fg);font-size:14px;padding:0 12px;outline:none" />
+            </label>
+
+            <label style="display:flex;flex-direction:column;gap:6px">
+              <span style="font-size:14px;font-weight:600">What happened?</span>
+              <textarea value="{{ draft.desc }}" onChange="{{ setDraftDesc }}" rows="3" placeholder="Context a manager would need three months from now…" style="border-radius:8px;background:var(--epi-input);border:1px solid var(--epi-border-2);color:var(--epi-fg);font-size:14px;padding:10px 12px;resize:vertical;outline:none"></textarea>
+            </label>
+
+            <sc-if value="{{ detailed }}">
+              <div style="display:flex;flex-direction:column;gap:16px">
+                <div style="display:flex;gap:12px;flex-wrap:wrap">
+                  <label style="flex:1 1 150px;display:flex;flex-direction:column;gap:6px">
+                    <span style="font-size:14px;font-weight:600">Date</span>
+                    <input value="{{ draft.date }}" onChange="{{ setDraftDate }}" type="date" style="height:38px;border-radius:8px;background:var(--epi-input);border:1px solid var(--epi-border-2);color:var(--epi-fg);font-size:14px;padding:0 10px;outline:none" />
+                  </label>
+                  <label style="flex:1 1 150px;display:flex;flex-direction:column;gap:6px">
+                    <span style="font-size:14px;font-weight:600">Category</span>
+                    <select value="{{ draft.category }}" onChange="{{ setDraftCategory }}" style="height:38px;border-radius:8px;background:var(--epi-input);border:1px solid var(--epi-border-2);color:var(--epi-fg);font-size:14px;padding:0 10px">
+                      <sc-for list="{{ draftCats }}" as="o" hint-placeholder-count="5"><option value="{{ o }}">{{ o }}</option></sc-for>
+                    </select>
+                  </label>
+                </div>
+                <div>
+                  <span style="font-size:14px;font-weight:600;display:block;margin-bottom:8px">Impact / severity</span>
+                  <div style="display:flex;gap:8px;flex-wrap:wrap">
+                    <sc-for list="{{ sevChoices }}" as="s" hint-placeholder-count="4">
+                      <button onClick="{{ s.go }}" style="{{ s.style }}">{{ s.name }}</button>
+                    </sc-for>
+                  </div>
+                </div>
+                <div style="display:flex;gap:12px;flex-wrap:wrap">
+                  <label style="flex:1 1 150px;display:flex;flex-direction:column;gap:6px">
+                    <span style="font-size:14px;font-weight:600">Who observed this?</span>
+                    <input value="{{ draft.by }}" onChange="{{ setDraftBy }}" style="height:38px;border-radius:8px;background:var(--epi-input);border:1px solid var(--epi-border-2);color:var(--epi-fg);font-size:14px;padding:0 12px;outline:none" />
+                  </label>
+                  <label style="flex:1 1 150px;display:flex;flex-direction:column;gap:6px">
+                    <span style="font-size:14px;font-weight:600">Tags</span>
+                    <input value="{{ draft.tags }}" onChange="{{ setDraftTags }}" placeholder="dispatch, urgent" style="height:38px;border-radius:8px;background:var(--epi-input);border:1px solid var(--epi-border-2);color:var(--epi-fg);font-size:14px;padding:0 12px;outline:none" />
+                  </label>
+                </div>
+                <div style="border:1px dashed var(--epi-border-2);border-radius:10px;padding:14px;text-align:center;font-size:13px;color:var(--epi-fg-3)">Attach evidence — photo, report, WhatsApp screenshot (optional)</div>
+                <div style="border:1px solid var(--epi-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:12px">
+                  <div style="display:flex;gap:12px;align-items:center">
+                    <span style="flex:1;font-size:14px;font-weight:600">Follow-up required?</span>
+                    <button onClick="{{ toggleFollow }}" style="{{ followToggleStyle }}">{{ followToggleLabel }}</button>
+                  </div>
+                  <sc-if value="{{ draft.follow }}">
+                    <div style="display:flex;gap:12px;flex-wrap:wrap">
+                      <label style="flex:1 1 140px;display:flex;flex-direction:column;gap:6px">
+                        <span style="font-size:13px;color:var(--epi-fg-2)">Follow-up date</span>
+                        <input value="{{ draft.followDate }}" onChange="{{ setDraftFollowDate }}" type="date" style="height:36px;border-radius:8px;background:var(--epi-input);border:1px solid var(--epi-border-2);color:var(--epi-fg);font-size:14px;padding:0 10px;outline:none" />
+                      </label>
+                      <label style="flex:1 1 160px;display:flex;flex-direction:column;gap:6px">
+                        <span style="font-size:13px;color:var(--epi-fg-2)">Action required</span>
+                        <input value="{{ draft.action }}" onChange="{{ setDraftAction }}" placeholder="Review with HOD" style="height:36px;border-radius:8px;background:var(--epi-input);border:1px solid var(--epi-border-2);color:var(--epi-fg);font-size:14px;padding:0 12px;outline:none" />
+                      </label>
+                    </div>
+                  </sc-if>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ dupWarning }}">
+              <div style="border:1px solid rgba(245,158,11,0.32);background:rgba(245,158,11,0.10);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--epi-warn-fg)">A similar event for this employee was recorded in the last 7 days. Check before saving to avoid a duplicate.</div>
+            </sc-if>
+
+            <sc-if value="{{ draftError }}">
+              <div style="border:1px solid rgba(245,158,11,0.32);background:rgba(245,158,11,0.10);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--epi-neg-fg)">{{ draftErrorText }}</div>
+            </sc-if>
+
+            <div style="display:flex;gap:10px;flex-wrap:wrap;padding-top:4px;border-top:1px solid var(--epi-border);margin-top:2px;padding-top:16px">
+              <button onClick="{{ closeRecord }}" style="height:38px;padding:0 14px;border-radius:8px;background:transparent;border:1px solid var(--epi-border-2);color:var(--epi-fg-2);font-size:14px;font-weight:600;cursor:pointer">Cancel</button>
+              <button onClick="{{ saveAnother }}" style="height:38px;padding:0 14px;border-radius:8px;background:var(--epi-raised);border:1px solid var(--epi-border-2);color:var(--epi-fg);font-size:14px;font-weight:600;cursor:pointer">Save &amp; add another</button>
+              <button onClick="{{ saveEvent }}" style="flex:1;min-width:120px;height:38px;padding:0 16px;border-radius:8px;border:0;background:linear-gradient(135deg,#A084FF,#5B3BDB);color:#fff;font-size:14px;font-weight:600;cursor:pointer">Save event</button>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ noDraftType }}">
+          <div style="padding:20px 0;font-size:14px;color:var(--epi-fg-3)">Pick a type above to continue. Quick mode records employee, type and one line — everything else can be added later.</div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ============ EVENT DETAIL ============ -->
+  <sc-if value="{{ eventOpen }}">
+    <div style="position:fixed;inset:0;z-index:70;background:var(--epi-scrim);display:flex;align-items:center;justify-content:center;padding:20px;animation:epiFade 200ms ease-out">
+      <div onClick="{{ closeEvent }}" style="position:absolute;inset:0"></div>
+      <div style="position:relative;width:100%;max-width:520px;background:var(--epi-elev);border:1px solid var(--epi-border-2);border-radius:20px;box-shadow:var(--epi-shadow-lg);padding:24px;animation:epiPanel 200ms cubic-bezier(0.2,0.8,0.2,1);max-height:86vh;overflow:auto">
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <span style="{{ ev.iconStyle }}">{{ ev.icon }}</span>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--epi-fg-3)">{{ ev.typeLabel }} · <span style="font-family:'JetBrains Mono',monospace;letter-spacing:0">{{ ev.id }}</span></div>
+            <h2 style="margin:7px 0 0;font-size:20px;font-weight:700;line-height:1.3;letter-spacing:-0.01em">{{ ev.title }}</h2>
+          </div>
+          <button onClick="{{ closeEvent }}" style="width:30px;height:30px;border-radius:8px;background:var(--epi-input);border:1px solid var(--epi-border);color:var(--epi-fg-2);cursor:pointer">✕</button>
+        </div>
+        <p style="margin:16px 0 0;font-size:15px;line-height:1.6;color:var(--epi-fg-strong)">{{ ev.desc }}</p>
+        <div style="margin-top:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;padding-top:16px;border-top:1px solid var(--epi-border)">
+          <sc-for list="{{ ev.meta }}" as="m" hint-placeholder-count="6">
+            <div>
+              <div style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--epi-fg-3)">{{ m.label }}</div>
+              <div style="font-size:14px;margin-top:4px">{{ m.value }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--epi-border);display:flex;gap:10px;flex-wrap:wrap">
+          <button onClick="{{ ev.goEmp }}" style="height:36px;padding:0 14px;border-radius:8px;background:var(--epi-raised);border:1px solid var(--epi-border-2);color:var(--epi-fg);font-size:14px;font-weight:600;cursor:pointer">Open {{ ev.empName }}</button>
+          <button onClick="{{ noop }}" style="height:36px;padding:0 14px;border-radius:8px;background:transparent;border:1px solid var(--epi-border-2);color:var(--epi-fg-2);font-size:14px;font-weight:600;cursor:pointer">Edit</button>
+          <button onClick="{{ askArchive }}" style="height:36px;padding:0 14px;border-radius:8px;background:transparent;border:1px solid rgba(245,158,11,0.32);color:var(--epi-neg);font-size:14px;font-weight:600;cursor:pointer;margin-left:auto">Archive</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ============ CONFIRM ============ -->
+  <sc-if value="{{ confirmOpen }}">
+    <div style="position:fixed;inset:0;z-index:80;background:var(--epi-scrim);display:flex;align-items:center;justify-content:center;padding:20px;animation:epiFade 120ms ease-out">
+      <div style="width:100%;max-width:400px;background:var(--epi-elev);border:1px solid var(--epi-border-2);border-radius:16px;padding:22px;animation:epiPanel 200ms cubic-bezier(0.2,0.8,0.2,1)">
+        <h3 style="margin:0;font-size:18px;font-weight:700">Archive this record?</h3>
+        <p style="margin:10px 0 0;font-size:14px;line-height:1.55;color:var(--epi-fg-2)">Performance history is never deleted. The record is archived, stays in the audit log, and is excluded from signals and reports.</p>
+        <div style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end">
+          <button onClick="{{ cancelArchive }}" style="height:36px;padding:0 14px;border-radius:8px;background:transparent;border:1px solid var(--epi-border-2);color:var(--epi-fg-2);font-size:14px;font-weight:600;cursor:pointer">Keep record</button>
+          <button onClick="{{ doArchive }}" style="height:36px;padding:0 14px;border-radius:8px;border:0;background:linear-gradient(180deg,#FBBF24,#F59E0B);color:#fff;font-size:14px;font-weight:600;cursor:pointer">Archive</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ hasToast }}">
+    <div style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:90;background:var(--epi-elev);border:1px solid var(--epi-border-2);border-radius:12px;padding:12px 18px;box-shadow:var(--epi-shadow-lg);font-size:14px;font-weight:600;display:flex;gap:10px;align-items:center;animation:epiPanel 200ms cubic-bezier(0.2,0.8,0.2,1)">
+      <span style="color:var(--epi-pos)">✓</span><span>{{ toast }}</span>
+    </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:1000},&quot;userName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Raghav&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Session&quot;},&quot;userRole&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;MD / Management&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Session&quot;},&quot;density&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Comfortable&quot;,&quot;Compact&quot;],&quot;default&quot;:&quot;Comfortable&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Display&quot;},&quot;showSignalReasons&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Display&quot;},&quot;attentionThreshold&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;min&quot;:3,&quot;max&quot;:12,&quot;default&quot;:6,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Signal model&quot;}}">
+class Component extends DCLogic {
+  static TODAY = new Date(2026, 8, 5);
+
+  static EMP = [
+    { id:1,  name:'Nandkishor Desai', code:'LD-014', role:'Production HOD',    dept:'Production',      doj:'2009-06-15', mgr:'Raghav', status:'Active' },
+    { id:2,  name:'Kavita Rane',      code:'LD-072', role:'Sr. Designer',      dept:'Designing',       doj:'2018-01-08', mgr:'Naushi', status:'Active' },
+    { id:3,  name:'Mahesh Pawar',     code:'LD-031', role:'Tech Head',         dept:'MIS & Systems',   doj:'2014-11-03', mgr:'Raghav', status:'Active' },
+    { id:4,  name:'Aditya Sharma',    code:'LD-098', role:'MIS Executive',     dept:'MIS & Systems',   doj:'2022-07-18', mgr:'Mahesh Pawar', status:'Active' },
+    { id:5,  name:'Alisha Shaikh',    code:'LD-066', role:'Executive Assistant', dept:'Administration', doj:'2019-02-11', mgr:'Raghav', status:'Active' },
+    { id:6,  name:'Malika Merchant',  code:'LD-058', role:'Executive Assistant', dept:'Administration', doj:'2017-09-25', mgr:'Dilip', status:'Active' },
+    { id:7,  name:'Seema Joshi',      code:'LD-081', role:'HR Executive',      dept:'Human Resources', doj:'2020-06-01', mgr:'Naushi', status:'Active' },
+    { id:8,  name:'Anand Gupta',      code:'LD-045', role:'Billing Executive', dept:'Accounts',        doj:'2016-04-12', mgr:'Dilip', status:'Active' },
+    { id:9,  name:'Pankaj Yadav',     code:'LD-103', role:'ERP Operator',      dept:'Accounts',        doj:'2023-01-16', mgr:'Anand Gupta', status:'Active' },
+    { id:10, name:'Rehana Ansari',    code:'LD-077', role:'QC Supervisor',     dept:'KATA & QC',       doj:'2019-08-05', mgr:'Nandkishor Desai', status:'Active' },
+    { id:11, name:'Suresh Patil',     code:'LD-089', role:'Fusing Operator',   dept:'Production',      doj:'2021-03-22', mgr:'Nandkishor Desai', status:'Active' },
+    { id:12, name:'Deepak Nair',      code:'LD-052', role:'Dispatch Incharge', dept:'Dispatch',        doj:'2015-12-07', mgr:'Nandkishor Desai', status:'Active' },
+    { id:13, name:'Priya Kulkarni',   code:'LD-110', role:'Jr. Designer',      dept:'Designing',       doj:'2024-02-05', mgr:'Kavita Rane', status:'Active' },
+    { id:14, name:'Bala Krishnan',    code:'LD-037', role:'Sales Support',     dept:'Sales',           doj:'2013-05-19', mgr:'Gaurav', status:'Active' },
+    { id:15, name:'Pawan Rathod',     code:'LD-064', role:'Sales Support',     dept:'Sales',           doj:'2018-10-30', mgr:'Gaurav', status:'On Hold' }
+  ];
+
+  // [empId, type, title, desc, date, category, severity, recordedBy, followUpDate]
+  static RAW = [
+    [1,'p','Cleared the Bhiwandi dispatch backlog overnight','Re-sequenced two beams and stayed back with the fusing team so the 62" lot for Shree Fabrics released with the 6 AM dispatch.','2026-09-03','Problem Solving','High','Raghav (MD)',null],
+    [1,'p','Recovered 1,400 mtrs flagged for shade variation','Reworked the calendering pass instead of rejecting the lot. Saved the order and the customer relationship.','2026-08-19','Cost Saving','High','Nandu Bhai',null],
+    [1,'p','Trained three new fusing operators on the 230°C protocol','Ran the sessions himself during the shift changeover without disturbing output.','2026-07-24','Leadership','Medium','Naushi',null],
+    [1,'g','Machine servicing log not updated for two weeks','Preventive maintenance entries missing; picked up during the monthly review.','2026-08-08','Process Error','Low','Dilip',null],
+    [1,'p','Held output at 92% through the monsoon week','Managed the humidity-related stoppages without missing a single committed delivery.','2026-07-08','Productivity','Medium','Raghav (MD)',null],
+
+    [2,'p','Solved the urgent design correction within two hours','Client rejected the repeat on a 54" print. Kavita reworked the repeat and released the file the same afternoon.','2026-09-05','Problem Solving','High','Raghav (MD)',null],
+    [2,'p','Supported the production team during the urgent order','Sat with the MDO on print alignment for the full evening shift so the job did not wait for morning.','2026-09-02','Teamwork','Medium','Alisha (EA)',null],
+    [2,'p','Rebuilt the seasonal print library','Consolidated four years of scattered design files into a searchable structure the whole team now uses.','2026-08-14','Process Improvement','High','Naushi',null],
+    [2,'p','Customer appreciation from Vhagar buying team','Written appreciation for the drop artwork turnaround.','2026-08-04','Customer Service','Medium','Naushi',null],
+    [2,'p','Caught a colour mismatch before the paper print run','Flagged the profile error on 8,000 mtrs of paper before fusing.','2026-07-21','Quality','High','Nandu Bhai',null],
+    [2,'p','Mentored the junior designer through her first solo drop','Reviewed every file and let Priya present it herself.','2026-07-02','Leadership','Medium','Naushi',null],
+    [2,'p','Cut design turnaround from 3 days to 1.5','Standardised the brief template with the sales team.','2026-06-17','Process Improvement','High','Raghav (MD)',null],
+    [2,'g','Incorrect specification entered in the job sheet','Width entered as 58" instead of 62". Caught at KATA before printing, no material lost.','2026-08-28','Data Entry','Medium','Nandu Bhai','2026-09-12'],
+    [2,'g','Design file not archived after delivery','Minor; file recovered from the operator machine.','2026-06-26','Process Error','Low','Mahesh Pawar',null],
+
+    [3,'p','Brought SAB and the Linkd ERP into one daily report','Management now gets one consolidated production and billing view every morning.','2026-08-26','Process Improvement','High','Raghav (MD)',null],
+    [3,'p','Prevented data loss during the server migration','Ran a full parallel backup on his own initiative before the switchover.','2026-07-15','Initiative','High','Dilip',null],
+    [3,'p','Closed the invoice-sync gap between Silk and Linkd','Eliminated a recurring reconciliation problem at month end.','2026-06-11','Problem Solving','Medium','Dilip',null],
+
+    [4,'g','Wrong meter figures in the weekly MIS','Production report circulated with last week\u2019s figures; corrected within the hour but management had already reviewed it.','2026-09-01','Data Entry','High','Mahesh Pawar','2026-09-10'],
+    [4,'g','Second data entry error in the same month','Customer name mismatched against the order in the dispatch sheet.','2026-08-22','Data Entry','Medium','Mahesh Pawar','2026-09-08'],
+    [4,'g','Missed the Monday MIS deadline','Report reached management at 4 PM instead of 10 AM, without prior intimation.','2026-08-11','Delay','Medium','Raghav (MD)',null],
+    [4,'p','Automated the daily meter summary','Built the sheet script that removed 40 minutes of manual work each morning.','2026-07-29','Initiative','Medium','Mahesh Pawar',null],
+
+    [5,'p','Kept the MD calendar clean through the Bhiwandi visit week','Rescheduled 11 meetings around the factory visits without a single clash.','2026-08-30','Exceptional Performance','Medium','Raghav (MD)',null],
+    [5,'p','Recorded every performance observation the same day','Zero backlog in the performance journal for two straight months.','2026-08-12','Reliability','Medium','Naushi',null],
+    [5,'p','Chased the pending broker confirmations to closure','Cleared 14 open confirmations in three days.','2026-07-19','Initiative','Medium','Raghav (MD)',null],
+
+    [6,'p','Bridged the Kalbadevi principals to the new reporting format','Walked the elder principals through the WhatsApp summary format until it stuck.','2026-08-21','Teamwork','Medium','Dilip',null],
+    [6,'p','Traced a three-month-old payment dispute to closure','Pulled the original documents and settled a ₹2.4 lakh disagreement with the agent.','2026-07-11','Problem Solving','High','Dilip',null],
+    [6,'g','Meeting note circulated to the wrong group','Internal note went to a broker group; recalled immediately, no sensitive figures involved.','2026-08-06','Communication','Medium','Dilip','2026-09-06'],
+
+    [7,'p','Closed all pending joining formalities before the audit','48 files verified and completed in a week.','2026-08-18','Reliability','Medium','Naushi',null],
+    [7,'p','Reduced factory absenteeism follow-up time','Set up a same-day call protocol with the floor supervisors.','2026-06-24','Process Improvement','Medium','Naushi',null],
+
+    [8,'p','Cleared the month-end billing without a single revision','412 invoices, zero corrections requested.','2026-08-31','Quality','High','Dilip',null],
+    [8,'p','Flagged a duplicate payment before release','Caught a ₹86,000 double entry against the same supplier bill.','2026-07-27','Cost Saving','High','Dilip',null],
+    [8,'g','GST detail missing on two export invoices','Corrected before filing; no penalty.','2026-08-15','Compliance','Medium','Dilip','2026-09-15'],
+
+    [9,'g','Repeated wrong ledger tagging in Absolute','Third instance this quarter of jobwork entries tagged to the trading ledger.','2026-08-25','Data Entry','High','Anand Gupta','2026-09-09'],
+    [9,'g','Left the day-end entry incomplete','Cash book did not tally at close; resolved next morning.','2026-08-02','Negligence','Medium','Anand Gupta',null],
+    [9,'g','Delayed vendor bill entry by five days','Held up the payment run.','2026-07-14','Delay','Low','Anand Gupta',null],
+    [9,'p','Cleaned up 300 duplicate party records','Did the clean-up on his own during a slow week.','2026-06-30','Initiative','Medium','Mahesh Pawar',null],
+
+    [10,'p','Stopped a defective lot before it reached dispatch','Caught patchy fusing on 2,100 mtrs at final QC; the lot was reprinted instead of returned.','2026-08-29','Quality','High','Nandu Bhai',null],
+    [10,'p','Brought KATA measurement variance under 0.5%','Retrained the measuring team and standardised the table setup.','2026-08-07','Exceptional Performance','High','Raghav (MD)',null],
+    [10,'p','Handled the customer complaint visit alone','Explained the QC process to the buyer on the floor and closed the complaint.','2026-07-05','Customer Service','Medium','Gaurav',null],
+    [10,'g','QC sign-off sheet not signed for one shift','Process lapse, no quality impact.','2026-06-20','Process Error','Low','Nandu Bhai',null],
+
+    [11,'g','Fusing temperature set 15°C below protocol','Caused patchy transfer on 380 mtrs. Material re-printed.','2026-08-27','Production Error','High','Rehana Ansari','2026-09-11'],
+    [11,'g','Machine left running unattended during break','Safety protocol violation. Verbal counselling done on the floor.','2026-08-05','Safety','High','Nandu Bhai','2026-09-05'],
+    [11,'p','Volunteered for the Sunday shift during the peak week','Came in without being asked and kept the fusing line moving.','2026-07-26','Initiative','Medium','Nandu Bhai',null],
+
+    [12,'p','Zero dispatch errors across 96 consignments','A full month of clean dispatch documentation.','2026-08-24','Reliability','High','Gaurav',null],
+    [12,'p','Rerouted a stuck consignment during the transport strike','Found an alternate carrier and delivered on the committed date.','2026-08-01','Problem Solving','High','Gaurav',null],
+    [12,'g','LR copy not attached to the courier docket','Delayed the customer\u2019s inward entry by a day.','2026-07-17','Process Error','Low','Anand Gupta',null],
+
+    [13,'p','Delivered her first solo drop artwork on time','Six designs, all approved in the first review.','2026-08-20','Exceptional Performance','Medium','Kavita Rane',null],
+    [13,'p','Picked up the repeat-correction workflow in two weeks','Now handles routine corrections without supervision.','2026-07-09','Initiative','Medium','Kavita Rane',null],
+    [13,'g','Sent a low-resolution file to the print operator','Caught at setup; file resent, 20 minutes lost.','2026-08-13','Quality Issue','Low','Kavita Rane',null],
+
+    [14,'p','Recovered a dormant Kalbadevi account','Reopened a customer who had not ordered in 14 months.','2026-08-23','Exceptional Performance','High','Gaurav',null],
+    [14,'p','Held the return rate on his accounts under 8%','Consistently the lowest in the sales support team.','2026-07-31','Quality','Medium','Gaurav',null],
+    [14,'g','Quoted an outdated rate to a broker','Corrected before the order was booked.','2026-06-13','Communication','Medium','Gaurav',null],
+
+    [15,'g','Order confirmation not sent for two days','Customer followed up directly with the MD.','2026-08-17','Communication','High','Gaurav','2026-09-07'],
+    [15,'g','Sample dispatch promised without checking stock','Sample was not available; customer informed a day late.','2026-07-22','Negligence','Medium','Gaurav',null],
+    [15,'p','Closed a ₹6 lakh repeat order in one call','Long-standing relationship converted quickly.','2026-06-28','Exceptional Performance','Medium','Gaurav',null]
+  ];
+
+  static POS_CATS = ['Exceptional Performance','Problem Solving','Initiative','Teamwork','Leadership','Customer Service','Cost Saving','Process Improvement','Quality','Productivity','Reliability','Other'];
+  static GOOF_CATS = ['Quality Issue','Process Error','Delay','Communication','Data Entry','Customer Issue','Production Error','Negligence','Compliance','Safety','Other'];
+  static SEVS = [{ name:'Low', weight:1 },{ name:'Medium', weight:2 },{ name:'High', weight:3 },{ name:'Critical', weight:4 }];
+
+  static USERS = [
+    { name:'Raghav', role:'MD / Management', dept:'All', perms:['View all','Create','Edit','Reports','Insights','Settings'], status:'Active', last:'2 min ago' },
+    { name:'Naushi', role:'MD / Management', dept:'All', perms:['View all','Create','Edit','Reports','Insights'], status:'Active', last:'1 hr ago' },
+    { name:'Alisha Shaikh', role:'Executive Assistant', dept:'All', perms:['View all','Create','Edit','Reports'], status:'Active', last:'25 min ago' },
+    { name:'Malika Merchant', role:'Executive Assistant', dept:'All', perms:['View all','Create','Edit','Reports'], status:'Active', last:'Yesterday' },
+    { name:'Nandkishor Desai', role:'Department Manager', dept:'Production', perms:['View dept','Create','Edit own'], status:'Active', last:'4 hrs ago' },
+    { name:'Seema Joshi', role:'HR', dept:'Human Resources', perms:['View all','Create','Reports'], status:'Active', last:'3 days ago' },
+    { name:'Mahesh Pawar', role:'Super Admin', dept:'MIS & Systems', perms:['Full access','Audit log'], status:'Active', last:'12 min ago' },
+    { name:'Gaurav', role:'Viewer', dept:'Sales', perms:['Read-only'], status:'Invited', last:'—' }
+  ];
+
+  static AUDIT = [
+    { time:'05 Sep 09:42', action:'CREATE', what:'Positive Contribution recorded for Kavita Rane — "Solved the urgent design correction within two hours"', by:'Raghav', diff:null },
+    { time:'03 Sep 07:15', action:'CREATE', what:'Positive Contribution recorded for Nandkishor Desai', by:'Raghav', diff:null },
+    { time:'02 Sep 18:30', action:'EDIT', what:'Severity changed on EV-0142 (Kavita Rane)', by:'Alisha Shaikh', diff:'severity: Low → Medium' },
+    { time:'01 Sep 11:08', action:'EDIT', what:'Follow-up date added on EV-0139 (Aditya Sharma)', by:'Mahesh Pawar', diff:'followUpDate: null → 2026-09-10' },
+    { time:'31 Aug 20:14', action:'CREATE', what:'Goofup recorded for Pankaj Yadav', by:'Anand Gupta', diff:null },
+    { time:'29 Aug 16:52', action:'ARCHIVE', what:'EV-0121 archived — duplicate of EV-0119', by:'Alisha Shaikh', diff:'status: Open → Archived' },
+    { time:'28 Aug 10:03', action:'ACCESS', what:'Audit log viewed', by:'Dilip', diff:null },
+    { time:'26 Aug 09:20', action:'EDIT', what:'Category corrected on EV-0114 (Rehana Ansari)', by:'Naushi', diff:'category: Other → Quality' }
+  ];
+
+  static NOTES = {
+    2: [
+      { text:'Consistently the strongest problem solver in Designing. Worth handing her the drop calendar next season.', by:'Naushi', date:'20 Aug 2026' },
+      { text:'One data-entry slip in August; discussed, no pattern.', by:'Raghav', date:'29 Aug 2026' }
+    ],
+    4: [
+      { text:'Three data-entry issues in five weeks. Mahesh to add a second-check step before the MIS circulates.', by:'Raghav', date:'02 Sep 2026' }
+    ]
+  };
+
+  state = {
+    vw: typeof window !== 'undefined' ? window.innerWidth : 1440,
+    theme: (typeof localStorage !== 'undefined' && localStorage.getItem('epi-theme')) || 'dark',
+    screen: 'overview',
+    empId: null,
+    profileTab: 'Timeline',
+    settingsTab: 'Employee database',
+    fEmp: 'All employees',
+    secHeat: true,
+    q: '',
+    ledgerQ: '',
+    fDept: 'All departments',
+    fType: 'All types',
+    fCategory: 'All categories',
+    fSeverity: 'All severities',
+    fRange: 'Last 3 months',
+    sortBy: 'Needs attention',
+    scope: 'employee',
+    openDepts: {},
+    matrixAll: false,
+    secMatrix: true, secDetail: true, secActivity: true,
+    reportEmp: 'Kavita Rane',
+    recordOpen: false,
+    quick: true,
+    draft: null,
+    draftErrorText: '',
+    eventId: null,
+    confirmOpen: false,
+    toast: '',
+    extra: []
+  };
+
+  componentDidMount() {
+    this._onResize = () => this.setState({ vw: window.innerWidth });
+    window.addEventListener('resize', this._onResize);
+    this.applyTheme();
+  }
+  componentDidUpdate() { this.applyTheme(); }
+  componentWillUnmount() {
+    window.removeEventListener('resize', this._onResize);
+    if (this._toastT) clearTimeout(this._toastT);
+  }
+
+  /* ---------- helpers ---------- */
+  emp(id) { return Component.EMP.find(e => e.id === id); }
+  initials(name) { return name.split(' ').map(w => w[0]).slice(0, 2).join(''); }
+  parse(d) { const p = String(d).split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  days(d) { return Math.round((Component.TODAY - this.parse(d)) / 86400000); }
+  fmt(d) { const dt = this.parse(d); const M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return String(dt.getDate()).padStart(2, '0') + ' ' + M[dt.getMonth()] + ' ' + dt.getFullYear(); }
+  fmtShort(d) { const dt = this.parse(d); const M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return String(dt.getDate()).padStart(2, '0') + ' ' + M[dt.getMonth()]; }
+  ago(d) { if (d == null) return 'No activity'; if (d <= 0) return 'Today'; if (d === 1) return 'Yesterday'; if (d < 30) return d + ' days ago'; if (d < 60) return 'Last month'; return Math.round(d / 30) + ' months ago'; }
+  sevWeight(s) { const f = Component.SEVS.find(x => x.name === s); return f ? f.weight : 1; }
+
+  allEvents() {
+    const base = Component.RAW.map((r, i) => ({
+      id: 'EV-' + String(1000 + i).slice(1),
+      empId: r[0], type: r[1] === 'p' ? 'positive' : 'goofup',
+      title: r[2], desc: r[3], date: r[4], category: r[5], severity: r[6], recordedBy: r[7],
+      followUpDate: r[8], status: r[8] ? 'Follow-up' : 'Closed'
+    }));
+    return this.state.extra.concat(base).sort((a, b) => this.parse(b.date) - this.parse(a.date));
+  }
+
+  rangeDays() {
+    const r = this.state.fRange;
+    if (r === 'This week') return 7;
+    if (r === 'This month') return 31;
+    if (r === 'Last 3 months') return 92;
+    if (r === 'This year') return 250;
+    return 3650;
+  }
+
+  filtered(opts) {
+    const s = this.state;
+    const o = opts || {};
+    const win = this.rangeDays();
+    return this.allEvents().filter(e => {
+      const em = this.emp(e.empId);
+      if (!em) return false;
+      if (!o.ignoreRange && this.days(e.date) > win) return false;
+      if (s.fEmp !== 'All employees' && em.name !== s.fEmp) return false;
+      if (s.fDept !== 'All departments' && em.dept !== s.fDept) return false;
+      if (s.fType === 'Positive only' && e.type !== 'positive') return false;
+      if (s.fType === 'Goofups only' && e.type !== 'goofup') return false;
+      if (s.fCategory !== 'All categories' && e.category !== s.fCategory) return false;
+      if (s.fSeverity !== 'All severities' && e.severity !== s.fSeverity) return false;
+      if (o.q) {
+        const t = (e.title + ' ' + e.desc + ' ' + e.category + ' ' + em.name + ' ' + e.recordedBy).toLowerCase();
+        if (t.indexOf(o.q.toLowerCase()) === -1) return false;
+      }
+      return true;
+    });
+  }
+
+  signal(empId) {
+    const ev = this.allEvents().filter(e => e.empId === empId);
+    const in90 = ev.filter(e => this.days(e.date) <= 92);
+    const pos = in90.filter(e => e.type === 'positive');
+    const goof = in90.filter(e => e.type === 'goofup');
+    const load = goof.reduce((a, e) => a + this.sevWeight(e.severity) * (this.days(e.date) <= 31 ? 1.4 : 1), 0);
+    const recent45 = in90.filter(e => this.days(e.date) <= 45);
+    const prior45 = in90.filter(e => this.days(e.date) > 45);
+    const net = f => f.filter(e => e.type === 'positive').length - f.filter(e => e.type === 'goofup').length;
+    const delta = net(recent45) - net(prior45);
+    const cats = {};
+    goof.forEach(e => { cats[e.category] = (cats[e.category] || 0) + 1; });
+    const repeatCat = Object.keys(cats).find(k => cats[k] >= 2);
+    const openFollow = ev.filter(e => e.followUpDate && e.status === 'Follow-up').length;
+    const lastDays = ev.length ? Math.min.apply(null, ev.map(e => this.days(e.date))) : null;
+
+    let label = 'Stable';
+    const threshold = this.props.attentionThreshold != null ? this.props.attentionThreshold : 6;
+    if (load >= threshold || (repeatCat && load >= 4)) label = 'Attention';
+    else if (load >= 3 || (repeatCat && pos.length < 3)) label = 'Watch';
+    else if (pos.length >= 4 && delta >= 0 && load <= 2) label = 'Strong';
+
+    const reasons = [];
+    if (pos.length) reasons.push({ tone: 'good', text: pos.length + ' recognitions in the last 90 days across ' + new Set(pos.map(e => e.category)).size + ' categories.' });
+    if (goof.length) reasons.push({ tone: 'bad', text: goof.length + ' issue' + (goof.length > 1 ? 's' : '') + ' recorded, weighted severity load ' + load.toFixed(1) + '.' });
+    if (repeatCat) reasons.push({ tone: 'bad', text: 'Repeat pattern: ' + cats[repeatCat] + ' issues in ' + repeatCat + '.' });
+    if (delta > 0) reasons.push({ tone: 'good', text: 'Improving — net balance up ' + delta + ' versus the previous 45 days.' });
+    if (delta < 0) reasons.push({ tone: 'bad', text: 'Slipping — net balance down ' + Math.abs(delta) + ' versus the previous 45 days.' });
+    if (openFollow) reasons.push({ tone: 'warn', text: openFollow + ' open follow-up' + (openFollow > 1 ? 's' : '') + ' pending closure.' });
+    if (lastDays != null && lastDays > 45) reasons.push({ tone: 'warn', text: 'No observation recorded in ' + lastDays + ' days — signal confidence is low.' });
+    if (!ev.length) reasons.push({ tone: 'warn', text: 'Not enough data to identify a reliable trend.' });
+
+    let trend = '→ Steady';
+    if (delta >= 2) trend = '↑ Strong';
+    else if (delta === 1) trend = '↗ Improving';
+    else if (delta <= -2) trend = '↓ Slipping';
+    else if (delta === -1) trend = '↘ Softening';
+
+    return { label, pos: pos.length, goof: goof.length, load, delta, trend, reasons, openFollow, lastDays, repeatCat, cats };
+  }
+
+  pal() { return this.state.theme === 'light'
+    ? { pos:'#5B3BDB', neg:'#92400E', warn:'#A16207', accent:'#2C6BD9' }
+    : { pos:'#A084FF', neg:'#F59E0B', warn:'#F4C419', accent:'#7FA8F0' }; }
+  signalColor(l) { const p = this.pal(); return l === 'Strong' ? p.pos : l === 'Attention' ? p.neg : l === 'Watch' ? p.warn : p.accent; }
+  applyTheme() {
+    if (typeof document === 'undefined') return;
+    document.documentElement.setAttribute('data-epi-theme', this.state.theme);
+    if (document.body) document.body.setAttribute('data-epi-theme', this.state.theme);
+  }
+  pill(color) { return { fontSize: '10px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '4px 8px', borderRadius: '5px', color: color, background: color.replace('#', 'rgba(') && this.tint(color, 0.12), border: '1px solid ' + this.tint(color, 0.28), whiteSpace: 'nowrap', textAlign: 'center' }; }
+  tint(hex, a) {
+    const h = hex.replace('#', '');
+    const r = parseInt(h.substring(0, 2), 16), g = parseInt(h.substring(2, 4), 16), b = parseInt(h.substring(4, 6), 16);
+    return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
+  }
+  iconStyle(type) {
+    const c = type === 'positive' ? '#7C5CFF' : '#F59E0B';
+    return { width: '24px', height: '24px', flex: '0 0 24px', borderRadius: '7px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: type === 'positive' ? this.pal().pos : this.pal().neg, background: this.tint(c, 0.12), border: '1px solid ' + this.tint(c, 0.28) };
+  }
+  chevStyle() { return { width: '24px', height: '24px', flex: '0 0 24px', borderRadius: '7px', background: 'var(--epi-input)', border: '1px solid var(--epi-border)', color: 'var(--epi-fg-2)', fontSize: '11px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }; }
+  sec(key) {
+    return { open: this.state[key], icon: this.state[key] ? '▾' : '▸', chev: this.chevStyle(),
+      toggle: () => this.setState(st => ({ [key]: !st[key] })) };
+  }
+  navBtn(active) {
+    return { display: 'flex', alignItems: 'center', gap: '10px', width: '100%', height: '36px', padding: '0 10px', borderRadius: '8px', border: 0, cursor: 'pointer', fontSize: '14px', fontWeight: active ? 600 : 500,
+      background: active ? 'var(--epi-raised)' : 'transparent', color: active ? 'var(--epi-fg)' : 'var(--epi-fg-2)',
+      boxShadow: active ? 'inset 2px 0 0 0 #7C5CFF' : 'none',
+      transition: 'background 120ms cubic-bezier(0.2,0.8,0.2,1), color 120ms cubic-bezier(0.2,0.8,0.2,1)' };
+  }
+  chip(active) {
+    return { height: '32px', padding: '0 12px', borderRadius: '999px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', background: active ? 'var(--epi-raised)' : 'transparent', border: '1px solid ' + (active ? 'var(--epi-border-3)' : 'var(--epi-border)'), color: active ? 'var(--epi-fg)' : 'var(--epi-fg-2)' };
+  }
+  tabBtn(active) {
+    return { padding: '10px 14px', background: 'transparent', border: 0, borderBottom: '2px solid ' + (active ? '#7C5CFF' : 'transparent'), color: active ? 'var(--epi-fg)' : 'var(--epi-fg-2)', fontSize: '14px', fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' };
+  }
+
+  go(screen) { return () => this.setState({ screen, q: '', empId: screen === 'profile' ? this.state.empId : null }); }
+  openEmp(id) { return () => this.setState({ screen: 'profile', empId: id, profileTab: 'Timeline', q: '', eventId: null }); }
+  openEv(id) { return () => this.setState({ eventId: id }); }
+  flash(msg) { this.setState({ toast: msg }); if (this._toastT) clearTimeout(this._toastT); this._toastT = setTimeout(() => this.setState({ toast: '' }), 2600); }
+
+  newDraft(type) {
+    return { type, employee: this.state.empId ? this.emp(this.state.empId).name : Component.EMP[1].name, title: '', desc: '', date: '2026-09-05', category: type === 'positive' ? Component.POS_CATS[0] : Component.GOOF_CATS[0], severity: 'Medium', by: 'Raghav (MD)', tags: '', follow: false, followDate: '', action: '' };
+  }
+  setD(k) { return e => { const v = e && e.target ? e.target.value : e; this.setState(s => ({ draft: Object.assign({}, s.draft, { [k]: v }), draftErrorText: '' })); }; }
+
+  commit(keepOpen) {
+    const d = this.state.draft;
+    if (!d) return;
+    if (!d.title.trim()) { this.setState({ draftErrorText: 'An event title is required — one short line is enough.' }); return; }
+    const em = Component.EMP.find(x => x.name === d.employee);
+    const ev = {
+      id: 'EV-' + (200 + this.state.extra.length),
+      empId: em.id, type: d.type, title: d.title.trim(),
+      desc: d.desc.trim() || 'Recorded in quick mode — detail to be added.',
+      date: d.date, category: d.category, severity: d.severity, recordedBy: d.by,
+      followUpDate: d.follow && d.followDate ? d.followDate : null,
+      status: d.follow && d.followDate ? 'Follow-up' : 'Closed'
+    };
+    this.setState(s => ({
+      extra: [ev].concat(s.extra),
+      draft: keepOpen ? this.newDraft(d.type) : null,
+      recordOpen: keepOpen,
+      draftErrorText: ''
+    }));
+    this.flash((d.type === 'positive' ? 'Positive contribution' : 'Goofup') + ' recorded for ' + em.name);
+  }
+
+  csv() {
+    const rows = [['Event ID','Date','Employee','Department','Type','Title','Category','Impact','Recorded by','Status']];
+    this.filtered({ q: this.state.ledgerQ }).forEach(e => {
+      const em = this.emp(e.empId);
+      rows.push([e.id, this.fmt(e.date), em.name, em.dept, e.type === 'positive' ? 'Positive' : 'Goofup', e.title, e.category, e.severity, e.recordedBy, e.status]);
+    });
+    const body = rows.map(r => r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(',')).join('\n');
+    const url = URL.createObjectURL(new Blob([body], { type: 'text/csv' }));
+    const a = document.createElement('a');
+    a.href = url; a.download = 'performance-events.csv'; a.click();
+    URL.revokeObjectURL(url);
+    this.flash('Exported ' + (rows.length - 1) + ' records to CSV');
+  }
+
+  monthBars(events, maxH, w) {
+    const M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const out = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(2026, 8 - i, 1);
+      const p = events.filter(e => { const x = this.parse(e.date); return x.getMonth() === d.getMonth() && x.getFullYear() === d.getFullYear() && e.type === 'positive'; }).length;
+      const g = events.filter(e => { const x = this.parse(e.date); return x.getMonth() === d.getMonth() && x.getFullYear() === d.getFullYear() && e.type === 'goofup'; }).length;
+      out.push({ label: M[d.getMonth()], p, g });
+    }
+    const max = Math.max(1, ...out.map(o => Math.max(o.p, o.g)));
+    return out.map(o => ({
+      label: o.label,
+      posLabel: o.p + ' positive',
+      goofLabel: o.g + ' goofups',
+      posStyle: { width: w, borderRadius: '4px 4px 1px 1px', background: 'linear-gradient(180deg,#B49BFF 0%,#7C5CFF 78%,#6948E8 100%)', boxShadow: '0 0 14px rgba(124,92,255,0.28)', height: o.p ? Math.max(3, Math.round(o.p / max * maxH)) + 'px' : '0px', transition: 'height 320ms cubic-bezier(0.2,0.8,0.2,1)' },
+      goofStyle: { width: w, borderRadius: '4px 4px 1px 1px', background: 'linear-gradient(180deg,#FCD34D 0%,#F59E0B 78%,#D97706 100%)', boxShadow: '0 0 14px rgba(245,158,11,0.22)', height: o.g ? Math.max(3, Math.round(o.g / max * maxH)) + 'px' : '0px', transition: 'height 320ms cubic-bezier(0.2,0.8,0.2,1)' }
+    }));
+  }
+
+  /* ---------- render values ---------- */
+  renderVals() {
+    const s = this.state;
+    const isMobile = s.vw < 860;
+    const isDesktop = !isMobile;
+    const userName = this.props.userName || 'Raghav';
+    const compact = this.props.density === 'Compact';
+
+    const all = this.allEvents();
+    const win = this.rangeDays();
+    const inWin = this.filtered({});
+    const prevWin = all.filter(e => this.days(e.date) > win && this.days(e.date) <= win * 2);
+
+    const pos = inWin.filter(e => e.type === 'positive').length;
+    const goof = inWin.filter(e => e.type === 'goofup').length;
+    const pPos = prevWin.filter(e => e.type === 'positive').length;
+    const pGoof = prevWin.filter(e => e.type === 'goofup').length;
+    const pct = (a, b) => b === 0 ? (a ? 'no prior period' : '—') : (a >= b ? '+' : '') + Math.round((a - b) / b * 100) + '% vs previous';
+
+    const signals = {};
+    Component.EMP.forEach(e => { signals[e.id] = this.signal(e.id); });
+    const scopeEmp = e => (s.fEmp === 'All employees' || e.name === s.fEmp) && (s.fDept === 'All departments' || e.dept === s.fDept);
+    const attentionList = Component.EMP.filter(e => scopeEmp(e) && (signals[e.id].label === 'Attention' || signals[e.id].label === 'Watch'));
+    const recognized = new Set(inWin.filter(e => e.type === 'positive').map(e => e.empId)).size;
+    const openFollow = all.filter(e => e.followUpDate && e.status === 'Follow-up').length;
+
+    const deltaStyle = tone => ({ fontSize: '12px', fontWeight: 600, color: tone === 'good' ? 'var(--epi-pos)' : tone === 'bad' ? 'var(--epi-neg)' : 'var(--epi-fg-3)' });
+    const kpis = [
+      { label: 'Employees', value: Component.EMP.length, delta: Component.EMP.filter(e => e.status === 'Active').length + ' active', deltaStyle: deltaStyle('n') },
+      { label: 'Positive contributions', value: pos, delta: pct(pos, pPos), deltaStyle: deltaStyle(pos >= pPos ? 'good' : 'bad') },
+      { label: 'Goofups', value: goof, delta: pct(goof, pGoof), deltaStyle: deltaStyle(goof <= pGoof ? 'good' : 'bad') },
+      { label: 'Employees recognised', value: recognized, delta: 'of ' + Component.EMP.length + ' in period', deltaStyle: deltaStyle('n') },
+      { label: 'Needs attention', value: attentionList.length, delta: attentionList.length ? 'review required' : 'all clear', deltaStyle: deltaStyle(attentionList.length ? 'bad' : 'good') },
+      { label: 'Open follow-ups', value: openFollow, delta: openFollow ? 'awaiting closure' : 'none pending', deltaStyle: { fontSize: '12px', fontWeight: 600, color: openFollow ? 'var(--epi-warn)' : 'var(--epi-fg-3)' } }
+    ];
+
+    // matrix
+    let mrows = Component.EMP.map(e => {
+      const sg = signals[e.id];
+      const evs = inWin.filter(x => x.empId === e.id);
+      return { e, sg, p: evs.filter(x => x.type === 'positive').length, g: evs.filter(x => x.type === 'goofup').length };
+    });
+    if (s.fEmp !== 'All employees') mrows = mrows.filter(r => r.e.name === s.fEmp);
+    if (s.fDept !== 'All departments') mrows = mrows.filter(r => r.e.dept === s.fDept);
+    const order = { Attention: 0, Watch: 1, Stable: 2, Strong: 3 };
+    if (s.sortBy === 'Needs attention') mrows.sort((a, b) => order[a.sg.label] - order[b.sg.label] || b.g - a.g);
+    else if (s.sortBy === 'Most positive') mrows.sort((a, b) => b.p - a.p);
+    else if (s.sortBy === 'Most goofups') mrows.sort((a, b) => b.g - a.g);
+    else if (s.sortBy === 'Most improved') mrows.sort((a, b) => b.sg.delta - a.sg.delta);
+    else if (s.sortBy === 'Recently active') mrows.sort((a, b) => (a.sg.lastDays == null ? 999 : a.sg.lastDays) - (b.sg.lastDays == null ? 999 : b.sg.lastDays));
+    else mrows.sort((a, b) => a.e.name.localeCompare(b.e.name));
+
+    const avatar = { width: '30px', height: '30px', flex: '0 0 30px', borderRadius: '999px', background: 'var(--epi-raised)', border: '1px solid var(--epi-border-2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 700 };
+    const matrix = mrows.map(r => ({
+      name: r.e.name, role: r.e.role, dept: r.e.dept, initials: this.initials(r.e.name),
+      avatarStyle: avatar,
+      pos: r.p, goof: r.g,
+      goofStyle: { fontSize: '14px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: r.g ? 'var(--epi-neg)' : 'var(--epi-fg-3)' },
+      trend: r.sg.trend,
+      trendStyle: { fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap', color: r.sg.delta > 0 ? 'var(--epi-pos)' : r.sg.delta < 0 ? 'var(--epi-neg)' : 'var(--epi-fg-2)' },
+      last: this.ago(r.sg.lastDays),
+      signal: r.sg.label,
+      signalStyle: this.pill(this.signalColor(r.sg.label)),
+      go: this.openEmp(r.e.id)
+    }));
+
+    const attention = attentionList.sort((a, b) => order[signals[a.id].label] - order[signals[b.id].label]).map(e => {
+      const sg = signals[e.id];
+      const bad = sg.reasons.filter(r => r.tone === 'bad')[0] || sg.reasons[0];
+      return { name: e.name, signal: sg.label, signalStyle: this.pill(this.signalColor(sg.label)), reason: bad ? bad.text : '', go: this.openEmp(e.id) };
+    });
+
+    const followUps = all.filter(e => e.followUpDate && e.status === 'Follow-up' && scopeEmp(this.emp(e.empId))).sort((a, b) => this.parse(a.followUpDate) - this.parse(b.followUpDate)).slice(0, 5).map(e => ({
+      name: this.emp(e.empId).name, title: e.title, due: this.fmt(e.followUpDate), go: this.openEv(e.id)
+    }));
+
+    const trendBars = this.monthBars(this.filtered({ ignoreRange: true }), 132, '13px');
+    const recentNet = pos - goof;
+    const trendNote = pPos === 0 ? 'Baseline period' : (pos >= pPos ? 'Recognition up on the previous period' : 'Recognition down on the previous period') + ' · net ' + (recentNet >= 0 ? '+' : '') + recentNet;
+
+    // departments
+    const depts = Array.from(new Set(Component.EMP.map(e => e.dept)));
+    let deptData = depts.map(d => {
+      const ids = Component.EMP.filter(e => e.dept === d).map(e => e.id);
+      const evs = inWin.filter(e => ids.indexOf(e.empId) > -1);
+      const p = evs.filter(e => e.type === 'positive').length;
+      const g = evs.filter(e => e.type === 'goofup').length;
+      const prev = prevWin.filter(e => ids.indexOf(e.empId) > -1);
+      const delta = (p - g) - (prev.filter(e => e.type === 'positive').length - prev.filter(e => e.type === 'goofup').length);
+      return { name: d, p, g, delta };
+    }).sort((a, b) => (b.p + b.g) - (a.p + a.g));
+    if (deptData.some(d => d.p + d.g > 0)) deptData = deptData.filter(d => d.p + d.g > 0);
+    const dMax = Math.max(1, ...deptData.map(d => d.p + d.g));
+    const deptRows = deptData.map(d => ({
+      name: d.name, pos: d.p, goof: d.g,
+      trend: d.delta > 0 ? '↑' : d.delta < 0 ? '↓' : '→',
+      trendStyle: { fontSize: '13px', fontWeight: 700, width: '14px', textAlign: 'right', color: d.delta > 0 ? 'var(--epi-pos)' : d.delta < 0 ? 'var(--epi-neg)' : 'var(--epi-fg-3)' },
+      posBar: { height: '100%', width: (d.p / dMax * 100) + '%', background: 'linear-gradient(90deg,#B49BFF,#7C5CFF)', transition: 'width 420ms cubic-bezier(0.2,0.8,0.2,1)' },
+      goofBar: { height: '100%', width: (d.g / dMax * 100) + '%', background: 'linear-gradient(90deg,#FCD34D,#F59E0B)', transition: 'width 420ms cubic-bezier(0.2,0.8,0.2,1)' }
+    }));
+
+    const recent = inWin.slice(0, compact ? 6 : 9).map(e => this.evRow(e));
+
+    // ledger
+    const ledger = this.filtered({ q: s.ledgerQ }).map(e => this.evRow(e));
+
+    // profile
+    const pid = s.empId || 2;
+    const pe = this.emp(pid);
+    const psg = signals[pid];
+    const pevAll = all.filter(e => e.empId === pid);
+    const tab = s.profileTab;
+    let pev = pevAll;
+    if (tab === 'Positive Contributions') pev = pevAll.filter(e => e.type === 'positive');
+    if (tab === 'Goofups') pev = pevAll.filter(e => e.type === 'goofup');
+    if (tab === 'Overview') pev = pevAll.slice(0, 5);
+    const groups = [];
+    pev.forEach(e => {
+      const d = this.parse(e.date);
+      const label = ['January','February','March','April','May','June','July','August','September','October','November','December'][d.getMonth()] + ' ' + d.getFullYear();
+      let g = groups.find(x => x.label === label);
+      if (!g) { g = { label, events: [] }; groups.push(g); }
+      g.events.push(this.evRow(e, true));
+    });
+    const pcatCounts = {};
+    pevAll.forEach(e => { pcatCounts[e.category] = (pcatCounts[e.category] || 0) + 1; });
+    const pcatMax = Math.max(1, ...Object.values(pcatCounts));
+    const pcats = Object.keys(pcatCounts).sort((a, b) => pcatCounts[b] - pcatCounts[a]).slice(0, 6).map(k => ({
+      name: k, count: pcatCounts[k],
+      bar: { height: '100%', borderRadius: '999px', width: (pcatCounts[k] / pcatMax * 100) + '%', background: Component.GOOF_CATS.indexOf(k) > -1 ? '#F59E0B' : '#7C5CFF' }
+    }));
+    const statOf = sg => [
+      { label: 'Positive', value: sg.pos, color: 'var(--epi-pos)' },
+      { label: 'Goofups', value: sg.goof, color: sg.goof ? 'var(--epi-neg)' : 'var(--epi-fg)' },
+      { label: 'Open follow-ups', value: sg.openFollow, color: sg.openFollow ? 'var(--epi-warn)' : 'var(--epi-fg)' },
+      { label: 'Last activity', value: sg.lastDays == null ? '—' : sg.lastDays === 0 ? 'Today' : sg.lastDays + 'd', color: 'var(--epi-fg)' }
+    ];
+
+    const p = {
+      name: pe.name, role: pe.role, dept: pe.dept, code: pe.code, initials: this.initials(pe.name),
+      doj: this.fmt(pe.doj), mgr: pe.mgr, status: pe.status,
+      signalLabel: psg.label + (psg.label === 'Strong' ? ' & consistent' : ''),
+      signalBig: { fontSize: '30px', fontWeight: 700, letterSpacing: '-0.02em', marginTop: '8px', color: this.signalColor(psg.label) },
+      signalWhy: psg.reasons.length ? psg.reasons[0].text : '',
+      stats: statOf(psg),
+      reasons: psg.reasons.map(r => ({ text: r.text, dot: { width: '6px', height: '6px', borderRadius: '999px', marginTop: '7px', flex: '0 0 6px', background: r.tone === 'good' ? '#7C5CFF' : r.tone === 'bad' ? '#F59E0B' : '#F59E0B' } })),
+      groups, timelineEmpty: groups.length === 0,
+      timelineTab: tab !== 'Notes', notesTab: tab === 'Notes',
+      notes: (Component.NOTES[pid] || [{ text: 'No management notes recorded for this employee.', by: '—', date: '' }]),
+      cats: pcats,
+      trend: this.monthBars(pevAll, 74, '7px')
+    };
+
+    // report
+    const rpe = Component.EMP.find(x => x.name === s.reportEmp) || pe;
+    const rsg = signals[rpe.id];
+    const rp = {
+      name: rpe.name, role: rpe.role, dept: rpe.dept,
+      stats: statOf(rsg), signal: rsg.label,
+      signalStyle: Object.assign(this.pill(this.signalColor(rsg.label)), { fontSize: '13px', padding: '8px 14px' }),
+      events: all.filter(e => e.empId === rpe.id).map(e => this.evRow(e))
+    };
+
+    const catCounts = {};
+    inWin.forEach(e => { catCounts[e.category] = (catCounts[e.category] || 0) + 1; });
+    const cMax = Math.max(1, ...Object.values(catCounts));
+    const cTotal = inWin.length || 1;
+    const catRows = Object.keys(catCounts).sort((a, b) => catCounts[b] - catCounts[a]).slice(0, 8).map(k => ({
+      name: k, count: catCounts[k], pct: Math.round(catCounts[k] / cTotal * 100) + '%',
+      bar: { height: '100%', borderRadius: '999px', width: (catCounts[k] / cMax * 100) + '%', background: Component.GOOF_CATS.indexOf(k) > -1 ? '#F59E0B' : '#7C5CFF' }
+    }));
+
+    // insights
+    const insights = [];
+    const tagStyle = c => ({ fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '5px 10px', borderRadius: '6px', color: c, background: this.tint(c, 0.12), border: '1px solid ' + this.tint(c, 0.28), whiteSpace: 'nowrap' });
+    const monthPos = all.filter(e => e.type === 'positive' && this.days(e.date) <= 31);
+    const byEmp = {};
+    monthPos.forEach(e => { byEmp[e.empId] = (byEmp[e.empId] || 0) + 1; });
+    const topRec = Object.keys(byEmp).filter(k => byEmp[k] >= 2);
+    if (topRec.length) insights.push({ tag: 'Recognition', tagStyle: tagStyle('#7C5CFF'), text: topRec.length + ' employees received significantly more positive recognition this month — ' + topRec.map(k => this.emp(+k).name).join(', ') + '.', basis: 'Based on ' + monthPos.length + ' positive contributions recorded in the last 31 days.', hasAction: true, action: 'Open matrix', go: this.go('overview') });
+    const goof30 = all.filter(e => e.type === 'goofup' && this.days(e.date) <= 31);
+    const dCount = {};
+    goof30.forEach(e => { const d = this.emp(e.empId).dept; dCount[d] = (dCount[d] || 0) + 1; });
+    const worstDept = Object.keys(dCount).sort((a, b) => dCount[b] - dCount[a])[0];
+    if (worstDept) insights.push({ tag: 'Department', tagStyle: tagStyle('#F59E0B'), text: worstDept + ' has the highest number of goofups in the last 30 days (' + dCount[worstDept] + ' of ' + goof30.length + ').', basis: 'Weighted by severity, ' + worstDept + ' also carries the highest issue load this period.', hasAction: false, action: '', go: this.go('overview') });
+    const gc = {};
+    all.filter(e => e.type === 'goofup' && this.days(e.date) <= 92).forEach(e => { gc[e.category] = (gc[e.category] || 0) + 1; });
+    const gcTotal = Object.values(gc).reduce((a, b) => a + b, 0);
+    const topGc = Object.keys(gc).sort((a, b) => gc[b] - gc[a])[0];
+    if (topGc) insights.push({ tag: 'Pattern', tagStyle: tagStyle('#F4C419'), text: topGc + ' issues account for ' + Math.round(gc[topGc] / gcTotal * 100) + '% of recorded goofups in the last 90 days.', basis: gc[topGc] + ' of ' + gcTotal + ' issues. Consider a second-check step before reports circulate.', hasAction: true, action: 'View records', go: this.go('performance') });
+    const improving = Component.EMP.filter(e => signals[e.id].delta >= 2 && signals[e.id].pos >= 3);
+    if (improving.length) insights.push({ tag: 'Trend', tagStyle: tagStyle('#2C6BD9'), text: improving.map(e => e.name).join(', ') + (improving.length > 1 ? ' have' : ' has') + ' shown a consistent positive trend over the last three months.', basis: 'Net balance improved versus the previous 45-day window.', hasAction: true, action: 'Open profile', go: this.openEmp(improving[0].id) });
+    const repeats = Component.EMP.filter(e => signals[e.id].repeatCat);
+    if (repeats.length) insights.push({ tag: 'Follow-up', tagStyle: tagStyle('#F59E0B'), text: repeats.length + ' employee' + (repeats.length > 1 ? 's have' : ' has') + ' a repeating issue category that requires management follow-up.', basis: repeats.map(e => e.name + ' — ' + signals[e.id].repeatCat).join(' · '), hasAction: true, action: 'Review', go: this.openEmp(repeats[0].id) });
+    if (insights.length < 2) insights.push({ tag: 'Data', tagStyle: tagStyle('#A1A1AA'), text: 'Not enough data to identify a reliable trend.', basis: 'Record more performance events to unlock pattern detection.', hasAction: false, action: '', go: this.go('overview') });
+
+    // momentum (area), impact mix (donut), issue heat (matrix)
+    const MN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const months = [];
+    for (let i = 5; i >= 0; i--) { const d = new Date(2026, 8 - i, 1); months.push({ m: d.getMonth(), y: d.getFullYear(), label: MN[d.getMonth()] }); }
+    const scoped = this.filtered({ ignoreRange: true });
+    const inMonth = (e, k) => { const x = this.parse(e.date); return x.getMonth() === k.m && x.getFullYear() === k.y; };
+    const nets = months.map(k => {
+      const f = scoped.filter(e => inMonth(e, k));
+      return f.filter(e => e.type === 'positive').length - f.filter(e => e.type === 'goofup').length;
+    });
+    const nMax = Math.max(1, ...nets.map(v => Math.abs(v)));
+    const coords = nets.map((v, i) => ({ x: i * (100 / (months.length - 1)), y: 20 - (v / nMax) * 17 }));
+    const linePath = 'M ' + coords.map(c => c.x.toFixed(2) + ' ' + c.y.toFixed(2)).join(' L ');
+    const momentum = {
+      line: linePath,
+      area: linePath + ' L 100 20 L 0 20 Z',
+      points: nets.map((v, i) => ({
+        label: months[i].label,
+        val: (v > 0 ? '+' : '') + v,
+        valStyle: { fontFamily: "'JetBrains Mono',monospace", fontSize: '13px', fontWeight: 500, color: v > 0 ? 'var(--epi-pos)' : v < 0 ? 'var(--epi-neg)' : 'var(--epi-fg-3)' }
+      }))
+    };
+
+    const sevColors = { Low: '#CBB9FF', Medium: '#A084FF', High: '#7C5CFF', Critical: '#5B3BDB' };
+    const sevTotal = inWin.length || 1;
+    let acc = 0;
+    const donut = {
+      total: inWin.length,
+      slices: ['Low', 'Medium', 'High', 'Critical'].map(n => {
+        const c = inWin.filter(e => e.severity === n).length;
+        const pctv = c / sevTotal * 100;
+        const slice = {
+          name: n, color: sevColors[n],
+          dash: Math.max(0, pctv - 0.7).toFixed(2) + ' ' + (100 - Math.max(0, pctv - 0.7)).toFixed(2),
+          offset: (100 - acc).toFixed(2),
+          pct: Math.round(pctv) + '%',
+          dot: { width: '9px', height: '9px', borderRadius: '3px', flex: '0 0 9px', background: sevColors[n] }
+        };
+        acc += pctv;
+        return slice;
+      })
+    };
+
+    const heatUnits = s.scope === 'department'
+      ? deptData.map(d => ({ name: d.name, ids: Component.EMP.filter(e => e.dept === d.name).map(e => e.id) }))
+      : Component.EMP
+          .filter(e => (s.fEmp === 'All employees' || e.name === s.fEmp) && (s.fDept === 'All departments' || e.dept === s.fDept))
+          .map(e => ({ name: e.name, ids: [e.id] }));
+    let heatRaw = heatUnits.map(u => ({
+      name: u.name,
+      loads: months.map(k => scoped.filter(e => e.type === 'goofup' && u.ids.indexOf(e.empId) > -1 && inMonth(e, k))
+        .reduce((a, e) => a + this.sevWeight(e.severity), 0))
+    }));
+    if (s.scope !== 'department') {
+      heatRaw = heatRaw.map(r => Object.assign(r, { total: r.loads.reduce((a, b) => a + b, 0) }))
+        .sort((a, b) => b.total - a.total).slice(0, 10);
+    }
+    const hMax = Math.max(1, ...heatRaw.map(r => Math.max.apply(null, r.loads)));
+    const heat = heatRaw.map(r => ({
+      name: r.name,
+      cells: r.loads.map((v, i) => ({
+        label: v ? String(v) : '',
+        title: r.name + ' · ' + months[i].label + ' · load ' + v,
+        style: {
+          height: '30px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: '12px', fontWeight: 700, fontVariantNumeric: 'tabular-nums',
+          background: v ? 'rgba(245,158,11,' + (s.theme === 'light' ? (0.10 + 0.32 * (v / hMax)) : (0.14 + 0.6 * (v / hMax))).toFixed(2) + ')' : 'var(--epi-track)',
+          color: v ? (s.theme === 'light' ? '#7C2D12' : (v / hMax > 0.5 ? '#0A0A0A' : 'var(--epi-fg)')) : 'var(--epi-fg-3)',
+          border: '1px solid ' + (v ? 'rgba(245,158,11,0.30)' : 'transparent'),
+          transition: 'background 320ms cubic-bezier(0.2,0.8,0.2,1)'
+        }
+      }))
+    }));
+
+    // department-wise matrix (expandable)
+    const deptMatrix = deptData.map(d => {
+      const people = Component.EMP.filter(e => e.dept === d.name);
+      const load = people.reduce((a, e) => a + signals[e.id].load, 0);
+      const worst = people.map(e => signals[e.id].label).sort((a, b) => order[a] - order[b])[0] || 'Stable';
+      return { d, people, load, worst };
+    });
+    const dLoadMax = Math.max(1, ...deptMatrix.map(x => x.load));
+    const deptRowsX = deptMatrix.map(x => ({
+      name: x.d.name, count: x.people.length, pos: x.d.p, goof: x.d.g,
+      load: x.load.toFixed(1),
+      loadBar: { display: 'block', height: '100%', borderRadius: '999px', width: (x.load / dLoadMax * 100) + '%', background: x.load / dLoadMax > 0.55 ? 'linear-gradient(90deg,#FBBF24,#F59E0B)' : 'linear-gradient(90deg,#A084FF,#7C5CFF)' },
+      goofStyle: { fontSize: '14px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: x.d.g ? 'var(--epi-neg)' : 'var(--epi-fg-3)' },
+      signal: x.worst, signalStyle: this.pill(this.signalColor(x.worst)),
+      open: !!s.openDepts[x.d.name],
+      icon: s.openDepts[x.d.name] ? '▾' : '▸',
+      chev: Object.assign(this.chevStyle(), { width: '20px', height: '20px', flex: '0 0 20px', fontSize: '10px' }),
+      toggle: () => this.setState(st => ({ openDepts: Object.assign({}, st.openDepts, { [x.d.name]: !st.openDepts[x.d.name] }) })),
+      emps: matrix.filter(m => m.dept === x.d.name)
+    }));
+
+    // recognition leaderboard
+    const lbBase = Component.EMP.filter(scopeEmp).map(e => {
+      const evs = inWin.filter(x => x.empId === e.id);
+      return { e, p: evs.filter(x => x.type === 'positive').length, g: evs.filter(x => x.type === 'goofup').length };
+    }).sort((a, b) => b.p - a.p || a.g - b.g).slice(0, 8);
+    const lbMax = Math.max(1, ...lbBase.map(x => x.p + x.g));
+    const leaderboard = lbBase.map((x, i) => ({
+      rank: String(i + 1), name: x.e.name, dept: x.e.dept + ' · ' + x.e.role,
+      pos: x.p, goof: x.g,
+      rankStyle: { width: '22px', flex: '0 0 22px', fontSize: '12px', fontWeight: 700, color: i < 3 ? 'var(--epi-accent-fg)' : 'var(--epi-fg-3)', fontVariantNumeric: 'tabular-nums' },
+      posBar: { display: 'block', height: '100%', width: (x.p / lbMax * 100) + '%', background: 'linear-gradient(90deg,#B49BFF,#7C5CFF)', transition: 'width 420ms cubic-bezier(0.2,0.8,0.2,1)' },
+      goofBar: { display: 'block', height: '100%', width: (x.g / lbMax * 100) + '%', background: 'linear-gradient(90deg,#FCD34D,#F59E0B)', transition: 'width 420ms cubic-bezier(0.2,0.8,0.2,1)' },
+      goofStyle: { fontSize: '14px', fontWeight: 700, fontVariantNumeric: 'tabular-nums', width: '28px', textAlign: 'right', color: x.g ? 'var(--epi-neg)' : 'var(--epi-fg-3)' },
+      note: x.p + ' recognitions · ' + x.g + ' issues · ' + signals[x.e.id].label.toLowerCase() + ' signal',
+      go: this.openEmp(x.e.id)
+    }));
+
+    // search
+    const q = s.q.trim().toLowerCase();
+    const searchPeople = q ? Component.EMP.filter(e => (e.name + ' ' + e.dept + ' ' + e.role).toLowerCase().indexOf(q) > -1).slice(0, 4).map(e => ({
+      name: e.name, initials: this.initials(e.name), meta: signals[e.id].pos + ' positive · ' + signals[e.id].goof + ' goofups', go: this.openEmp(e.id)
+    })) : [];
+    const searchEvents = q ? all.filter(e => (e.title + ' ' + e.category + ' ' + this.emp(e.empId).name).toLowerCase().indexOf(q) > -1).slice(0, 5).map(e => ({
+      title: e.title, icon: e.type === 'positive' ? '✓' : '⚠', iconStyle: this.iconStyle(e.type), meta: this.fmtShort(e.date), go: this.openEv(e.id)
+    })) : [];
+
+    // nav
+    const mk = (label, screen, badge) => ({
+      label, go: this.go(screen),
+      style: this.navBtn(s.screen === screen || (screen === 'profile' && s.screen === 'profile')),
+      dot: { width: '5px', height: '5px', borderRadius: '999px', background: s.screen === screen ? '#7C5CFF' : 'var(--epi-dot)' },
+      badge: badge || '',
+      badgeStyle: badge ? { fontSize: '11px', fontWeight: 700, color: 'var(--epi-warn)' } : { display: 'none' }
+    });
+    const navMain = [mk('Dashboard', 'overview'), mk('Performance', 'performance'), mk('Reports', 'reports'), mk('Settings', 'settings')];
+    const bottomNav = [
+      { label: 'Home', icon: '◈', screen: 'overview' },
+      { label: 'Activity', icon: '≡', screen: 'performance' },
+      { label: 'Reports', icon: '▤', screen: 'reports' },
+      { label: 'Settings', icon: '⚙', screen: 'settings' }
+    ].map(n => ({
+      label: n.label, icon: n.icon, go: this.go(n.screen),
+      style: { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px', padding: '7px 2px', minHeight: '48px', background: 'transparent', border: 0, cursor: 'pointer', borderRadius: '10px', color: s.screen === n.screen ? 'var(--epi-accent-fg)' : 'var(--epi-fg-2)' }
+    }));
+
+    const settingsTabsList = ['Employee database', 'Performance categories', 'User access', 'Audit log', 'General'];
+    const crumbMap = { overview: 'Dashboard', profile: pe.name, performance: 'Activity', reports: 'Reports & insights', settings: s.settingsTab };
+
+    const draft = s.draft;
+    const sevChoices = Component.SEVS.map(x => ({
+      name: x.name, go: () => this.setState(st => ({ draft: Object.assign({}, st.draft, { severity: x.name }) })),
+      style: this.chip(draft && draft.severity === x.name)
+    }));
+    const dupWarning = !!(draft && draft.title.trim().length > 3 && all.some(e => this.emp(e.empId).name === draft.employee && this.days(e.date) <= 7 && e.title.toLowerCase().indexOf(draft.title.trim().toLowerCase().slice(0, 12)) > -1));
+
+    const evObj = s.eventId ? all.find(e => e.id === s.eventId) : null;
+    const ev = evObj ? (() => {
+      const em = this.emp(evObj.empId);
+      return {
+        id: evObj.id, title: evObj.title, desc: evObj.desc, empName: em.name,
+        icon: evObj.type === 'positive' ? '✓' : '⚠',
+        iconStyle: Object.assign(this.iconStyle(evObj.type), { width: '32px', height: '32px', flex: '0 0 32px', fontSize: '15px', borderRadius: '9px' }),
+        typeLabel: evObj.type === 'positive' ? 'Positive Contribution' : 'Goofup',
+        meta: [
+          { label: 'Employee', value: em.name + ' · ' + em.role },
+          { label: 'Department', value: em.dept },
+          { label: 'Event date', value: this.fmt(evObj.date) },
+          { label: 'Category', value: evObj.category },
+          { label: 'Impact', value: evObj.severity },
+          { label: 'Recorded by', value: evObj.recordedBy },
+          { label: 'Follow-up', value: evObj.followUpDate ? 'Due ' + this.fmt(evObj.followUpDate) : 'Not required' },
+          { label: 'Status', value: evObj.status }
+        ],
+        goEmp: this.openEmp(em.id)
+      };
+    })() : { meta: [] };
+
+    return {
+      isMobile, isDesktop, userName, userRole: this.props.userRole || 'MD / Management', userInitials: this.initials(userName),
+      crumb: crumbMap[s.screen] || 'Overview',
+      greeting: 'Good morning, ' + userName + '.',
+      navMain, bottomNav,
+      q: s.q, setQ: e => this.setState({ q: e.target.value }),
+      hasQ: q.length > 0, searchPeople, searchEvents, searchEmpty: q.length > 0 && !searchPeople.length && !searchEvents.length,
+
+      isOverview: s.screen === 'overview', isProfile: s.screen === 'profile', isPerformance: s.screen === 'performance',
+      isReports: s.screen === 'reports', isInsights: s.screen === 'reports',
+      isDatabase: s.screen === 'settings' && s.settingsTab === 'Employee database',
+      isSettings: s.screen === 'settings' && s.settingsTab !== 'Employee database',
+
+      ranges: ['This week', 'This month', 'Last 3 months', 'This year'].map(r => ({ label: r, go: () => this.setState({ fRange: r }), style: this.chip(s.fRange === r) })),
+      empFilterOptions: ['All employees'].concat(Component.EMP.map(e => e.name)),
+      fEmp: s.fEmp, empFocused: s.fEmp !== 'All employees',
+      setEmp: e => this.setState({ fEmp: e.target.value }),
+      clearEmp: () => this.setState({ fEmp: 'All employees' }),
+      deptOptions: ['All departments'].concat(depts),
+      typeOptions: ['All types', 'Positive only', 'Goofups only'],
+      categoryOptions: ['All categories'].concat(Component.POS_CATS.slice(0, 11)).concat(Component.GOOF_CATS.slice(0, 10)),
+      severityOptions: ['All severities', 'Low', 'Medium', 'High', 'Critical'],
+      rangeOptions: ['This week', 'This month', 'Last 3 months', 'This year', 'All time'],
+      sortOptions: ['Needs attention', 'Most positive', 'Most goofups', 'Most improved', 'Recently active', 'Alphabetical'],
+      fDept: s.fDept, fType: s.fType, fCategory: s.fCategory, fSeverity: s.fSeverity, fRange: s.fRange, sortBy: s.sortBy,
+      setDept: e => this.setState({ fDept: e.target.value }),
+      setType: e => this.setState({ fType: e.target.value }),
+      setCategory: e => this.setState({ fCategory: e.target.value }),
+      setSeverity: e => this.setState({ fSeverity: e.target.value }),
+      setRange: e => this.setState({ fRange: e.target.value }),
+      setSort: e => this.setState({ sortBy: e.target.value }),
+      clearFilters: () => this.setState({ fEmp: 'All employees', fDept: 'All departments', fType: 'All types', fCategory: 'All categories', fSeverity: 'All severities', fRange: 'Last 3 months', ledgerQ: '' }),
+      filterSummary: inWin.length + ' events in ' + s.fRange.toLowerCase(),
+      matrixNote: s.fEmp !== 'All employees' ? 'Showing ' + s.fEmp + ' only' : '',
+
+      kpis: compact ? kpis.slice(0, 4) : kpis,
+      matrix: (s.scope === 'employee' && !s.matrixAll && isDesktop) ? matrix.slice(0, 7) : matrix,
+      matrixTitle: s.scope === 'department' ? 'Department performance matrix' : 'Employee performance matrix',
+      matrixCount: s.scope === 'department'
+        ? deptRowsX.length + (deptRowsX.length === 1 ? ' department' : ' departments')
+        : matrix.length + (matrix.length === 1 ? ' employee' : ' employees'),
+      scopeTabs: [{ k: 'employee', label: 'By employee' }, { k: 'department', label: 'By department' }].map(t => ({
+        label: t.label, go: () => this.setState({ scope: t.k }),
+        style: { height: '26px', padding: '0 12px', borderRadius: '999px', border: 0, cursor: 'pointer', fontSize: '13px', fontWeight: 600,
+          background: s.scope === t.k ? 'var(--epi-raised)' : 'transparent', color: s.scope === t.k ? 'var(--epi-fg)' : 'var(--epi-fg-2)' }
+      })),
+      isEmpScope: s.scope === 'employee', isDeptScope: s.scope === 'department',
+      showEmpMatrix: s.scope === 'employee' && isDesktop && s.secMatrix,
+      showEmpCards: s.scope === 'employee' && isMobile && s.secMatrix,
+      showDeptMatrix: s.scope === 'department' && s.secMatrix,
+      deptMatrix: deptRowsX,
+      leaderboard,
+      secMatrix: this.sec('secMatrix'), secDetail: this.sec('secDetail'), secActivity: this.sec('secActivity'), secHeat: this.sec('secHeat'),
+      heatTitle: s.scope === 'department' ? 'Issue heat by department' : 'Issue heat by employee',
+      heatSub: s.scope === 'department'
+        ? 'Weighted goofup load per month — darker means heavier'
+        : 'Weighted goofup load per month, heaviest employees first — darker means heavier',
+      canExpandMatrix: s.scope === 'employee' && isDesktop && s.secMatrix && matrix.length > 7,
+      toggleMatrixAll: () => this.setState(st => ({ matrixAll: !st.matrixAll })),
+      expandBtnLabel: s.matrixAll ? 'Show fewer' : 'Show all ' + matrix.length + ' employees →',
+      expandBtnStyle: { marginTop: '10px', height: '34px', padding: '0 14px', borderRadius: '8px', background: 'transparent', border: '1px solid var(--epi-border)', color: 'var(--epi-fg-2)', fontSize: '13px', fontWeight: 600, cursor: 'pointer', width: '100%' },
+      attention, attentionEmpty: attention.length === 0,
+      followUps,
+      trendBars, trendNote, momentum, donut, heat, heatMonths: months.map(m => m.label),
+      theme: s.theme, themeIcon: s.theme === 'light' ? '☾' : '☀',
+      themeTitle: s.theme === 'light' ? 'Switch to dark' : 'Switch to light',
+      toggleTheme: () => { const t = s.theme === 'light' ? 'dark' : 'light'; try { localStorage.setItem('epi-theme', t); } catch (err) {} this.setState({ theme: t }); },
+      deptRows, catRows,
+      recent, recentEmpty: recent.length === 0,
+      goPerformance: this.go('performance'),
+
+      p, showReasons: this.props.showSignalReasons !== false,
+      profileTabs: ['Overview', 'Timeline', 'Positive Contributions', 'Goofups', 'Notes'].map(t => ({
+        label: t, go: () => this.setState({ profileTab: t }), style: this.tabBtn(s.profileTab === t)
+      })),
+      goBack: this.go('overview'),
+      recordPositive: () => this.setState({ recordOpen: true, quick: true, draft: this.newDraft('positive') }),
+      recordGoofup: () => this.setState({ recordOpen: true, quick: true, draft: this.newDraft('goofup') }),
+
+      ledger, ledgerEmpty: ledger.length === 0, ledgerCount: ledger.length + ' records · ' + s.fRange.toLowerCase(),
+      ledgerQ: s.ledgerQ, setLedgerQ: e => this.setState({ ledgerQ: e.target.value }),
+      exportCsv: () => this.csv(), doPrint: () => window.print(),
+
+      dbRows: Component.EMP.map(e => ({
+        name: e.name, code: e.code, role: e.role, dept: e.dept, doj: this.fmt(e.doj), mgr: e.mgr, status: e.status,
+        initials: this.initials(e.name), avatarStyle: Object.assign({}, avatar, { width: '26px', height: '26px', flex: '0 0 26px' }),
+        statusStyle: this.pill(e.status === 'Active' ? '#7C5CFF' : e.status === 'On Hold' ? '#F59E0B' : '#A1A1AA'),
+        go: this.openEmp(e.id)
+      })),
+      dbCount: Component.EMP.length + ' employees · ' + depts.length + ' departments',
+
+      rp, reportEmp: s.reportEmp, empNames: Component.EMP.map(e => e.name),
+      setReportEmp: e => this.setState({ reportEmp: e.target.value }),
+      reportPeriod: s.fRange + ' · as of 05 Sep 2026',
+
+      insights, eventTotal: all.length,
+
+      settingsTitle: 'Settings',
+      settingsTabs: settingsTabsList.map(t => ({ label: t, go: () => this.setState({ settingsTab: t, screen: 'settings' }), style: this.tabBtn(s.settingsTab === t) })),
+      tabGeneral: s.settingsTab === 'General', tabCategories: s.settingsTab === 'Performance categories',
+      tabAccess: s.settingsTab === 'User access', tabAudit: s.settingsTab === 'Audit log',
+      posCats: Component.POS_CATS, goofCats: Component.GOOF_CATS,
+      sevLevels: Component.SEVS.map(x => ({ name: x.name, weight: x.weight, dot: { width: '8px', height: '8px', borderRadius: '999px', background: x.weight >= 3 ? '#5B3BDB' : x.weight === 2 ? '#7C5CFF' : '#CBB9FF' } })),
+      users: Component.USERS.map(u => Object.assign({}, u, { statusStyle: this.pill(u.status === 'Active' ? '#7C5CFF' : '#F59E0B') })),
+      audit: Component.AUDIT.map(a => ({
+        time: a.time, action: a.action, what: a.what, by: a.by, diff: a.diff || '', hasDiff: !!a.diff,
+        actStyle: Object.assign(this.pill(a.action === 'CREATE' ? '#7C5CFF' : a.action === 'EDIT' ? '#7C5CFF' : a.action === 'ARCHIVE' ? '#F59E0B' : '#A1A1AA'), { minWidth: '76px' })
+      })),
+      generalRows: [
+        { label: 'Organisation', help: 'Shown in report headers and exports', value: 'ELDEE GROUP', valueStyle: { fontSize: '14px', fontWeight: 600 } },
+        { label: 'Signal model', help: 'Recognition frequency, issue severity, recency, trend, consistency', value: 'Multi-dimensional', valueStyle: { fontSize: '14px', fontWeight: 600, color: 'var(--epi-accent-fg)' } },
+        { label: 'Attention threshold', help: 'Weighted issue load at which an employee is flagged', value: String(this.props.attentionThreshold != null ? this.props.attentionThreshold : 6), valueStyle: { fontSize: '14px', fontWeight: 600, fontFamily: "'JetBrains Mono',monospace" } },
+        { label: 'Record retention', help: 'Performance history is archived, never deleted', value: 'Archive only', valueStyle: { fontSize: '14px', fontWeight: 600 } },
+        { label: 'Audit trail', help: 'Every create, edit and archive is logged with before and after values', value: 'Enabled', valueStyle: { fontSize: '14px', fontWeight: 600, color: 'var(--epi-pos)' } }
+      ],
+
+      recordOpen: s.recordOpen,
+      drawerStyle: { position: 'relative', width: isMobile ? '100%' : '520px', maxWidth: '100%', background: 'var(--epi-surface)', borderLeft: '1px solid var(--epi-border-2)', padding: isMobile ? '20px 18px 40px' : '24px 26px 40px', overflowY: 'auto', animation: 'epiPanel 320ms cubic-bezier(0.2,0.8,0.2,1)' },
+      openRecord: () => this.setState({ recordOpen: true, quick: true, draft: null, draftErrorText: '' }),
+      closeRecord: () => this.setState({ recordOpen: false, draft: null, draftErrorText: '' }),
+      pickPositive: () => this.setState(st => ({ draft: st.draft && st.draft.type === 'positive' ? st.draft : this.newDraft('positive') })),
+      pickGoofup: () => this.setState(st => ({ draft: st.draft && st.draft.type === 'goofup' ? st.draft : this.newDraft('goofup') })),
+      posChoiceStyle: { flex: 1, display: 'flex', gap: '11px', alignItems: 'center', padding: '14px', borderRadius: '12px', cursor: 'pointer', textAlign: 'left', color: draft && draft.type === 'positive' ? 'var(--epi-pos-fg)' : 'var(--epi-fg-strong)', background: draft && draft.type === 'positive' ? 'rgba(124,92,255,0.14)' : 'var(--epi-hover)', border: '1px solid ' + (draft && draft.type === 'positive' ? 'rgba(124,92,255,0.44)' : 'var(--epi-border)') },
+      goofChoiceStyle: { flex: 1, display: 'flex', gap: '11px', alignItems: 'center', padding: '14px', borderRadius: '12px', cursor: 'pointer', textAlign: 'left', color: draft && draft.type === 'goofup' ? 'var(--epi-neg-fg)' : 'var(--epi-fg-strong)', background: draft && draft.type === 'goofup' ? 'rgba(245,158,11,0.14)' : 'var(--epi-hover)', border: '1px solid ' + (draft && draft.type === 'goofup' ? 'rgba(245,158,11,0.44)' : 'var(--epi-border)') },
+      hasDraftType: !!draft, noDraftType: !draft,
+      detailed: !s.quick,
+      quick: s.quick,
+      toggleQuick: () => this.setState(st => ({ quick: !st.quick })),
+      quickToggleLabel: s.quick ? 'Quick mode' : 'Full detail',
+      quickToggleStyle: Object.assign(this.chip(true), { height: '30px', fontSize: '12px', color: 'var(--epi-accent-fg)' }),
+      draft: draft || { employee: '', title: '', desc: '', date: '', category: '', severity: '', by: '', tags: '', follow: false, followDate: '', action: '' },
+      empPickList: Component.EMP.map(e => e.name),
+      draftCats: draft && draft.type === 'goofup' ? Component.GOOF_CATS : Component.POS_CATS,
+      sevChoices,
+      setDraftEmployee: this.setD('employee'), setDraftTitle: this.setD('title'), setDraftDesc: this.setD('desc'),
+      setDraftDate: this.setD('date'), setDraftCategory: this.setD('category'), setDraftBy: this.setD('by'),
+      setDraftTags: this.setD('tags'), setDraftFollowDate: this.setD('followDate'), setDraftAction: this.setD('action'),
+      toggleFollow: () => this.setState(st => ({ draft: Object.assign({}, st.draft, { follow: !st.draft.follow }) })),
+      followToggleLabel: draft && draft.follow ? 'Yes' : 'No',
+      followToggleStyle: Object.assign(this.chip(!!(draft && draft.follow)), { height: '30px', minWidth: '58px', color: draft && draft.follow ? 'var(--epi-warn)' : 'var(--epi-fg-2)' }),
+      dupWarning,
+      draftError: !!s.draftErrorText, draftErrorText: s.draftErrorText,
+      saveEvent: () => this.commit(false), saveAnother: () => this.commit(true),
+
+      eventOpen: !!evObj, ev, closeEvent: () => this.setState({ eventId: null }),
+      askArchive: () => this.setState({ confirmOpen: true }),
+      cancelArchive: () => this.setState({ confirmOpen: false }),
+      doArchive: () => { this.setState({ confirmOpen: false, eventId: null }); this.flash('Record archived — kept in the audit log'); },
+      confirmOpen: s.confirmOpen,
+
+      hasToast: !!s.toast, toast: s.toast,
+      noop: () => {}
+    };
+  }
+
+  evRow(e, withDesc) {
+    const em = this.emp(e.empId);
+    return {
+      id: e.id, title: e.title, desc: e.desc, empName: em.name, category: e.category, severity: e.severity,
+      recordedBy: e.recordedBy, status: e.status,
+      dateShort: this.fmtShort(e.date), dateFull: this.fmt(e.date), dateStyle: { fontFamily: "'JetBrains Mono',monospace", fontSize: '12px', color: 'var(--epi-fg-2)', whiteSpace: 'nowrap' },
+      icon: e.type === 'positive' ? '✓' : '⚠',
+      iconStyle: this.iconStyle(e.type),
+      typeLabel: e.type === 'positive' ? 'Positive' : 'Goofup',
+      typeStyle: this.pill(e.type === 'positive' ? '#7C5CFF' : '#F59E0B'),
+      sevStyle: { fontSize: '13px', fontWeight: 600, color: e.severity === 'High' || e.severity === 'Critical' ? 'var(--epi-warn)' : 'var(--epi-fg-2)' },
+      catStyle: { fontSize: '12px', fontWeight: 600, padding: '3px 8px', borderRadius: '999px', background: 'var(--epi-track)', border: '1px solid var(--epi-border)', color: 'var(--epi-fg-strong)' },
+      statusStyle: this.pill(e.status === 'Follow-up' ? '#F59E0B' : '#A1A1AA'),
+      followLabel: e.followUpDate ? 'Follow-up ' + this.fmtShort(e.followUpDate) : '',
+      followStyle: e.followUpDate ? { fontSize: '12px', fontWeight: 600, color: 'var(--epi-warn)' } : { display: 'none' },
+      go: this.openEv(e.id)
+    };
+  }
+}
+
+</script>
+</body>
+</html>
