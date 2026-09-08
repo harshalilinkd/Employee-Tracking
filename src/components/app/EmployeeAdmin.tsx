@@ -3,8 +3,9 @@
 import { useEffect, useState, type CSSProperties } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { AlertTriangle, Ban, Check, Loader2, Pencil, PencilLine, Trash2, Undo2, UserPlus, X } from 'lucide-react'
+import { AlertTriangle, Ban, Check, Loader2, Mails, Pencil, PencilLine, Trash2, Undo2, UserPlus, X } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { EmailImport } from './EmailImport'
 import { avatarStyle, cardStyle, initials, pill, subtleButton, tableHeadStyle } from '@/lib/design'
 import { fmtFull } from '@/lib/format'
 import type { EmployeeStatus } from '@/lib/types'
@@ -102,6 +103,7 @@ export function EmployeeAdmin({ rows, departments, designations, deptCount, canE
   // employee id, so saving touches exactly what the user edited and an
   // untouched row is never written to.
   const [bulk, setBulk] = useState(false)
+  const [importing, setImporting] = useState(false)
   const [draft, setDraft] = useState<Draft>({})
   const [savingBulk, setSavingBulk] = useState(false)
 
@@ -303,6 +305,12 @@ export function EmployeeAdmin({ rows, departments, designations, deptCount, canE
                 <button type="button" style={subtleButton} onClick={() => setBulk(true)}>
                   <PencilLine size={14} />
                   Edit rows
+                </button>
+                {/* Emails are the one field people already keep in a sheet,
+                    so they get the paste route rather than the grid. */}
+                <button type="button" style={subtleButton} onClick={() => setImporting(true)}>
+                  <Mails size={14} />
+                  Update emails
                 </button>
                 <button type="button" style={subtleButton} onClick={() => setAdding(true)}>
                   <UserPlus size={14} />
@@ -651,6 +659,22 @@ export function EmployeeAdmin({ rows, departments, designations, deptCount, canE
             await setRowStatus(deleting, 'Inactive')
             setDeleteError('')
             setDeleting(null)
+          }}
+        />
+      ) : null}
+
+      {importing ? (
+        <EmailImport
+          employees={rows.map((r) => ({
+            id: r.id,
+            full_name: r.full_name,
+            employee_code: r.employee_code,
+            contact_email: r.contact_email,
+          }))}
+          onClose={() => setImporting(false)}
+          onDone={() => {
+            setImporting(false)
+            router.refresh()
           }}
         />
       ) : null}
