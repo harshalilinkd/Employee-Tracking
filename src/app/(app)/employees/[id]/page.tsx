@@ -7,7 +7,8 @@ import { EmptyState } from '@/components/app/EmptyState'
 import { RecordCta, RecordTypeButton } from '@/components/app/RecordCta'
 import { cardStyle, initials, labelCaps, pill, tableHeadStyle } from '@/lib/design'
 import { ago, fmtFull, fmtMonth, fmtShort } from '@/lib/format'
-import { SEVERITY_LABELS, canRecord, type EmployeeSignal, type Severity } from '@/lib/types'
+import { ManagementNotes } from '@/components/app/ManagementNotes'
+import { SEVERITY_LABELS, canRecord, isAdmin, type EmployeeSignal, type Severity } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
 
@@ -113,6 +114,7 @@ export default async function EmployeeProfile({
 
   const mayRecord = canRecord(session?.appUser?.role)
   const isSelf = session?.appUser?.employee_id === emp.id
+  const mayNote = isAdmin(session?.appUser?.role) && !!session?.appUser?.id
 
   const stats = [
     { label: 'Positive', value: positives, color: 'var(--epi-pos)' },
@@ -460,6 +462,17 @@ export default async function EmployeeProfile({
             ))}
           </div>
         </div>
+      ) : null}
+
+      {/* Private context, kept off the report by design — see the component.
+          Placed last so the record itself reads first; a note is background,
+          not evidence. */}
+      {mayNote ? (
+        <ManagementNotes
+          employeeId={emp.id}
+          employeeName={emp.full_name}
+          currentAppUserId={session!.appUser!.id}
+        />
       ) : null}
 
       <style

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, type CSSProperties } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { AlertTriangle, Archive, Check, Loader2, Pencil, X } from 'lucide-react'
+import { EventAttachments } from './EventAttachments'
 import { createClient } from '@/lib/supabase/client'
 import { iconStyle, pill } from '@/lib/design'
 import { fmtFull } from '@/lib/format'
@@ -426,6 +427,18 @@ export function EventDetail({
               <AlertTriangle size={15} style={{ flex: '0 0 15px', marginTop: '1px' }} />
               <span style={{ flex: 1, lineHeight: 1.45 }}>{error}</span>
             </div>
+          ) : null}
+
+          {/* Evidence lives with the event it belongs to, not on a screen of
+              its own — the question "what proof is there" is only ever asked
+              while looking at the record. */}
+          {mode === 'view' ? (
+            <EventAttachments
+              eventId={event.id}
+              canUpload={canEdit}
+              currentAppUserId={currentAppUserId}
+              isAdmin={isAdmin}
+            />
           ) : null}
         </div>
 
