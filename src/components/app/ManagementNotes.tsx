@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { Loader2, Lock, NotebookPen, Pencil, Trash2, X } from 'lucide-react'
+import { Loader2, Lock, NotebookPen, Pencil, Plus, Trash2, X } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { cardStyle, initials, subtleButton } from '@/lib/design'
 
@@ -29,10 +29,14 @@ export function ManagementNotes({
   employeeId,
   employeeName,
   currentAppUserId,
+  compact = false,
 }: {
   employeeId: string
   employeeName: string
   currentAppUserId: string
+  /** Side-column form: the explanation is dropped and Add moves into the
+      header, because at 430px wide the preamble is longer than the notes. */
+  compact?: boolean
 }) {
   const [notes, setNotes] = useState<Note[]>([])
   const [loading, setLoading] = useState(true)
@@ -126,8 +130,15 @@ export function ManagementNotes({
   }
 
   return (
-    <section style={{ ...cardStyle, padding: '18px 20px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+    <section style={{ ...cardStyle, padding: compact ? '17px 19px' : '18px 20px' }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          marginBottom: compact ? '13px' : '4px',
+        }}
+      >
         <span
           style={{
             width: '28px',
@@ -143,33 +154,68 @@ export function ManagementNotes({
         >
           <NotebookPen size={15} />
         </span>
-        <h2 style={{ margin: 0, fontSize: '15px', fontWeight: 700, letterSpacing: '-0.012em' }}>
-          Management notes
+        <h2 style={{ margin: 0, fontSize: compact ? '16px' : '15px', fontWeight: 700, letterSpacing: '-0.015em' }}>
+          Management {compact ? 'Notes' : 'notes'}
         </h2>
         {notes.length ? (
           <span className="epi-num" style={{ fontSize: '12px', color: 'var(--epi-fg-3)' }}>
             {notes.length}
           </span>
         ) : null}
-        <span
-          style={{
-            marginLeft: 'auto',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            fontSize: '11px',
-            color: 'var(--epi-fg-3)',
-          }}
-        >
-          <Lock size={11} />
-          Never appears on the report
-        </span>
+        {compact ? (
+          <button
+            onClick={() => void add()}
+            disabled={busy || !draft.trim()}
+            title={
+              draft.trim()
+                ? 'Save this note'
+                : 'Type a note below, then add it — notes never appear on the report'
+            }
+            style={{
+              marginLeft: 'auto',
+              height: '28px',
+              padding: '0 11px',
+              borderRadius: '8px',
+              border: `1px solid ${draft.trim() ? 'transparent' : 'var(--epi-border-2)'}`,
+              background: draft.trim()
+                ? 'linear-gradient(135deg,#14907c 0%,#0e7c6b 55%,#0a5f52 100%)'
+                : 'var(--epi-input)',
+              color: draft.trim() ? '#fff' : 'var(--epi-fg-2)',
+              fontSize: '12px',
+              fontWeight: 600,
+              cursor: busy ? 'progress' : draft.trim() ? 'pointer' : 'not-allowed',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px',
+              flex: '0 0 auto',
+            }}
+          >
+            {busy ? <Loader2 size={12} className="epi-spin" /> : <Plus size={12} />}
+            Add note
+          </button>
+        ) : (
+          <span
+            style={{
+              marginLeft: 'auto',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontSize: '11px',
+              color: 'var(--epi-fg-3)',
+            }}
+          >
+            <Lock size={11} />
+            Never appears on the report
+          </span>
+        )}
       </div>
 
-      <p style={{ margin: '0 0 14px', fontSize: '12.5px', color: 'var(--epi-fg-3)', lineHeight: 1.55 }}>
-        Context on {employeeName} that is worth remembering but is not a formal performance record.
-        Visible to Management and Executive Assistants only.
-      </p>
+      {compact ? null : (
+        <p style={{ margin: '0 0 14px', fontSize: '12.5px', color: 'var(--epi-fg-3)', lineHeight: 1.55 }}>
+          Context on {employeeName} that is worth remembering but is not a formal performance record.
+          Visible to Management and Executive Assistants only.
+        </p>
+      )}
 
       {error ? (
         <div
@@ -208,7 +254,7 @@ export function ManagementNotes({
             fontFamily: 'inherit',
           }}
         />
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <div style={{ display: compact ? 'none' : 'flex', justifyContent: 'flex-end' }}>
           <button
             onClick={() => void add()}
             disabled={busy || !draft.trim()}
