@@ -18,7 +18,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   const supabase = await createClient()
 
-  const [{ data: employees }, { data: categories }, { data: attentionRows }] = await Promise.all([
+  const [{ data: employees }, { data: categories }, { data: attentionRows, count: attentionTotal }] =
+    await Promise.all([
     supabase
       .from('employees')
       .select('id, full_name, status, department:departments!employees_department_id_fkey(name)')
@@ -32,20 +33,25 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     // The header alert names the people, not just a number — a count alone
     // gave no idea who or why. RLS scopes this per role, so a department
     // manager sees their own department only.
+    // Only the worst few are listed; the exact count comes back with them so
+    // the panel can say "5 of 23" rather than silently truncating.
     supabase
       .from('v_employee_signal')
-      .select('employee_id, full_name, explanation, issue_load, critical_goofups')
+      .select('employee_id, full_name, issue_load, critical_goofups, repeat_category', {
+        count: 'exact',
+      })
       .eq('band', 'Attention')
+      .order('critical_goofups', { ascending: false })
       .order('issue_load', { ascending: false })
-      .limit(8),
+      .limit(5),
   ])
 
   type AttentionRow = {
     employee_id: string
     full_name: string
-    explanation: string
     issue_load: number
     critical_goofups: number
+    repeat_category: string | null
   }
 
   type EmployeeRow = {
@@ -74,10 +80,17 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       alerts={(attentionRows ?? []).map((a: AttentionRow) => ({
         id: a.employee_id,
         name: a.full_name,
-        reason: a.critical_goofups > 0
-          ? `${a.critical_goofups} critical ${a.critical_goofups === 1 ? 'issue' : 'issues'}`
-          : `Issue load ${Number(a.issue_load).toFixed(1)}`,
+        load: Number(a.issue_load),
+        critical: a.critical_goofups,
+        reason:
+          a.critical_goofups > 0
+            ? `${a.critical_goofups} critical ${a.critical_goofups === 1 ? 'issue' : 'issues'}`
+            : a.repeat_category
+              ? `Repeated: ${a.repeat_category}`
+              : 'Heavy issue load',
       }))}
+      alertTotal={attentionTotal ?? 0}
+      alertCritical={(attentionRows ?? []).filter((a: AttentionRow) => a.critical_goofups > 0).length}
     >
       {children}
     </AppFrame>

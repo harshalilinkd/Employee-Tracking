@@ -15,7 +15,6 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import {
   AlertTriangle,
   BarChart3,
-  ChevronRight,
   ClipboardList,
   LayoutDashboard,
   LogOut,
@@ -27,6 +26,7 @@ import {
   X,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { AlertsPanel, type Alert } from './AlertsPanel'
 import { initials, primaryButton } from '@/lib/design'
 import { ROLE_LABELS, canRecord, type AppRole } from '@/lib/types'
 
@@ -139,11 +139,15 @@ export function Shell({
   children,
   drawer,
   alerts,
+  alertTotal,
+  alertCritical,
 }: {
   user: ShellUser
   children: ReactNode
   drawer: (args: { open: boolean; intent: RecordIntent; close: () => void }) => ReactNode
-  alerts: { id: string; name: string; reason: string }[]
+  alerts: Alert[]
+  alertTotal: number
+  alertCritical: number
 }) {
   const pathname = usePathname()
   const params = useSearchParams()
@@ -410,14 +414,14 @@ export function Shell({
                   onClick={() => setAlertsOpen((o) => !o)}
                   aria-expanded={alertsOpen}
                   aria-label={
-                    alerts.length ? `${alerts.length} needing attention` : 'Nobody needs attention'
+                    alertTotal ? `${alertTotal} needing attention` : 'Nobody needs attention'
                   }
                   style={{
                     width: '36px',
                     height: '36px',
                     borderRadius: '9px',
                     border: 0,
-                    background: alerts.length ? 'rgba(255,255,255,0.16)' : 'transparent',
+                    background: alertTotal ? 'rgba(255,255,255,0.16)' : 'transparent',
                     color: '#fff',
                     cursor: 'pointer',
                     position: 'relative',
@@ -428,7 +432,7 @@ export function Shell({
                   }}
                 >
                   <AlertTriangle size={17} />
-                  {alerts.length > 0 ? (
+                  {alertTotal > 0 ? (
                     <span
                       className="epi-num"
                       style={{
@@ -449,12 +453,12 @@ export function Shell({
                         justifyContent: 'center',
                       }}
                     >
-                      {alerts.length > 9 ? '9+' : alerts.length}
+                      {alertTotal > 9 ? '9+' : alertTotal}
                     </span>
                   ) : null}
                 </button>
 
-                {alertsOpen ? <AlertsPanel alerts={alerts} onGo={() => setAlertsOpen(false)} /> : null}
+                {alertsOpen ? <AlertsPanel alerts={alerts} total={alertTotal} critical={alertCritical} onGo={() => setAlertsOpen(false)} /> : null}
               </div>
             </div>
 
@@ -535,13 +539,13 @@ export function Shell({
                 onClick={() => setAlertsOpen((o) => !o)}
                 aria-expanded={alertsOpen}
                 aria-label={
-                  alerts.length
-                    ? `${alerts.length} ${alerts.length === 1 ? 'person needs' : 'people need'} attention`
+                  alertTotal
+                    ? `${alertTotal} ${alertTotal === 1 ? 'person needs' : 'people need'} attention`
                     : 'Nobody needs attention'
                 }
                 title={
-                  alerts.length
-                    ? `${alerts.length} ${alerts.length === 1 ? 'person needs' : 'people need'} attention`
+                  alertTotal
+                    ? `${alertTotal} ${alertTotal === 1 ? 'person needs' : 'people need'} attention`
                     : 'Nobody needs attention right now'
                 }
                 className="epi-alerts-btn"
@@ -549,9 +553,9 @@ export function Shell({
                   width: '36px',
                   height: '36px',
                   borderRadius: '8px',
-                  background: alerts.length ? 'var(--epi-red-bg)' : 'var(--epi-input)',
-                  border: `1px solid ${alerts.length ? 'var(--epi-red-bd)' : 'var(--epi-border)'}`,
-                  color: alerts.length ? 'var(--epi-red)' : 'var(--epi-fg-2)',
+                  background: alertTotal ? 'var(--epi-red-bg)' : 'var(--epi-input)',
+                  border: `1px solid ${alertTotal ? 'var(--epi-red-bd)' : 'var(--epi-border)'}`,
+                  color: alertTotal ? 'var(--epi-red)' : 'var(--epi-fg-2)',
                   cursor: 'pointer',
                   position: 'relative',
                   display: 'flex',
@@ -560,7 +564,7 @@ export function Shell({
                 }}
               >
                 <AlertTriangle size={15} />
-                {alerts.length > 0 ? (
+                {alertTotal > 0 ? (
                   <span
                     className="epi-num"
                     style={{
@@ -582,12 +586,12 @@ export function Shell({
                       border: '2px solid var(--epi-surface)',
                     }}
                   >
-                    {alerts.length > 9 ? '9+' : alerts.length}
+                    {alertTotal > 9 ? '9+' : alertTotal}
                   </span>
                 ) : null}
               </button>
 
-              {alertsOpen ? <AlertsPanel alerts={alerts} onGo={() => setAlertsOpen(false)} /> : null}
+              {alertsOpen ? <AlertsPanel alerts={alerts} total={alertTotal} critical={alertCritical} onGo={() => setAlertsOpen(false)} /> : null}
             </div>
 
           </header>
@@ -875,145 +879,5 @@ export function Shell({
         }}
       />
     </RecordContext.Provider>
-  )
-}
-
-/**
- * The attention panel.
- *
- * A count alone told nobody anything — clicking it navigated somewhere that
- * looked unchanged. This names the people, says why each one is flagged, and
- * every row goes straight to that person.
- */
-function AlertsPanel({
-  alerts,
-  onGo,
-}: {
-  alerts: { id: string; name: string; reason: string }[]
-  onGo: () => void
-}) {
-  return (
-    <div
-      role="dialog"
-      aria-label="Needs attention"
-      style={{
-        position: 'absolute',
-        top: 'calc(100% + 8px)',
-        right: 0,
-        width: 'min(320px, calc(100vw - 28px))',
-        background: 'var(--epi-elev)',
-        border: '1px solid var(--epi-border-2)',
-        borderRadius: '13px',
-        boxShadow: 'var(--epi-shadow-lg)',
-        overflow: 'hidden',
-        zIndex: 60,
-        animation: 'epiModalIn 160ms cubic-bezier(0.2,0.8,0.2,1)',
-      }}
-    >
-      <div
-        style={{
-          padding: '12px 15px',
-          borderBottom: '1px solid var(--epi-border)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '9px',
-        }}
-      >
-        <AlertTriangle size={14} style={{ color: 'var(--epi-red)', flex: '0 0 14px' }} />
-        <span style={{ fontSize: '13.5px', fontWeight: 700, color: 'var(--epi-fg)' }}>
-          Needs attention
-        </span>
-        <span style={{ marginLeft: 'auto', fontSize: '12px', color: 'var(--epi-fg-3)' }}>
-          {alerts.length}
-        </span>
-      </div>
-
-      {alerts.length === 0 ? (
-        <div style={{ padding: '22px 16px', textAlign: 'center' }}>
-          <div style={{ fontSize: '13.5px', fontWeight: 600, color: 'var(--epi-green)' }}>
-            Nothing needs attention
-          </div>
-          <div style={{ fontSize: '12px', color: 'var(--epi-fg-2)', marginTop: '4px' }}>
-            No critical or heavy issues in this period.
-          </div>
-        </div>
-      ) : (
-        <div style={{ maxHeight: '340px', overflowY: 'auto' }}>
-          {alerts.map((a) => (
-            <Link
-              key={a.id}
-              href={`/employees/${a.id}`}
-              onClick={onGo}
-              className="epi-row"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '11px',
-                padding: '11px 15px',
-                borderBottom: '1px solid var(--epi-border-soft)',
-                color: 'var(--epi-fg)',
-                textDecoration: 'none',
-              }}
-            >
-              <span
-                style={{
-                  width: '30px',
-                  height: '30px',
-                  flex: '0 0 30px',
-                  borderRadius: '999px',
-                  background: 'var(--epi-red-bg)',
-                  color: 'var(--epi-red)',
-                  fontSize: '11px',
-                  fontWeight: 700,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                {initials(a.name)}
-              </span>
-              <span style={{ minWidth: 0, flex: 1 }}>
-                <span
-                  style={{
-                    display: 'block',
-                    fontSize: '13.5px',
-                    fontWeight: 600,
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {a.name}
-                </span>
-                <span style={{ display: 'block', fontSize: '12px', color: 'var(--epi-red)' }}>
-                  {a.reason}
-                </span>
-              </span>
-              <ChevronRight size={15} style={{ color: 'var(--epi-fg-3)', flex: '0 0 15px' }} />
-            </Link>
-          ))}
-        </div>
-      )}
-
-      <Link
-        href="/#management-attention"
-        onClick={onGo}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '7px',
-          height: '42px',
-          fontSize: '13px',
-          fontWeight: 600,
-          color: 'var(--epi-teal)',
-          textDecoration: 'none',
-          background: 'var(--epi-canvas)',
-        }}
-      >
-        Open the dashboard panel
-        <ChevronRight size={14} />
-      </Link>
-    </div>
   )
 }

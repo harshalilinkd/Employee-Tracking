@@ -21,6 +21,8 @@ export function AppFrame({
   employees,
   categories,
   alerts,
+  alertTotal,
+  alertCritical,
 }: {
   children: ReactNode
   fullName: string
@@ -30,12 +32,16 @@ export function AppFrame({
   employeeId: string | null
   employees: EmployeeOption[]
   categories: Category[]
-  alerts: { id: string; name: string; reason: string }[]
+  alerts: { id: string; name: string; reason: string; load: number; critical: number }[]
+  alertTotal: number
+  alertCritical: number
 }) {
   return (
     <Shell
       user={{ fullName, email, role, employeeId }}
       alerts={alerts}
+      alertTotal={alertTotal}
+      alertCritical={alertCritical}
       drawer={({ open, intent, close }) =>
         canRecord(role) ? (
           <RecordDrawer
