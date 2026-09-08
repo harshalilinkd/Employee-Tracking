@@ -18,7 +18,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   const supabase = await createClient()
 
-  const [{ data: employees }, { data: categories }, { count: attentionCount }] = await Promise.all([
+  const [{ data: employees }, { data: categories }, { data: attentionRows }] = await Promise.all([
     supabase
       .from('employees')
       .select('id, full_name, status, department:departments!employees_department_id_fkey(name)')
@@ -29,14 +29,24 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       .select('id, name, applies_to, default_severity, sort_order, is_active')
       .eq('is_active', true)
       .order('sort_order'),
-    // The bell reports something real: how many people the signal engine has
-    // put in the Attention band right now. RLS scopes this per role, so a
-    // department manager sees a count for their own department only.
+    // The header alert names the people, not just a number — a count alone
+    // gave no idea who or why. RLS scopes this per role, so a department
+    // manager sees their own department only.
     supabase
       .from('v_employee_signal')
-      .select('employee_id', { count: 'exact', head: true })
-      .eq('band', 'Attention'),
+      .select('employee_id, full_name, explanation, issue_load, critical_goofups')
+      .eq('band', 'Attention')
+      .order('issue_load', { ascending: false })
+      .limit(8),
   ])
+
+  type AttentionRow = {
+    employee_id: string
+    full_name: string
+    explanation: string
+    issue_load: number
+    critical_goofups: number
+  }
 
   type EmployeeRow = {
     id: string
@@ -61,7 +71,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       employeeId={session.appUser.employee_id}
       employees={employeeOptions}
       categories={(categories ?? []) as Category[]}
-      attentionCount={attentionCount ?? 0}
+      alerts={(attentionRows ?? []).map((a: AttentionRow) => ({
+        id: a.employee_id,
+        name: a.full_name,
+        reason: a.critical_goofups > 0
+          ? `${a.critical_goofups} critical ${a.critical_goofups === 1 ? 'issue' : 'issues'}`
+          : `Issue load ${Number(a.issue_load).toFixed(1)}`,
+      }))}
     >
       {children}
     </AppFrame>

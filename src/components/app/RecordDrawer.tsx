@@ -86,9 +86,12 @@ export function RecordDrawer({
 }: Props) {
   const router = useRouter()
   const dialogRef = useRef<HTMLDivElement>(null)
-  const [type, setType] = useState<EventType | null>(null)
+  // Shell only renders this while it is open, so the component remounts on
+  // every open and the initial state IS the reset. The effect that used to
+  // do this fired after a first render with stale values.
+  const [type, setType] = useState<EventType | null>(intent.type ?? null)
   const [quick, setQuick] = useState(false)
-  const [employeeId, setEmployeeId] = useState('')
+  const [employeeId, setEmployeeId] = useState(intent.employeeId ?? '')
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [date, setDate] = useState(todayIso())
@@ -108,15 +111,6 @@ export function RecordDrawer({
     setSeverity('medium')
     setError('')
   }
-
-  useEffect(() => {
-    if (open) {
-      setType(intent.type ?? null)
-      setEmployeeId(intent.employeeId ?? '')
-      setError('')
-      setSaved(false)
-    }
-  }, [open, intent.type, intent.employeeId])
 
   const dirty = Boolean(employeeId || title || description)
 
@@ -158,10 +152,16 @@ export function RecordDrawer({
     [categories, type],
   )
 
-  useEffect(() => {
+  // Picking a category pre-selects its default impact, which the user may
+  // then override — so it is state, not a derived value. Adjusting it during
+  // render with a previous-value guard is React's documented pattern; doing
+  // it in an effect renders once with the wrong impact first.
+  const [prevCategoryId, setPrevCategoryId] = useState(categoryId)
+  if (categoryId !== prevCategoryId) {
+    setPrevCategoryId(categoryId)
     const cat = typeCategories.find((c) => c.id === categoryId)
     if (cat) setSeverity(cat.default_severity)
-  }, [categoryId, typeCategories])
+  }
 
   async function save(addAnother: boolean) {
     setError('')

@@ -7,6 +7,7 @@ import {
   useEffect,
   useMemo,
   useState,
+  useSyncExternalStore,
   type ReactNode,
 } from 'react'
 import Link from 'next/link'
@@ -14,6 +15,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import {
   AlertTriangle,
   BarChart3,
+  ChevronRight,
   ClipboardList,
   LayoutDashboard,
   LogOut,
@@ -27,6 +29,27 @@ import {
 import { createClient } from '@/lib/supabase/client'
 import { initials, primaryButton } from '@/lib/design'
 import { ROLE_LABELS, canRecord, type AppRole } from '@/lib/types'
+
+/**
+ * The theme lives in localStorage, which is an external store — so it is read
+ * through useSyncExternalStore rather than copied into state by an effect.
+ * The inline script in the root layout has already stamped the attribute
+ * before paint, so there is no flash and no hydration mismatch.
+ */
+const THEME_EVENT = 'epi-theme-change'
+
+function subscribeToTheme(onChange: () => void) {
+  window.addEventListener(THEME_EVENT, onChange)
+  window.addEventListener('storage', onChange)
+  return () => {
+    window.removeEventListener(THEME_EVENT, onChange)
+    window.removeEventListener('storage', onChange)
+  }
+}
+
+function readTheme(): 'dark' | 'light' {
+  return localStorage.getItem('epi-theme') === 'dark' ? 'dark' : 'light'
+}
 
 interface ShellUser {
   fullName: string
@@ -115,41 +138,38 @@ export function Shell({
   user,
   children,
   drawer,
-  attentionCount,
+  alerts,
 }: {
   user: ShellUser
   children: ReactNode
   drawer: (args: { open: boolean; intent: RecordIntent; close: () => void }) => ReactNode
-  attentionCount: number
+  alerts: { id: string; name: string; reason: string }[]
 }) {
   const pathname = usePathname()
   const params = useSearchParams()
   const router = useRouter()
-  const [theme, setTheme] = useState<'dark' | 'light'>('light')
+  const theme = useSyncExternalStore(subscribeToTheme, readTheme, () => 'light' as const)
   const [recordOpen, setRecordOpen] = useState(false)
   const [intent, setIntent] = useState<RecordIntent>({})
   const [query, setQuery] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)
-
-  useEffect(() => {
-    const saved = (localStorage.getItem('epi-theme') as 'dark' | 'light' | null) ?? 'light'
-    setTheme(saved)
-  }, [])
+  const [alertsOpen, setAlertsOpen] = useState(false)
 
   const toggleTheme = useCallback(() => {
-    setTheme((t) => {
-      const nextTheme = t === 'dark' ? 'light' : 'dark'
-      localStorage.setItem('epi-theme', nextTheme)
-      document.documentElement.setAttribute('data-epi-theme', nextTheme)
-      return nextTheme
-    })
+    const next = readTheme() === 'dark' ? 'light' : 'dark'
+    localStorage.setItem('epi-theme', next)
+    document.documentElement.setAttribute('data-epi-theme', next)
+    window.dispatchEvent(new Event(THEME_EVENT))
   }, [])
 
-  // The drawer must not survive a navigation — otherwise tapping a link
-  // leaves it open over the page it just went to.
+  // Every link in the drawer closes it on click, so the only way it can
+  // outlive a navigation is browser back/forward. Subscribing to that is what
+  // effects are for; running setState on every pathname change was not.
   useEffect(() => {
-    setMenuOpen(false)
-  }, [pathname])
+    const onPop = () => setMenuOpen(false)
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [])
 
   useEffect(() => {
     if (!menuOpen) return
@@ -164,6 +184,23 @@ export function Shell({
       document.body.style.overflow = prev
     }
   }, [menuOpen])
+
+  // Clicking outside the alert panel, or pressing Escape, closes it.
+  useEffect(() => {
+    if (!alertsOpen) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setAlertsOpen(false)
+    }
+    const onClick = (e: MouseEvent) => {
+      if (!(e.target as HTMLElement)?.closest?.('[data-alerts]')) setAlertsOpen(false)
+    }
+    window.addEventListener('keydown', onKey)
+    window.addEventListener('click', onClick)
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      window.removeEventListener('click', onClick)
+    }
+  }, [alertsOpen])
 
   const open = useCallback((next?: RecordIntent) => {
     setIntent(next ?? {})
@@ -368,56 +405,57 @@ export function Shell({
 
               <Wordmark compact />
 
-              <Link
-                href="/#management-attention"
-                aria-label={
-                  attentionCount
-                    ? `${attentionCount} needing attention`
-                    : 'Nobody needs attention'
-                }
-                style={{
-                  marginLeft: 'auto',
-                  position: 'relative',
-                  color: '#fff',
-                  /* A 36px box keeps the mark centred against the wordmark and
-                     gives the badge room to sit inside the header rather than
-                     clipping against its top edge. */
-                  width: '36px',
-                  height: '36px',
-                  flex: '0 0 36px',
-                  borderRadius: '9px',
-                  background: attentionCount ? 'rgba(255,255,255,0.14)' : 'transparent',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <AlertTriangle size={17} />
-                {attentionCount > 0 ? (
-                  <span
-                    className="epi-num"
-                    style={{
-                      position: 'absolute',
-                      top: '3px',
-                      right: '2px',
-                      minWidth: '15px',
-                      height: '15px',
-                      padding: '0 3px',
-                      borderRadius: '999px',
-                      background: '#e0525f',
-                      color: '#fff',
-                      fontSize: '9.5px',
-                      fontWeight: 700,
-                      lineHeight: 1,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    {attentionCount > 9 ? '9+' : attentionCount}
-                  </span>
-                ) : null}
-              </Link>
+              <div data-alerts style={{ marginLeft: 'auto', position: 'relative', flex: '0 0 auto' }}>
+                <button
+                  onClick={() => setAlertsOpen((o) => !o)}
+                  aria-expanded={alertsOpen}
+                  aria-label={
+                    alerts.length ? `${alerts.length} needing attention` : 'Nobody needs attention'
+                  }
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '9px',
+                    border: 0,
+                    background: alerts.length ? 'rgba(255,255,255,0.16)' : 'transparent',
+                    color: '#fff',
+                    cursor: 'pointer',
+                    position: 'relative',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: 0,
+                  }}
+                >
+                  <AlertTriangle size={17} />
+                  {alerts.length > 0 ? (
+                    <span
+                      className="epi-num"
+                      style={{
+                        position: 'absolute',
+                        top: '3px',
+                        right: '2px',
+                        minWidth: '15px',
+                        height: '15px',
+                        padding: '0 3px',
+                        borderRadius: '999px',
+                        background: '#e0525f',
+                        color: '#fff',
+                        fontSize: '9.5px',
+                        fontWeight: 700,
+                        lineHeight: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      {alerts.length > 9 ? '9+' : alerts.length}
+                    </span>
+                  ) : null}
+                </button>
+
+                {alertsOpen ? <AlertsPanel alerts={alerts} onGo={() => setAlertsOpen(false)} /> : null}
+              </div>
             </div>
 
             <div className="epi-crumb" style={{ minWidth: 0, flex: '0 1 auto' }}>
@@ -492,59 +530,66 @@ export function Shell({
               {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
             </button>
 
-            <Link
-              href="/#management-attention"
-              aria-label={
-                attentionCount
-                  ? `${attentionCount} ${attentionCount === 1 ? 'employee needs' : 'employees need'} attention`
-                  : 'Nobody needs attention'
-              }
-              title={
-                attentionCount
-                  ? `${attentionCount} ${attentionCount === 1 ? 'employee needs' : 'employees need'} attention`
-                  : 'Nobody needs attention right now'
-              }
-              className="epi-alerts-btn"
-              style={{
-                width: '36px',
-                height: '36px',
-                borderRadius: '8px',
-                background: attentionCount ? 'var(--epi-red-bg)' : 'var(--epi-input)',
-                border: `1px solid ${attentionCount ? 'var(--epi-red-bd)' : 'var(--epi-border)'}`,
-                color: attentionCount ? 'var(--epi-red)' : 'var(--epi-fg-2)',
-                cursor: 'pointer',
-                position: 'relative',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <AlertTriangle size={15} />
-              {attentionCount > 0 ? (
-                <span
-                  className="epi-num"
-                  style={{
-                    position: 'absolute',
-                    top: '-6px',
-                    right: '-6px',
-                    minWidth: '18px',
-                    height: '18px',
-                    padding: '0 5px',
-                    borderRadius: '999px',
-                    background: 'var(--epi-red)',
-                    color: '#fff',
-                    fontSize: '10.5px',
-                    fontWeight: 700,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    border: '2px solid var(--epi-surface)',
-                  }}
-                >
-                  {attentionCount > 9 ? '9+' : attentionCount}
-                </span>
-              ) : null}
-            </Link>
+            <div data-alerts style={{ position: 'relative', flex: '0 0 auto' }}>
+              <button
+                onClick={() => setAlertsOpen((o) => !o)}
+                aria-expanded={alertsOpen}
+                aria-label={
+                  alerts.length
+                    ? `${alerts.length} ${alerts.length === 1 ? 'person needs' : 'people need'} attention`
+                    : 'Nobody needs attention'
+                }
+                title={
+                  alerts.length
+                    ? `${alerts.length} ${alerts.length === 1 ? 'person needs' : 'people need'} attention`
+                    : 'Nobody needs attention right now'
+                }
+                className="epi-alerts-btn"
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '8px',
+                  background: alerts.length ? 'var(--epi-red-bg)' : 'var(--epi-input)',
+                  border: `1px solid ${alerts.length ? 'var(--epi-red-bd)' : 'var(--epi-border)'}`,
+                  color: alerts.length ? 'var(--epi-red)' : 'var(--epi-fg-2)',
+                  cursor: 'pointer',
+                  position: 'relative',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <AlertTriangle size={15} />
+                {alerts.length > 0 ? (
+                  <span
+                    className="epi-num"
+                    style={{
+                      position: 'absolute',
+                      top: '-5px',
+                      right: '-5px',
+                      minWidth: '17px',
+                      height: '17px',
+                      padding: '0 4px',
+                      borderRadius: '999px',
+                      background: 'var(--epi-red)',
+                      color: '#fff',
+                      fontSize: '10px',
+                      fontWeight: 700,
+                      lineHeight: 1,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      border: '2px solid var(--epi-surface)',
+                    }}
+                  >
+                    {alerts.length > 9 ? '9+' : alerts.length}
+                  </span>
+                ) : null}
+              </button>
+
+              {alertsOpen ? <AlertsPanel alerts={alerts} onGo={() => setAlertsOpen(false)} /> : null}
+            </div>
+
           </header>
 
           <main
@@ -811,7 +856,9 @@ export function Shell({
           ) : null}
         </nav>
 
-        {drawer({ open: recordOpen, intent, close: () => setRecordOpen(false) })}
+        {/* Mounted only while open, so each session starts clean without an
+            effect resetting fields after the first render. */}
+        {recordOpen ? drawer({ open: recordOpen, intent, close: () => setRecordOpen(false) }) : null}
       </div>
 
       <style
@@ -828,5 +875,145 @@ export function Shell({
         }}
       />
     </RecordContext.Provider>
+  )
+}
+
+/**
+ * The attention panel.
+ *
+ * A count alone told nobody anything — clicking it navigated somewhere that
+ * looked unchanged. This names the people, says why each one is flagged, and
+ * every row goes straight to that person.
+ */
+function AlertsPanel({
+  alerts,
+  onGo,
+}: {
+  alerts: { id: string; name: string; reason: string }[]
+  onGo: () => void
+}) {
+  return (
+    <div
+      role="dialog"
+      aria-label="Needs attention"
+      style={{
+        position: 'absolute',
+        top: 'calc(100% + 8px)',
+        right: 0,
+        width: 'min(320px, calc(100vw - 28px))',
+        background: 'var(--epi-elev)',
+        border: '1px solid var(--epi-border-2)',
+        borderRadius: '13px',
+        boxShadow: 'var(--epi-shadow-lg)',
+        overflow: 'hidden',
+        zIndex: 60,
+        animation: 'epiModalIn 160ms cubic-bezier(0.2,0.8,0.2,1)',
+      }}
+    >
+      <div
+        style={{
+          padding: '12px 15px',
+          borderBottom: '1px solid var(--epi-border)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '9px',
+        }}
+      >
+        <AlertTriangle size={14} style={{ color: 'var(--epi-red)', flex: '0 0 14px' }} />
+        <span style={{ fontSize: '13.5px', fontWeight: 700, color: 'var(--epi-fg)' }}>
+          Needs attention
+        </span>
+        <span style={{ marginLeft: 'auto', fontSize: '12px', color: 'var(--epi-fg-3)' }}>
+          {alerts.length}
+        </span>
+      </div>
+
+      {alerts.length === 0 ? (
+        <div style={{ padding: '22px 16px', textAlign: 'center' }}>
+          <div style={{ fontSize: '13.5px', fontWeight: 600, color: 'var(--epi-green)' }}>
+            Nothing needs attention
+          </div>
+          <div style={{ fontSize: '12px', color: 'var(--epi-fg-2)', marginTop: '4px' }}>
+            No critical or heavy issues in this period.
+          </div>
+        </div>
+      ) : (
+        <div style={{ maxHeight: '340px', overflowY: 'auto' }}>
+          {alerts.map((a) => (
+            <Link
+              key={a.id}
+              href={`/employees/${a.id}`}
+              onClick={onGo}
+              className="epi-row"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '11px',
+                padding: '11px 15px',
+                borderBottom: '1px solid var(--epi-border-soft)',
+                color: 'var(--epi-fg)',
+                textDecoration: 'none',
+              }}
+            >
+              <span
+                style={{
+                  width: '30px',
+                  height: '30px',
+                  flex: '0 0 30px',
+                  borderRadius: '999px',
+                  background: 'var(--epi-red-bg)',
+                  color: 'var(--epi-red)',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                {initials(a.name)}
+              </span>
+              <span style={{ minWidth: 0, flex: 1 }}>
+                <span
+                  style={{
+                    display: 'block',
+                    fontSize: '13.5px',
+                    fontWeight: 600,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {a.name}
+                </span>
+                <span style={{ display: 'block', fontSize: '12px', color: 'var(--epi-red)' }}>
+                  {a.reason}
+                </span>
+              </span>
+              <ChevronRight size={15} style={{ color: 'var(--epi-fg-3)', flex: '0 0 15px' }} />
+            </Link>
+          ))}
+        </div>
+      )}
+
+      <Link
+        href="/#management-attention"
+        onClick={onGo}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '7px',
+          height: '42px',
+          fontSize: '13px',
+          fontWeight: 600,
+          color: 'var(--epi-teal)',
+          textDecoration: 'none',
+          background: 'var(--epi-canvas)',
+        }}
+      >
+        Open the dashboard panel
+        <ChevronRight size={14} />
+      </Link>
+    </div>
   )
 }

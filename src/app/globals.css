@@ -1807,3 +1807,22 @@ body {
     gap: 10px !important;
   }
 }
+
+
+/* =====================================================================
+   Login
+   The one screen with no app chrome around it, so its interaction states
+   live here rather than inline.
+   ===================================================================== */
+
+.epi-login-submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 26px rgba(14, 124, 107, 0.32) !important;
+}
+.epi-login-submit:active:not(:disabled) {
+  transform: translateY(0);
+}
+.epi-login-google:hover:not(:disabled) {
+  background: #f7faf9 !important;
+  border-color: #c3d6d2 !important;
+}

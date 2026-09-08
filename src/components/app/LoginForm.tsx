@@ -6,21 +6,24 @@ import { AlertCircle, Check, Eye, EyeOff, Lock, Mail } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
 const FIELD: CSSProperties = {
-  height: '44px',
+  height: '46px',
   width: '100%',
-  borderRadius: '8px',
-  background: '#FFFFFF',
-  border: '1px solid rgba(10,10,10,0.14)',
-  color: '#0A0A0A',
-  fontSize: '14px',
-  padding: '0 40px 0 38px',
+  borderRadius: '10px',
+  // A faint ground rather than pure white: the field now reads as a field on
+  // a white sheet without needing a heavier border to say so.
+  background: '#F7FAFA',
+  border: '1px solid #dbe6e4',
+  color: '#0e2b26',
+  fontSize: '14.5px',
+  padding: '0 42px 0 40px',
   outline: 'none',
-  transition: 'border-color 200ms cubic-bezier(0.2,0.8,0.2,1), box-shadow 200ms cubic-bezier(0.2,0.8,0.2,1)',
+  transition: 'border-color 200ms cubic-bezier(0.2,0.8,0.2,1), box-shadow 200ms cubic-bezier(0.2,0.8,0.2,1), background 200ms',
 }
 
 const FIELD_FOCUS: CSSProperties = {
+  background: '#FFFFFF',
   borderColor: '#0e7c6b',
-  boxShadow: '0 0 0 4px rgba(14,124,107,0.18)',
+  boxShadow: '0 0 0 4px rgba(14,124,107,0.15)',
 }
 
 export function LoginForm({ next }: { next: string }) {
@@ -82,20 +85,20 @@ export function LoginForm({ next }: { next: string }) {
   }
 
   return (
-    <form onSubmit={signIn} style={{ width: '100%', maxWidth: '352px', color: '#0A0A0A' }}>
-      <h2 style={{ margin: 0, fontSize: '25px', fontWeight: 700, letterSpacing: '-0.025em' }}>
+    <form onSubmit={signIn} style={{ width: '100%', color: '#0e2b26' }}>
+      <h2 style={{ margin: 0, fontSize: '28px', fontWeight: 700, letterSpacing: '-0.03em' }}>
         Welcome back
       </h2>
-      <p style={{ margin: '9px 0 26px', fontSize: '14px', color: '#111113' }}>
+      <p style={{ margin: '9px 0 26px', fontSize: '14.5px', color: '#52706a' }}>
         Sign in to continue to your workspace
       </p>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
         <label style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
-          <span style={{ fontSize: '13px', fontWeight: 600 }}>Work email</span>
+          <span style={{ fontSize: '13px', fontWeight: 600, color: '#0e2b26' }}>Work email</span>
           <span style={{ position: 'relative', display: 'block' }}>
             <span
-              style={{ position: 'absolute', left: '12px', top: '14px', color: '#6b6b73', pointerEvents: 'none' }}
+              style={{ position: 'absolute', left: '13px', top: '15px', color: '#7d918d', pointerEvents: 'none' }}
             >
               <Mail size={16} />
             </span>
@@ -114,11 +117,11 @@ export function LoginForm({ next }: { next: string }) {
 
         <label style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
           <span style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-            <span style={{ fontSize: '13px', fontWeight: 600, flex: 1 }}>Password</span>
+            <span style={{ fontSize: '13px', fontWeight: 600, flex: 1, color: '#0e2b26' }}>Password</span>
           </span>
           <span style={{ position: 'relative', display: 'block' }}>
             <span
-              style={{ position: 'absolute', left: '12px', top: '14px', color: '#6b6b73', pointerEvents: 'none' }}
+              style={{ position: 'absolute', left: '13px', top: '15px', color: '#7d918d', pointerEvents: 'none' }}
             >
               <Lock size={16} />
             </span>
@@ -139,13 +142,13 @@ export function LoginForm({ next }: { next: string }) {
               style={{
                 position: 'absolute',
                 right: '8px',
-                top: '7px',
+                top: '8px',
                 width: '30px',
                 height: '30px',
                 borderRadius: '7px',
                 background: 'transparent',
                 border: 0,
-                color: '#1c1c1f',
+                color: '#52706a',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
@@ -178,7 +181,7 @@ export function LoginForm({ next }: { next: string }) {
           </div>
         ) : null}
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', color: '#111113' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13.5px', color: '#3c534e' }}>
           <button
             type="button"
             role="checkbox"
@@ -206,37 +209,40 @@ export function LoginForm({ next }: { next: string }) {
         <button
           type="submit"
           disabled={loading}
+          className="epi-login-submit"
           style={{
-            height: '46px',
-            borderRadius: '8px',
+            height: '48px',
+            borderRadius: '10px',
             border: 0,
             background: 'linear-gradient(135deg,#14907c 0%,#0e7c6b 55%,#0a5f52 100%)',
             color: '#fff',
             fontSize: '15px',
             fontWeight: 600,
+            letterSpacing: '0.01em',
             cursor: loading ? 'progress' : 'pointer',
             opacity: loading ? 0.75 : 1,
-            transition: 'box-shadow 200ms cubic-bezier(0.2,0.8,0.2,1)',
+            boxShadow: '0 8px 20px rgba(14,124,107,0.26)',
+            transition: 'transform 160ms cubic-bezier(0.2,0.8,0.2,1), box-shadow 200ms cubic-bezier(0.2,0.8,0.2,1)',
           }}
         >
           {loading ? 'Signing in…' : 'Sign in'}
         </button>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span style={{ flex: 1, height: '1px', background: 'rgba(10,10,10,0.10)' }} />
+          <span style={{ flex: 1, height: '1px', background: '#e2ebe9' }} />
           <span
             style={{
               fontSize: '10px',
               fontWeight: 700,
               letterSpacing: '0.14em',
               textTransform: 'uppercase',
-              color: '#1c1c1f',
+              color: '#7d918d',
               whiteSpace: 'nowrap',
             }}
           >
             Or continue with
           </span>
-          <span style={{ flex: 1, height: '1px', background: 'rgba(10,10,10,0.10)' }} />
+          <span style={{ flex: 1, height: '1px', background: '#e2ebe9' }} />
         </div>
 
         {/* The canvas labels this "ELDEE GROUP SSO". Google is the provider
@@ -246,19 +252,21 @@ export function LoginForm({ next }: { next: string }) {
           type="button"
           onClick={signInWithGoogle}
           disabled={loading}
+          className="epi-login-google"
           style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             gap: '9px',
-            height: '44px',
-            borderRadius: '8px',
+            height: '46px',
+            borderRadius: '10px',
             background: '#FFFFFF',
-            border: '1px solid rgba(10,10,10,0.14)',
-            color: '#0A0A0A',
-            fontSize: '14px',
+            border: '1px solid #dbe6e4',
+            color: '#0e2b26',
+            fontSize: '14.5px',
             fontWeight: 600,
             cursor: 'pointer',
+            transition: 'background 160ms, border-color 160ms',
           }}
         >
           <svg width="16" height="16" viewBox="0 0 48 48" aria-hidden="true">
@@ -270,7 +278,7 @@ export function LoginForm({ next }: { next: string }) {
           <span>Continue with Google</span>
         </button>
 
-        <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#111113', textAlign: 'center' }}>
+        <p style={{ margin: '4px 0 0', fontSize: '12.5px', color: '#7d918d', textAlign: 'center' }}>
           Access is granted by the MD&rsquo;s office.
         </p>
       </div>

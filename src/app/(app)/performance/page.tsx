@@ -6,8 +6,6 @@ import { RecordCta } from '@/components/app/RecordCta'
 import { ExportCsvButton } from '@/components/app/ExportCsvButton'
 import { LedgerFilters } from '@/components/app/LedgerFilters'
 import { LedgerTable } from '@/components/app/LedgerTable'
-import { cardStyle, iconStyle, pill, tableHeadStyle } from '@/lib/design'
-import { fmtFull, fmtShort } from '@/lib/format'
 import { SEVERITY_LABELS, isAdmin, type Category, type Severity } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'

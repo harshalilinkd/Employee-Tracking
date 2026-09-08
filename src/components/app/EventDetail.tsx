@@ -75,8 +75,13 @@ export function EventDetail({
    * Mirrors the pe_update policy exactly: Super Admin and Management may
    * correct anything, everyone else gets 48 hours on their own entries.
    * Showing a button the database would reject is worse than hiding it.
+   *
+   * The clock is read once, when the dialog opens, rather than on every
+   * render — reading Date.now() during render makes the component impure and
+   * its output depend on when React happens to re-render it.
    */
-  const hoursOld = (Date.now() - new Date(event.created_at).getTime()) / 36e5
+  const [openedAt] = useState(() => Date.now())
+  const hoursOld = (openedAt - new Date(event.created_at).getTime()) / 36e5
   const canEdit = isAdmin || (event.recorded_by === currentAppUserId && hoursOld < 48)
   const archived = event.status === 'archived'
 

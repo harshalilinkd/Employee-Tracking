@@ -1,10 +1,30 @@
-import { dirname } from 'path'
-import { fileURLToPath } from 'url'
-import { FlatCompat } from '@eslint/eslintrc'
+import nextCoreWebVitals from 'eslint-config-next/core-web-vitals'
+import nextTypescript from 'eslint-config-next/typescript'
 
-const compat = new FlatCompat({ baseDirectory: dirname(fileURLToPath(import.meta.url)) })
-
+/**
+ * eslint-config-next v16 ships native flat configs, so they are spread
+ * directly. The previous config ran them through FlatCompat — a shim for the
+ * legacy .eslintrc format — which fed an already-flat config back through the
+ * converter and threw "Converting circular structure to JSON". Lint had not
+ * run at all since.
+ */
 export default [
-  ...compat.extends('next/core-web-vitals', 'next/typescript'),
-  { ignores: ['.next/**', 'node_modules/**'] },
+  ...nextCoreWebVitals,
+  ...nextTypescript,
+
+  {
+    ignores: ['.next/**', 'node_modules/**', 'next-env.d.ts', 'Employee performance tracking system/**'],
+  },
+
+  {
+    rules: {
+      // Unused code is dead weight, and this is how the audit found several
+      // orphans after the dashboard rebuild. Args prefixed with _ are exempt
+      // so a required-but-ignored callback parameter can still be named.
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' },
+      ],
+    },
+  },
 ]
