@@ -1073,7 +1073,11 @@ export function IssueHeat({ rows, monthLabels }: { rows: HeatRow[]; monthLabels:
       defaultOpen={rows.length > 0}
     >
       <div className="epi-heat epi-scroll-x" style={{ ...cardStyle, padding: '18px 20px', overflowX: 'auto' }}>
-        <div style={{ minWidth: '560px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        {/* 500, not 560: at 1440 this card's half of the charts grid is
+            574px and its own padding takes 40 of that, so 560 overflowed by
+            a hair and put a scrollbar under a table that fits. The columns
+            themselves need 476, so 500 still leaves them room. */}
+        <div style={{ minWidth: '500px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: cols, gap: '6px', alignItems: 'center' }}>
             <span />
             {monthLabels.map((m) => (

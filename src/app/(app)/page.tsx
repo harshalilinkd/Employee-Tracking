@@ -578,13 +578,15 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         summary={`${events.length} event${events.length === 1 ? '' : 's'} in range`}
       />
 
-      {/* Same grid as the charts below, so the centre gutter is one
-          continuous line down the whole dashboard. */}
+      {/* Same gutter as the charts below, but a different split and a
+          different breakpoint: the matrix carries six columns and needs
+          780px before it stops clipping, which an even half never gives
+          until the monitor is very wide. See the laptop tier in globals. */}
       <div
-        className="epi-chart-grid"
+        className="epi-matrix-grid"
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+          gridTemplateColumns: 'minmax(0, 1.75fr) minmax(0, 1fr)',
           gap: '20px',
           alignItems: 'start',
         }}

@@ -156,13 +156,16 @@ export function ProfileOverview({
     <div className="epi-ov">
       <div className="epi-ov-main">
         {/* ---------- Performance Summary ---------- */}
-        <section style={{ ...cardStyle, padding: '17px 19px' }}>
+        {/* The tile count follows this card's own width, not the window's —
+            see .epi-ov-summary. Four across only fits when the card is wide,
+            and the card's width depends on two enclosing grids. */}
+        <section className="epi-ov-summary" style={{ ...cardStyle, padding: '17px 19px' }}>
           <Head
             icon={<TrendingUp size={16} />}
             title="Performance Summary"
             subtitle="Key metrics from the selected period"
           />
-          <div className="epi-ov-tiles" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,minmax(0,1fr))', gap: '11px' }}>
+          <div className="epi-ov-tiles">
             {tiles.map((t) => (
               <div
                 key={t.label}

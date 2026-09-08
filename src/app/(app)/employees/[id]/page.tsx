@@ -707,11 +707,19 @@ export default async function EmployeeProfile({
             .epi-ov-main > .epi-ov-wide { grid-column: 1 / -1; }
             .epi-ov-side { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 
-            @media (max-width: 1340px) {
+            /* Two thresholds, both taken from what the panels need rather
+               than from round numbers. Detailed Events cannot draw under
+               760px, and the work column only clears that once the window
+               passes about 1400. Summary and trend part company earlier:
+               side by side on a laptop the trend card falls to ~300px and
+               its own header wraps. */
+            @media (max-width: 1400px) {
               .epi-ov { grid-template-columns: minmax(0, 1fr); }
             }
-            @media (max-width: 1100px) {
+            @media (max-width: 1500px) {
               .epi-ov-main { grid-template-columns: minmax(0, 1fr); }
+            }
+            @media (max-width: 1100px) {
               .epi-record-block { border-left: 0 !important; border-top: 1px solid var(--epi-border); }
             }
             @media (max-width: 1000px) {
@@ -719,8 +727,26 @@ export default async function EmployeeProfile({
               .epi-signal-stats { flex: 1 1 100%; }
               .epi-signal-stats > div { flex: 1; }
             }
+            /* The summary tiles answer to their own card, not the window.
+               The card sits inside two nested grids, so its width is a
+               function of the window that no media query can state: at
+               1440 it is 486px, at 1600 it is 546px, and four tiles need
+               about 640px before the labels stop truncating to "Recog…".
+               A container query asks the only question that matters. */
+            .epi-ov-summary { container-type: inline-size; }
+            .epi-ov-tiles {
+              display: grid;
+              grid-template-columns: repeat(4, minmax(0, 1fr));
+              gap: 11px;
+            }
+            @container (max-width: 640px) {
+              .epi-ov-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            }
+            @container (max-width: 290px) {
+              .epi-ov-tiles { grid-template-columns: minmax(0, 1fr); }
+            }
+
             @media (max-width: 640px) {
-              .epi-ov-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
               .epi-record-block { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
               .epi-signal-stats { flex-wrap: wrap; }
               .epi-signal-stats > div { min-width: 0; flex: 1 1 30%; }

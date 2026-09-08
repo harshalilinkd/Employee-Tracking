@@ -789,9 +789,31 @@ body {
   background: var(--epi-canvas);
 }
 
-@media (max-width: 1100px) {
+/* =====================================================================
+   The laptop tier
+   Everything below this file's 1023px line was written for phones and
+   tablets; above it the layouts assumed a 1900px monitor. Between those
+   two — 1280 to 1500, which is where almost every laptop lands — the two
+   dashboard columns squeeze their tables below the width the columns
+   actually need, and the tables clip mid-header behind a scrollbar.
+
+   The numbers are not guesses. Content width is the viewport less the
+   236px sidebar and 36px of padding, so a half column is:
+     1366 -> 537   1440 -> 574   1536 -> 622   1600 -> 654
+   The charts row needs 560 for its widest table, so it pairs from 1440 up
+   and stacks below. The employee matrix needs 780 on its own, which no
+   half column offers until about 1500, so that row stacks earlier and
+   takes the full width — a table that fits beats two that scroll.
+   ===================================================================== */
+@media (max-width: 1400px) {
   .epi-chart-grid {
     grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 1500px) {
+  .epi-matrix-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
   }
 }
 
