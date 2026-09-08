@@ -1060,7 +1060,10 @@ function MiniBar({ value, peak, colour }: { value: number; peak: number; colour:
 
 export function IssueHeat({ rows, monthLabels }: { rows: HeatRow[]; monthLabels: string[] }) {
   const max = Math.max(1, ...rows.flatMap((r) => r.cells.map((c) => c.load)))
-  const cols = `minmax(130px,1.4fr) repeat(${monthLabels.length},minmax(42px,1fr)) 52px`
+  // Month cells are capped, not proportional. A single digit does not read
+  // better in a 135px cell, and at full width every one of them inflated
+  // into a slab. The name column absorbs whatever is left over.
+  const cols = `minmax(140px,250px) repeat(${monthLabels.length},minmax(38px,58px)) 56px`
   // Mobile squeezes these via --heat-cols; see globals.css.
   const colTotals = monthLabels.map((_, i) => rows.reduce((a, r) => a + (r.cells[i]?.load ?? 0), 0))
 
@@ -1078,7 +1081,7 @@ export function IssueHeat({ rows, monthLabels }: { rows: HeatRow[]; monthLabels:
             a hair and put a scrollbar under a table that fits. The columns
             themselves need 476, so 500 still leaves them room. */}
         <div style={{ minWidth: '500px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: cols, gap: '6px', alignItems: 'center' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: cols, gap: '6px', alignItems: 'center', justifyContent: 'start' }}>
             <span />
             {monthLabels.map((m) => (
               <span key={m} style={{ ...tableHeadStyle, textAlign: 'center' }}>
@@ -1091,7 +1094,7 @@ export function IssueHeat({ rows, monthLabels }: { rows: HeatRow[]; monthLabels:
           {rows.map((r) => {
             const rowLoad = r.cells.reduce((a, c) => a + c.load, 0)
             return (
-              <div key={r.id} style={{ display: 'grid', gridTemplateColumns: cols, gap: '6px', alignItems: 'center' }}>
+              <div key={r.id} style={{ display: 'grid', gridTemplateColumns: cols, gap: '6px', alignItems: 'center', justifyContent: 'start' }}>
                 <span
                   style={{ fontSize: '13px', color: 'var(--epi-fg-strong)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
                 >
@@ -1131,7 +1134,7 @@ export function IssueHeat({ rows, monthLabels }: { rows: HeatRow[]; monthLabels:
           })}
 
           <div
-            style={{ display: 'grid', gridTemplateColumns: cols, gap: '6px', alignItems: 'center', paddingTop: '8px', borderTop: '1px solid var(--epi-border-soft)' }}
+            style={{ display: 'grid', gridTemplateColumns: cols, gap: '6px', alignItems: 'center', justifyContent: 'start', paddingTop: '8px', borderTop: '1px solid var(--epi-border-soft)' }}
           >
             <span style={tableHeadStyle}>Month load</span>
             {colTotals.map((t, i) => (
@@ -1150,7 +1153,7 @@ export function IssueHeat({ rows, monthLabels }: { rows: HeatRow[]; monthLabels:
             <span style={tableHeadStyle}>Heavier</span>
             <span
               className="epi-mono epi-hide-mobile"
-              style={{ marginLeft: 'auto', fontSize: '11px', color: 'var(--epi-fg-3)' }}
+              style={{ marginLeft: 'auto', paddingLeft: '14px', fontSize: '11px', color: 'var(--epi-fg-3)' }}
             >
               severity-weighted, not a raw count
             </span>

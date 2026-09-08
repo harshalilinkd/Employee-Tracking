@@ -150,7 +150,7 @@ export function ProfileOverview({
   ]
 
   const EV_COLS = '110px 96px minmax(160px,2.2fr) minmax(110px,1fr) 104px minmax(120px,1.1fr)'
-  const HEAT_COLS = `minmax(140px,1.5fr) repeat(${heat.length},minmax(46px,1fr)) 68px`
+  const HEAT_COLS = `minmax(140px,250px) repeat(${heat.length},minmax(40px,62px)) 62px`
 
   return (
     <div className="epi-ov">
@@ -345,7 +345,7 @@ export function ProfileOverview({
 
           <div className="epi-scroll-x" style={{ overflowX: 'auto' }}>
             <div style={{ minWidth: '560px', display: 'flex', flexDirection: 'column', gap: '7px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: HEAT_COLS, gap: '7px', alignItems: 'center' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: HEAT_COLS, gap: '7px', alignItems: 'center', justifyContent: 'start' }}>
                 <span />
                 {heat.map((h) => (
                   <span key={h.label} style={{ ...tableHeadStyle, textAlign: 'center' }}>
@@ -355,7 +355,7 @@ export function ProfileOverview({
                 <span style={{ ...tableHeadStyle, textAlign: 'center' }}>Load</span>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: HEAT_COLS, gap: '7px', alignItems: 'center' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: HEAT_COLS, gap: '7px', alignItems: 'center', justifyContent: 'start' }}>
                 <span style={{ minWidth: 0 }}>
                   <span
                     style={{

@@ -168,10 +168,13 @@ export function AttentionPanel({
                   >
                     {r.issueLoad.toFixed(1)}
                   </span>
+                  {/* Capped: given a wide panel this grew to 200px, and a
+                      bar that long stops being read as a comparison. */}
                   <span
                     style={{
                       flex: 1,
                       minWidth: '34px',
+                      maxWidth: '132px',
                       height: '6px',
                       borderRadius: '999px',
                       background: 'var(--epi-track)',

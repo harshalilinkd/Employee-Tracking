@@ -2005,3 +2005,109 @@ body {
     display: none !important;
   }
 }
+
+/* =====================================================================
+   The employee profile
+   These rules used to live in a <style> tag inside the profile page, which
+   meant the Overview component carried none of its own layout: rendered
+   anywhere else it collapsed to a single stacked column. Layout belongs
+   with the class names it targets.
+   ===================================================================== */
+.epi-ov {
+  display: grid;
+  grid-template-columns: minmax(0, 2.3fr) minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.epi-ov-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.epi-ov-main > .epi-ov-wide {
+  grid-column: 1 / -1;
+}
+
+.epi-ov-side {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+/* The summary tiles answer to their own card, not the window. That card
+   sits inside two nested grids, so its width is a function of the window
+   that no media query can state: 486px at 1440, 546px at 1600. Four tiles
+   need about 640px before the labels truncate to "Recog…". */
+.epi-ov-summary {
+  container-type: inline-size;
+}
+
+.epi-ov-tiles {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 11px;
+}
+
+@container (max-width: 640px) {
+  .epi-ov-tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container (max-width: 290px) {
+  .epi-ov-tiles {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Detailed Events cannot draw under 760px, and the work column only clears
+   that once the window passes about 1400. Summary and trend part company
+   earlier: side by side on a laptop the trend card falls to ~300px and its
+   own header wraps. */
+@media (max-width: 1400px) {
+  .epi-ov {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 1500px) {
+  .epi-ov-main {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 1100px) {
+  .epi-record-block {
+    border-left: 0 !important;
+    border-top: 1px solid var(--epi-border);
+  }
+}
+
+@media (max-width: 1000px) {
+  .epi-signal-band {
+    flex-wrap: wrap;
+  }
+  .epi-signal-stats {
+    flex: 1 1 100%;
+  }
+  .epi-signal-stats > div {
+    flex: 1;
+  }
+}
+
+@media (max-width: 640px) {
+  .epi-record-block {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .epi-signal-stats {
+    flex-wrap: wrap;
+  }
+  .epi-signal-stats > div {
+    min-width: 0;
+    flex: 1 1 30%;
+  }
+}

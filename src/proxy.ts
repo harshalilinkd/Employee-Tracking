@@ -34,7 +34,11 @@ export async function proxy(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   const path = request.nextUrl.pathname
-  const isPublic = PUBLIC_PATHS.some((p) => path.startsWith(p))
+  // Exact path, or a real segment beneath it. A bare startsWith made
+  // "/login-qa" public along with "/login" — a prefix is not a route, and
+  // the next person to add a page whose name begins with one of these
+  // would have shipped it unauthenticated without noticing.
+  const isPublic = PUBLIC_PATHS.some((p) => path === p || path.startsWith(`${p}/`))
 
   if (!user && !isPublic) {
     const url = request.nextUrl.clone()

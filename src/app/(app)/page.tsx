@@ -78,7 +78,12 @@ function CardStat({
 const daysAgo = (iso: string) =>
   Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 86400000))
 
-const MATRIX_COLS = 'minmax(170px,2.2fr) minmax(100px,1.2fr) minmax(110px,1.2fr) minmax(100px,1.1fr) minmax(140px,1.3fr) 104px'
+/* Caps on the measure columns. Recognitions and Goofups are single digits
+   and a signal is one word; left proportional they each took a share of the
+   slack and the table read as five near-empty columns. The name column,
+   which is the one that can actually run long, takes it instead. */
+const MATRIX_COLS =
+  'minmax(170px,1fr) minmax(100px,180px) minmax(110px,150px) minmax(100px,140px) minmax(140px,190px) 104px'
 const DEPT_COLS = 'minmax(150px,2fr) 84px 60px 60px minmax(90px,1fr) 96px'
 
 /** SPEC §5 trend glyphs, as shown in the design reference. */
