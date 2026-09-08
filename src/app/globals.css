@@ -1928,3 +1928,80 @@ body {
     min-height: 0 !important;
   }
 }
+
+
+/* =====================================================================
+   The sidebar as a rail
+   236px of sidebar is the largest fixed cost on a laptop screen, and the
+   tables that had to stack for want of width only needed about 170 of it
+   back. Collapsing is the user's call, so it is a toggle rather than
+   another breakpoint, and the state lives on <html> where the bootstrap
+   script can set it before first paint — the rail is never briefly the
+   wrong width.
+
+   Width is declared !important because the sidebar carries inline styles;
+   that is this file's existing convention, not a new one.
+   ===================================================================== */
+[data-epi-rail='1'] .epi-sidebar {
+  width: 68px !important;
+  flex: 0 0 68px !important;
+  padding-left: 10px !important;
+  padding-right: 10px !important;
+  gap: 18px !important;
+}
+
+/* Every rail rule is scoped inside .epi-sidebar on purpose. The wordmark
+   is rendered three times — sidebar, mobile brand band, mobile drawer —
+   and an unscoped rule would strip "SILK MILLS" off all three the moment
+   someone who had collapsed the sidebar narrowed the window to a phone. */
+
+/* Everything that is only a label goes; the icons carry the meaning, and
+   each one keeps its name in a title attribute. */
+[data-epi-rail='1'] .epi-sidebar .epi-rail-hide {
+  display: none !important;
+}
+
+/* "LD" and the toggle cannot sit side by side in 48px of usable width. */
+[data-epi-rail='1'] .epi-sidebar .epi-rail-head {
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 !important;
+}
+[data-epi-rail='1'] .epi-sidebar .epi-rail-toggle {
+  margin-left: 0 !important;
+}
+
+[data-epi-rail='1'] .epi-sidebar .epi-rail-item {
+  justify-content: center;
+  padding: 0 !important;
+}
+
+[data-epi-rail='1'] .epi-sidebar .epi-rail-user {
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* With the rail, content gains 168px — so the two paired layouts come back
+   earlier than they otherwise could. Charts need 1140px of content, the
+   matrix row 1246; content is the viewport less 68 of rail and 36 of
+   padding, which puts the thresholds at 1244 and 1350 rather than 1412 and
+   1518. Same arithmetic as the laptop tier above, one term changed. */
+@media (min-width: 1244px) and (max-width: 1400px) {
+  [data-epi-rail='1'] .epi-chart-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (min-width: 1350px) and (max-width: 1500px) {
+  [data-epi-rail='1'] .epi-matrix-grid {
+    grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr) !important;
+  }
+}
+
+/* The rail is a desktop affordance; below 1023 the sidebar is replaced by
+   the bottom bar and the drawer, and the toggle would have nothing to do. */
+@media (max-width: 1023px) {
+  .epi-rail-toggle {
+    display: none !important;
+  }
+}

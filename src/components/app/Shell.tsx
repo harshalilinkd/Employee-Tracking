@@ -20,6 +20,8 @@ import {
   LogOut,
   Menu,
   Moon,
+  PanelLeftClose,
+  PanelLeftOpen,
   Search,
   Settings,
   Sun,
@@ -49,6 +51,46 @@ function subscribeToTheme(onChange: () => void) {
 
 function readTheme(): 'dark' | 'light' {
   return localStorage.getItem('epi-theme') === 'dark' ? 'dark' : 'light'
+}
+
+/**
+ * The sidebar can be narrowed to a rail of icons.
+ *
+ * On a laptop the 236px sidebar is the single largest fixed cost on the
+ * screen, and the tables that had to stack for want of width get 168px of it
+ * back when it is a rail — enough that the charts pair again at 1244 instead
+ * of 1412, and the employee matrix at 1350 instead of 1518.
+ *
+ * The attribute on <html> is the source of truth, not React state: it is set
+ * by the bootstrap script before first paint, so the rail is never briefly
+ * the wrong width. React reads it only to draw the toggle.
+ */
+const RAIL_EVENT = 'epi-rail-change'
+
+function subscribeToRail(onChange: () => void) {
+  window.addEventListener(RAIL_EVENT, onChange)
+  window.addEventListener('storage', onChange)
+  return () => {
+    window.removeEventListener(RAIL_EVENT, onChange)
+    window.removeEventListener('storage', onChange)
+  }
+}
+
+function readRail(): boolean {
+  return document.documentElement.getAttribute('data-epi-rail') === '1'
+}
+
+function toggleRail() {
+  const next = !readRail()
+  const root = document.documentElement
+  if (next) root.setAttribute('data-epi-rail', '1')
+  else root.removeAttribute('data-epi-rail')
+  try {
+    localStorage.setItem('epi-sidebar', next ? 'rail' : 'full')
+  } catch {
+    // A browser refusing storage still gets the rail for this session.
+  }
+  window.dispatchEvent(new Event(RAIL_EVENT))
 }
 
 interface ShellUser {
@@ -102,6 +144,7 @@ function Wordmark({ compact }: { compact?: boolean }) {
         LD
       </span>
       <span
+        className="epi-rail-hide"
         style={{
           width: '1px',
           height: compact ? '17px' : '20px',
@@ -109,6 +152,7 @@ function Wordmark({ compact }: { compact?: boolean }) {
         }}
       />
       <span
+        className="epi-rail-hide"
         style={{
           fontSize: compact ? '14px' : '15px',
           fontWeight: 500,
@@ -153,6 +197,9 @@ export function Shell({
   const params = useSearchParams()
   const router = useRouter()
   const theme = useSyncExternalStore(subscribeToTheme, readTheme, () => 'light' as const)
+  // Only for the toggle's own icon — the width itself comes from CSS reading
+  // the attribute the bootstrap script already set.
+  const railed = useSyncExternalStore(subscribeToRail, readRail, () => false)
   const [recordOpen, setRecordOpen] = useState(false)
   const [intent, setIntent] = useState<RecordIntent>({})
   const [query, setQuery] = useState('')
@@ -257,12 +304,39 @@ export function Shell({
             overflowY: 'auto',
           }}
         >
-          <div style={{ padding: '0 8px' }}>
+          <div
+            className="epi-rail-head"
+            style={{ padding: '0 8px', display: 'flex', alignItems: 'center', gap: '10px' }}
+          >
             <Wordmark />
+            <button
+              onClick={toggleRail}
+              title={railed ? 'Expand the sidebar' : 'Collapse the sidebar'}
+              aria-label={railed ? 'Expand the sidebar' : 'Collapse the sidebar'}
+              aria-expanded={!railed}
+              className="epi-rail-toggle"
+              style={{
+                marginLeft: 'auto',
+                width: '28px',
+                height: '28px',
+                flex: '0 0 28px',
+                borderRadius: '8px',
+                background: 'rgba(255,255,255,0.08)',
+                border: '1px solid rgba(255,255,255,0.16)',
+                color: 'rgba(255,255,255,0.78)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+              }}
+            >
+              {railed ? <PanelLeftOpen size={15} /> : <PanelLeftClose size={15} />}
+            </button>
           </div>
 
           <nav style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
             <div
+              className="epi-rail-hide"
               style={{
                 fontSize: '10px',
                 fontWeight: 700,
@@ -280,6 +354,8 @@ export function Shell({
                 <Link
                   key={n.href}
                   href={n.href}
+                  title={n.label}
+                  className="epi-rail-item"
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -294,14 +370,15 @@ export function Shell({
                     background: active ? 'rgba(255,255,255,0.12)' : 'transparent',
                   }}
                 >
-                  <n.Icon size={17} />
-                  {n.label}
+                  <n.Icon size={17} style={{ flex: '0 0 17px' }} />
+                  <span className="epi-rail-hide">{n.label}</span>
                 </Link>
               )
             })}
           </nav>
 
           <div
+            className="epi-rail-user"
             style={{
               marginTop: 'auto',
               borderTop: '1px solid rgba(255,255,255,0.12)',
@@ -328,7 +405,7 @@ export function Shell({
             >
               {initials(user.fullName)}
             </div>
-            <div style={{ minWidth: 0, flex: 1 }}>
+            <div className="epi-rail-hide" style={{ minWidth: 0, flex: 1 }}>
               <div
                 style={{
                   fontSize: '13px',

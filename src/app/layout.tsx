@@ -41,6 +41,14 @@ const themeBootstrap = `
   } catch (e) {
     document.documentElement.setAttribute('data-epi-theme', 'light');
   }
+  try {
+    // The sidebar width is read from this attribute by CSS, so setting it
+    // here means the rail is already the right width on first paint. React
+    // learns about it afterwards and only needs it for the toggle's icon.
+    if (localStorage.getItem('epi-sidebar') === 'rail') {
+      document.documentElement.setAttribute('data-epi-rail', '1');
+    }
+  } catch (e) {}
 })();
 `
 
