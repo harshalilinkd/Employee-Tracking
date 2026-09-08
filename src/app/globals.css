@@ -704,6 +704,12 @@ body {
   .epi-kpis {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   }
+  /* Three controls do not fit a 390px row with words on all of them, so the
+     Views button falls back to its icon. */
+  .epi-views-label,
+  .epi-views-caret {
+    display: none !important;
+  }
 }
 
 /* =====================================================================
@@ -1365,8 +1371,16 @@ body {
   /* Row 1 of the bar: search takes the space, Filters button takes the rest.
      Overrides the generic two-column .epi-filterbar grid. */
   .epi-ledger-bar {
-    grid-template-columns: 1fr auto !important;
+    grid-template-columns: 1fr auto auto !important;
     gap: 8px !important;
+  }
+  /* Views sits between them, so the row reads search / Views / Filters. Its
+     label is dropped below 420px — the bookmark carries the meaning and the
+     applied view's name is already spelled out in the popover. */
+  .epi-views > button {
+    height: 40px !important;
+    min-height: 40px !important;
+    padding: 0 10px !important;
   }
   .epi-ledger-bar .epi-ledger-search {
     grid-column: auto !important;
@@ -1825,4 +1839,39 @@ body {
 .epi-login-google:hover:not(:disabled) {
   background: #f7faf9 !important;
   border-color: #c3d6d2 !important;
+}
+
+
+/* =====================================================================
+   Saved-views popover, phones
+   The popover floats above the filter bar but is still a descendant of it,
+   so two earlier blocks reach in and resize its fields: the bar's own
+   `.epi-filterbar button/input` sizing, and the 44px touch floor on
+   `.epi-main`. Neither is right for a menu — a 100%-wide 40px checkbox is
+   not a checkbox. Last in the file, so it wins on order at equal weight.
+   ===================================================================== */
+@media (max-width: 767px) {
+  .epi-views-pop input,
+  .epi-views-pop button {
+    width: auto !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    font-size: 13px !important;
+    padding: 0 10px !important;
+  }
+  .epi-views-pop .epi-views-apply {
+    padding: 0 !important;
+  }
+  .epi-views-pop .epi-views-icon {
+    width: 26px !important;
+    height: 26px !important;
+    min-height: 26px !important;
+    padding: 0 !important;
+  }
+  .epi-views-pop .epi-views-check {
+    width: 17px !important;
+    height: 17px !important;
+    min-height: 17px !important;
+    padding: 0 !important;
+  }
 }

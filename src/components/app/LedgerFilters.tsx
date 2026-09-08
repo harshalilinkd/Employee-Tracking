@@ -6,12 +6,14 @@ import { SlidersHorizontal } from 'lucide-react'
 import { cardStyle, selectStyle } from '@/lib/design'
 import { SEVERITY_LABELS, SEVERITY_ORDER } from '@/lib/types'
 import { ExportCsvButton } from './ExportCsvButton'
+import { SavedViews } from './SavedViews'
 
 interface Props {
   departments: { id: string; name: string }[]
   categories: { id: string; name: string; applies_to: string }[]
   employees: { id: string; full_name: string }[]
   rows: Record<string, unknown>[]
+  currentAppUserId: string
 }
 
 const RANGES = [
@@ -22,7 +24,7 @@ const RANGES = [
   { key: 'all', label: 'All time' },
 ]
 
-export function LedgerFilters({ departments, categories, employees, rows }: Props) {
+export function LedgerFilters({ departments, categories, employees, rows, currentAppUserId }: Props) {
   const router = useRouter()
   const pathname = usePathname()
   const params = useSearchParams()
@@ -88,6 +90,8 @@ export function LedgerFilters({ departments, categories, employees, rows }: Prop
           outline: 'none',
         }}
       />
+
+      {currentAppUserId ? <SavedViews currentAppUserId={currentAppUserId} /> : null}
 
       {/* Hidden on desktop by the global .epi-filter-toggle rule; on phones it
           sits beside the search box and expands the panel underneath. */}

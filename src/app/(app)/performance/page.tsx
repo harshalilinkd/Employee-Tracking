@@ -158,6 +158,7 @@ export default async function PerformancePage({
         categories={(catRes.data ?? []) as { id: string; name: string; applies_to: string }[]}
         employees={(empRes.data ?? []) as { id: string; full_name: string }[]}
         rows={csvRows}
+        currentAppUserId={session?.appUser?.id ?? ''}
       />
 
       {rows.length === 0 ? (
