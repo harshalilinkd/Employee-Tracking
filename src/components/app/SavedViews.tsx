@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import { describeWriteError } from '@/lib/errors'
 
 /** Every filter the ledger reads from the URL. A view is exactly this set. */
-export const FILTER_KEYS = ['q', 'emp', 'dept', 'type', 'cat', 'sev', 'range'] as const
+export const FILTER_KEYS = ['q', 'emp', 'dept', 'desig', 'type', 'cat', 'sev', 'range'] as const
 
 interface View {
   id: string

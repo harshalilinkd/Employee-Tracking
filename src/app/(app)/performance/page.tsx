@@ -15,6 +15,7 @@ interface Search {
   q?: string
   emp?: string
   dept?: string
+  desig?: string
   type?: string
   cat?: string
   sev?: string
@@ -49,7 +50,7 @@ export default async function PerformancePage({
   let query = supabase
     .from('performance_events')
     .select(
-      'id, event_ref, type, title, description, event_date, severity, status, created_at, recorded_by, employee:employees(id, full_name), category:categories(id, name), department:departments(id, name), recorder:app_users(full_name), observer:observers(name)',
+      'id, event_ref, type, title, description, event_date, severity, status, created_at, recorded_by, employee:employees(id, full_name, designation_id), category:categories(id, name), department:departments(id, name), recorder:app_users(full_name), observer:observers(name)',
     )
     .eq('status', 'active')
     .order('event_date', { ascending: false })
@@ -65,9 +66,15 @@ export default async function PerformancePage({
   // an unexplained empty list.
   if (sp.sev && sp.type !== 'positive') query = query.eq('severity', sp.sev)
 
-  const [eventsRes, deptRes, catRes, empRes] = await Promise.all([
+  const [eventsRes, deptRes, desigRes, catRes, empRes] = await Promise.all([
     query,
     supabase.from('departments').select('id, name').eq('is_active', true).order('name'),
+    supabase
+      .from('designations')
+      .select('id, title')
+      .eq('is_active', true)
+      .order('sort_order')
+      .order('title'),
     supabase
       .from('categories')
       .select('id, name, applies_to, default_severity, sort_order, is_active')
@@ -89,7 +96,10 @@ export default async function PerformancePage({
     status: string
     created_at: string
     recorded_by: string
-    employee: { id: string; full_name: string } | { id: string; full_name: string }[] | null
+    employee:
+      | { id: string; full_name: string; designation_id: string | null }
+      | { id: string; full_name: string; designation_id: string | null }[]
+      | null
     category: { id: string; name: string } | { id: string; name: string }[] | null
     department: { id: string; name: string } | { id: string; name: string }[] | null
     recorder: { full_name: string } | { full_name: string }[] | null
@@ -104,6 +114,10 @@ export default async function PerformancePage({
     recordedBy: one(e.recorder)?.full_name ?? 'Unknown',
     observedBy: one(e.observer)?.name ?? null,
   }))
+
+  if (sp.desig) {
+    rows = rows.filter((r) => r.employeeRef?.designation_id === sp.desig)
+  }
 
   // Free-text search is applied here rather than in SQL so it can span the
   // employee name, title, description and reference in one pass.
@@ -123,6 +137,7 @@ export default async function PerformancePage({
     sp.q ||
       sp.emp ||
       sp.dept ||
+      sp.desig ||
       sp.type ||
       sp.cat ||
       (sp.sev && sp.type !== 'positive') ||
@@ -167,6 +182,7 @@ export default async function PerformancePage({
 
       <LedgerFilters
         departments={(deptRes.data ?? []) as { id: string; name: string }[]}
+        designations={(desigRes.data ?? []) as { id: string; title: string }[]}
         categories={(catRes.data ?? []) as { id: string; name: string; applies_to: string }[]}
         employees={(empRes.data ?? []) as { id: string; full_name: string }[]}
         rows={csvRows}

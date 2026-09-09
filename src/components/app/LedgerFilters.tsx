@@ -10,6 +10,7 @@ import { SavedViews } from './SavedViews'
 
 interface Props {
   departments: { id: string; name: string }[]
+  designations: { id: string; title: string }[]
   categories: { id: string; name: string; applies_to: string }[]
   employees: { id: string; full_name: string }[]
   rows: Record<string, unknown>[]
@@ -24,7 +25,14 @@ const RANGES = [
   { key: 'all', label: 'All time' },
 ]
 
-export function LedgerFilters({ departments, categories, employees, rows, currentAppUserId }: Props) {
+export function LedgerFilters({
+  departments,
+  designations,
+  categories,
+  employees,
+  rows,
+  currentAppUserId,
+}: Props) {
   const router = useRouter()
   const pathname = usePathname()
   const params = useSearchParams()
@@ -58,8 +66,8 @@ export function LedgerFilters({ departments, categories, employees, rows, curren
   // carry, so the control goes when the type filter rules goofups out.
   const showImpact = type !== 'positive'
 
-  const hasAny = ['q', 'emp', 'dept', 'type', 'cat', 'sev', 'range'].some((k) => params.get(k))
-  const activeCount = ['emp', 'dept', 'type', 'cat', 'sev', 'range'].filter(
+  const hasAny = ['q', 'emp', 'dept', 'desig', 'type', 'cat', 'sev', 'range'].some((k) => params.get(k))
+  const activeCount = ['emp', 'dept', 'desig', 'type', 'cat', 'sev', 'range'].filter(
     (k) => params.get(k) && !(k === 'sev' && params.get('type') === 'positive'),
   ).length
 
@@ -174,6 +182,22 @@ export function LedgerFilters({ departments, categories, employees, rows, curren
           {departments.map((d) => (
             <option key={d.id} value={d.id}>
               {d.name}
+            </option>
+          ))}
+        </select>
+
+        {/* Next to department, because the two are read together — "the
+            supervisors in Printing" is one question, not two. */}
+        <select
+          aria-label="Designation"
+          value={params.get('desig') ?? ''}
+          onChange={(e) => setParam('desig', e.target.value)}
+          style={selectStyle}
+        >
+          <option value="">All designations</option>
+          {designations.map((d) => (
+            <option key={d.id} value={d.id}>
+              {d.title}
             </option>
           ))}
         </select>
