@@ -69,16 +69,18 @@ export function GeneralAdmin({
     setError('')
     setSaved(false)
 
-    if (sig.window_days < 7 || sig.window_days > 730) {
-      setError('Window must be between 7 and 730 days.')
+    // 0 is the "count everything" sentinel, so it has to pass a range check
+    // written for bounded windows.
+    if (sig.window_days !== 0 && (sig.window_days < 7 || sig.window_days > 730)) {
+      setError('Window must be 0 for no cut-off, or between 7 and 730 days.')
       return
     }
     if (sig.min_events_for_signal < 1 || sig.min_events_for_signal > 50) {
       setError('Minimum events must be between 1 and 50.')
       return
     }
-    if (sig.recency_decay_days < 1 || sig.recency_decay_days > 365) {
-      setError('Recency decay must be between 1 and 365 days.')
+    if (sig.recency_decay_days < 1 || sig.recency_decay_days > 1825) {
+      setError('Recency decay must be between 1 and 1825 days.')
       return
     }
     const w = sig.severity_weight
@@ -214,7 +216,11 @@ export function GeneralAdmin({
           <Field
             icon={<CalendarRange size={14} />}
             label="Window"
-            hint="Only events inside this window count."
+            hint={
+              sig.window_days === 0
+                ? 'Every event counts, however old. Older ones fade — see Recency decay.'
+                : `Only the last ${sig.window_days} days count. Set 0 to count everything.`
+            }
             value={String(sig.window_days)}
             onChange={(v) => setSig({ ...sig, window_days: num(v, sig.window_days) })}
             disabled={!canEdit}
@@ -233,7 +239,10 @@ export function GeneralAdmin({
           <Field
             icon={<Timer size={14} />}
             label="Recency decay"
-            hint={`Half weight after about ${Math.round(sig.recency_decay_days * 0.693)} days.`}
+            hint={
+              `Half weight after about ${Math.round(sig.recency_decay_days * 0.693)} days. ` +
+              `A one-year-old event keeps ${Math.round(Math.exp(-365 / Math.max(sig.recency_decay_days, 1)) * 100)}% of its weight.`
+            }
             value={String(sig.recency_decay_days)}
             onChange={(v) => setSig({ ...sig, recency_decay_days: num(v, sig.recency_decay_days) })}
             disabled={!canEdit}

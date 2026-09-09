@@ -12,7 +12,13 @@ const FIELD: CSSProperties = {
   // A faint ground rather than pure white: the field now reads as a field on
   // a white sheet without needing a heavier border to say so.
   background: '#F7FAFA',
-  border: '1px solid #dbe6e4',
+  // Longhand, not the `border` shorthand: the focus style below overrides only
+  // borderColor, and React warns (correctly) when it has to remove a longhand
+  // on blur while the shorthand that also sets it is still declared. Mixing
+  // the two on one element leaves the removal order up to the browser.
+  borderWidth: '1px',
+  borderStyle: 'solid',
+  borderColor: '#dbe6e4',
   color: '#000000',
   fontSize: '14.5px',
   padding: '0 42px 0 40px',

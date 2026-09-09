@@ -310,7 +310,7 @@
       Executive Assistants.
     </p>
     <div class="mast-facts">
-      <span><b>90-day</b> rolling window</span>
+      <span><b>Every event</b> counts, none expire</span>
       <span><b>3</b> events before a signal</span>
       <span><b>1 / 2 / 3.5 / 6</b> impact weights</span>
       <span><b>48 hrs</b> to fix your own entry</span>
@@ -602,11 +602,39 @@
         </p>
       </div>
 
-      <h3>Old events fade</h3>
+      <h3>Old events fade, but nothing expires</h3>
       <p>
-        An event carries roughly <strong>half its weight after about a month</strong>
-        (a 45-day decay). Something from last week matters more than the same thing
-        from two months ago. Nothing older than <strong>90 days</strong> counts at all.
+        <strong>No event is ever excluded for being old.</strong> A goofup from three
+        years ago still counts. It just counts for less than the same goofup from last
+        week, because weight decays with age — half of it after roughly eight months.
+      </p>
+      <div class="scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Age of the event</th>
+              <th class="num">Today</th>
+              <th class="num">3 months</th>
+              <th class="num">1 year</th>
+              <th class="num">2 years</th>
+              <th class="num">5 years</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Share of its weight</td>
+              <td class="num">100%</td>
+              <td class="num">78%</td>
+              <td class="num">37%</td>
+              <td class="num">14%</td>
+              <td class="num">1%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        So a long record is never wiped, and somebody who improved a year ago is not
+        held to their old record as firmly as to their recent one.
       </p>
 
       <h3>Silence is not a pass</h3>
@@ -633,7 +661,7 @@
             <tr>
               <td class="num">2</td>
               <td><span class="chip none">No signal</span></td>
-              <td>Fewer than 3 events in the window</td>
+              <td>Fewer than 3 events on record</td>
             </tr>
             <tr>
               <td class="num">3</td>
@@ -815,17 +843,18 @@
       <div class="note">
         <span class="head">If something looks wrong</span>
         <p>
-          Check the date range first — it is the most common cause. The dashboard
-          defaults to the last 90 days, and an event outside that window will not appear
-          anywhere on the page.
+          Check the date range first — it is the most common cause. The dashboard and
+          the ledger default to the last 90 days, and an event outside that range will
+          not appear on the page. That is only the screen filter: the signal itself
+          counts every event, whatever its date.
         </p>
       </div>
 
       <p class="foot">
         LD Silk Mills · Employee Tracking · This guide reflects the system as configured
-        today: 90-day window, 3-event minimum, impact weights 1 / 2 / 3.5 / 6. Those
-        values live in <strong>Settings → General</strong>; if they change, the bands
-        change with them.
+        today: no window cut-off, 3-event minimum, a 365-day recency decay, impact
+        weights 1 / 2 / 3.5 / 6. Those values live in <strong>Settings → General</strong>;
+        if they change, the bands change with them.
       </p>
     </section>
   </main>
