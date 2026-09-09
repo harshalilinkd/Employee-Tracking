@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getSession } from '@/lib/session'
 import { CategoryAdmin } from '@/components/app/CategoryAdmin'
 import { ObserverAdmin, type ObserverRow } from '@/components/app/ObserverAdmin'
+import { DepartmentAdmin, type DepartmentRow } from '@/components/app/DepartmentAdmin'
 import { GeneralAdmin, ReadOnlyNote } from '@/components/app/GeneralAdmin'
 import { Gauge } from 'lucide-react'
 import { cardStyle, labelCaps, pill } from '@/lib/design'
@@ -17,6 +18,7 @@ export const dynamic = 'force-dynamic'
 /** canvas: settingsTabsList */
 const TABS = [
   'Employee database',
+  'Departments',
   'Performance categories',
   'Observers',
   'User access',
@@ -82,6 +84,7 @@ export default async function SettingsPage({
       {tab === 'Employee database' ? (
         <EmployeeDatabase supabase={supabase} canEdit={admin || session?.appUser?.role === 'hr'} />
       ) : null}
+      {tab === 'Departments' ? <Departments supabase={supabase} canEdit={admin} /> : null}
       {tab === 'Performance categories' ? <Categories supabase={supabase} canEdit={admin} /> : null}
       {tab === 'Observers' ? <Observers supabase={supabase} canEdit={admin} /> : null}
       {tab === 'User access' ? (
@@ -171,6 +174,38 @@ async function Categories({ supabase, canEdit }: { supabase: any; canEdit: boole
         </p>
       </div>
     </>
+  )
+}
+
+async function Departments({ supabase, canEdit }: { supabase: any; canEdit: boolean }) {
+  const [{ data }, { data: staff }] = await Promise.all([
+    supabase
+      .from('departments')
+      .select('id, name, code, is_active')
+      .order('is_active', { ascending: false })
+      .order('name'),
+    // Headcount per department decides whether one can be taken out of the
+    // pickers without stranding the records that point at it.
+    supabase.from('employees').select('department_id').not('department_id', 'is', null),
+  ])
+
+  const counts = new Map<string, number>()
+  for (const row of (staff ?? []) as { department_id: string }[]) {
+    counts.set(row.department_id, (counts.get(row.department_id) ?? 0) + 1)
+  }
+
+  const rows: DepartmentRow[] = ((data ?? []) as any[]).map((d) => ({
+    id: d.id,
+    name: d.name,
+    code: d.code,
+    is_active: d.is_active,
+    useCount: counts.get(d.id) ?? 0,
+  }))
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+      <DepartmentAdmin rows={rows} canEdit={canEdit} />
+    </div>
   )
 }
 

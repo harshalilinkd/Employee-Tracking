@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { AlertTriangle, Ban, Check, Loader2, Pencil, PencilLine, Trash2, Undo2, UserPlus, X } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { describeWriteError } from '@/lib/errors'
+import { QuickAddDepartment } from './DepartmentAdmin'
 import { avatarStyle, cardStyle, initials, pill, subtleButton, tableHeadStyle } from '@/lib/design'
 import type { EmployeeStatus } from '@/lib/types'
 
@@ -97,6 +98,9 @@ const rowIconBtn: CSSProperties = {
   justifyContent: 'center',
 }
 
+/** Sentinel option value. Not a uuid, so it can never collide with a real id. */
+const ADD_DEPT = '__add_department__'
+
 export function EmployeeAdmin({ rows, departments, designations, deptCount, canEdit }: Props) {
   const [editing, setEditing] = useState<EmployeeRow | null>(null)
   const [adding, setAdding] = useState(false)
@@ -109,10 +113,18 @@ export function EmployeeAdmin({ rows, departments, designations, deptCount, canE
   // employee id, so saving touches exactly what the user edited and an
   // untouched row is never written to.
   const [bulk, setBulk] = useState(false)
+  // A department created from the picker exists before the server component
+  // re-renders with it, so it is held here until the refreshed prop carries
+  // it — otherwise the select would briefly show nothing selected.
+  const [freshDepts, setFreshDepts] = useState<{ id: string; name: string }[]>([])
+  const [addDeptFor, setAddDeptFor] = useState<EmployeeRow | null>(null)
   const [draft, setDraft] = useState<Draft>({})
   const [savingBulk, setSavingBulk] = useState(false)
 
   const dirtyIds = Object.keys(draft)
+
+  const known = new Set(departments.map((d) => d.id))
+  const deptOptions = [...departments, ...freshDepts.filter((d) => !known.has(d.id))]
 
   function edit(row: EmployeeRow, field: EditableField, value: string | null) {
     setDraft((d) => {
@@ -426,16 +438,20 @@ export function EmployeeAdmin({ rows, departments, designations, deptCount, canE
                 <span className="epi-cell-control">
                   <select
                     value={valueOf(r, 'department_id')}
-                    onChange={(e) => edit(r, 'department_id', e.target.value)}
+                    onChange={(e) => {
+                      if (e.target.value === ADD_DEPT) setAddDeptFor(r)
+                      else edit(r, 'department_id', e.target.value)
+                    }}
                     aria-label={`Department of ${r.full_name}`}
                     style={inlineField}
                   >
                     <option value="">—</option>
-                    {departments.map((d) => (
+                    {deptOptions.map((d) => (
                       <option key={d.id} value={d.id}>
                         {d.name}
                       </option>
                     ))}
+                    {canEdit ? <option value={ADD_DEPT}>+ Add new department…</option> : null}
                   </select>
                 </span>
               ) : (
@@ -643,6 +659,18 @@ export function EmployeeAdmin({ rows, departments, designations, deptCount, canE
             await setRowStatus(deleting, 'Inactive')
             setDeleteError('')
             setDeleting(null)
+          }}
+        />
+      ) : null}
+
+      {addDeptFor ? (
+        <QuickAddDepartment
+          onCancel={() => setAddDeptFor(null)}
+          onCreated={(created) => {
+            setFreshDepts((prev) => [...prev, created])
+            edit(addDeptFor, 'department_id', created.id)
+            setAddDeptFor(null)
+            router.refresh()
           }}
         />
       ) : null}
@@ -883,6 +911,8 @@ function EmployeeModal({
   const router = useRouter()
   const [fullName, setFullName] = useState(existing?.full_name ?? '')
   const [departmentId, setDepartmentId] = useState(existing?.department_id ?? '')
+  const [addingDept, setAddingDept] = useState(false)
+  const [freshDepts, setFreshDepts] = useState<{ id: string; name: string }[]>([])
   const [designationId, setDesignationId] = useState(existing?.designation_id ?? '')
   const [managerId, setManagerId] = useState(existing?.manager_id ?? '')
   const [status, setStatus] = useState<EmployeeStatus>(existing?.status ?? 'Active')
@@ -1071,15 +1101,21 @@ function EmployeeModal({
               <select
                 className="epi-field"
                 value={departmentId}
-                onChange={(e) => setDepartmentId(e.target.value)}
+                onChange={(e) => {
+                  if (e.target.value === ADD_DEPT) setAddingDept(true)
+                  else setDepartmentId(e.target.value)
+                }}
                 style={{ ...field, padding: '0 10px' }}
               >
                 <option value="">Unassigned</option>
-                {departments.map((d) => (
-                  <option key={d.id} value={d.id}>
-                    {d.name}
-                  </option>
-                ))}
+                {[...departments, ...freshDepts.filter((f) => !departments.some((d) => d.id === f.id))].map(
+                  (d) => (
+                    <option key={d.id} value={d.id}>
+                      {d.name}
+                    </option>
+                  ),
+                )}
+                <option value={ADD_DEPT}>+ Add new department…</option>
               </select>
             </label>
             <label style={{ flex: '1 1 150px', display: 'flex', flexDirection: 'column', gap: '7px' }}>
@@ -1229,6 +1265,17 @@ function EmployeeModal({
           </button>
         </div>
       </div>
+
+      {addingDept ? (
+        <QuickAddDepartment
+          onCancel={() => setAddingDept(false)}
+          onCreated={(created) => {
+            setFreshDepts((prev) => [...prev, created])
+            setDepartmentId(created.id)
+            setAddingDept(false)
+          }}
+        />
+      ) : null}
     </div>
   )
 }
