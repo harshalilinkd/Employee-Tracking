@@ -128,40 +128,69 @@ const MOBILE_NAV = [
   { href: '/settings', label: 'Settings', Icon: Settings },
 ] as const
 
-/** The wordmark, used in the sidebar and again in the mobile header. */
+/**
+ * The wordmark, used in the sidebar and again in the mobile header.
+ *
+ * The mark is the same diverging bar chart as the favicon (src/app/icon.svg),
+ * so the browser tab and the app carry one identity: recognition rises above
+ * the balance line, issues fall below it. Drawn as shapes rather than
+ * lettering so it survives being scaled down to the collapsed rail, where
+ * the wordmark text is hidden and only this tile remains.
+ */
+function BrandMark({ size }: { size: number }) {
+  return (
+    <span
+      style={{
+        width: `${size}px`,
+        height: `${size}px`,
+        flex: `0 0 ${size}px`,
+        borderRadius: `${Math.round(size * 0.29)}px`,
+        background: 'linear-gradient(135deg,#17a186 0%,#0e7c6b 55%,#0a5f52 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        boxShadow: '0 0 18px rgba(23,161,134,0.28)',
+      }}
+    >
+      <svg width={size * 0.66} height={size * 0.66} viewBox="0 0 64 64" aria-hidden="true">
+        <rect x="9" y="34" width="46" height="2.2" rx="1.1" fill="#ffffff" opacity="0.45" />
+        <rect x="12" y="19" width="10" height="15" rx="2.5" fill="#ffffff" />
+        <rect x="27" y="36.2" width="10" height="15" rx="2.5" fill="#f3b155" />
+        <rect x="42" y="12" width="10" height="22" rx="2.5" fill="#ffffff" />
+      </svg>
+    </span>
+  )
+}
+
+/**
+ * Both words are set identically — same size, weight and colour. The earlier
+ * two-tone treatment made "Tracking" read as a subtitle rather than half of
+ * the name.
+ *
+ * In the sidebar the name stacks. Between the 30px mark and the 28px collapse
+ * toggle only about 112px of the 236px column is left, and "Employee
+ * Tracking" on one line needs closer to 145px — which is why it was running
+ * under the toggle. Stacked, the longest word is ~66px and it fits with room
+ * to spare. The mobile header has the width for a single line, so it keeps
+ * one.
+ */
 function Wordmark({ compact }: { compact?: boolean }) {
   return (
-    <span style={{ display: 'flex', alignItems: 'center', gap: compact ? '9px' : '11px', minWidth: 0 }}>
+    <span style={{ display: 'flex', alignItems: 'center', gap: compact ? '9px' : '10px', minWidth: 0 }}>
+      <BrandMark size={compact ? 28 : 30} />
       <span
+        className="epi-rail-hide"
         style={{
-          fontSize: compact ? '19px' : '23px',
+          fontSize: compact ? '15px' : '14.5px',
           fontWeight: 800,
-          letterSpacing: '0.01em',
-          lineHeight: 1,
+          letterSpacing: '-0.005em',
+          lineHeight: compact ? 1.15 : 1.22,
           color: '#fff',
+          whiteSpace: compact ? 'nowrap' : 'normal',
+          minWidth: 0,
         }}
       >
-        LD
-      </span>
-      <span
-        className="epi-rail-hide"
-        style={{
-          width: '1px',
-          height: compact ? '17px' : '20px',
-          background: 'rgba(255,255,255,0.3)',
-        }}
-      />
-      <span
-        className="epi-rail-hide"
-        style={{
-          fontSize: compact ? '14px' : '15px',
-          fontWeight: 500,
-          letterSpacing: '0.15em',
-          color: 'rgba(255,255,255,0.94)',
-          whiteSpace: 'nowrap',
-        }}
-      >
-        SILK MILLS
+        Employee{compact ? ' ' : <br />}Tracking
       </span>
     </span>
   )

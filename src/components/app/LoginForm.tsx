@@ -13,7 +13,7 @@ const FIELD: CSSProperties = {
   // a white sheet without needing a heavier border to say so.
   background: '#F7FAFA',
   border: '1px solid #dbe6e4',
-  color: '#0e2b26',
+  color: '#000000',
   fontSize: '14.5px',
   padding: '0 42px 0 40px',
   outline: 'none',
@@ -85,20 +85,20 @@ export function LoginForm({ next }: { next: string }) {
   }
 
   return (
-    <form onSubmit={signIn} style={{ width: '100%', color: '#0e2b26' }}>
+    <form onSubmit={signIn} style={{ width: '100%', color: '#000000' }}>
       <h2 style={{ margin: 0, fontSize: '28px', fontWeight: 700, letterSpacing: '-0.03em' }}>
         Welcome back
       </h2>
-      <p style={{ margin: '9px 0 26px', fontSize: '14.5px', color: '#52706a' }}>
+      <p style={{ margin: '9px 0 26px', fontSize: '14.5px', color: '#1a1a1a' }}>
         Sign in to continue to your workspace
       </p>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
         <label style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
-          <span style={{ fontSize: '13px', fontWeight: 600, color: '#0e2b26' }}>Work email</span>
+          <span style={{ fontSize: '13px', fontWeight: 600, color: '#000000' }}>Work email</span>
           <span style={{ position: 'relative', display: 'block' }}>
             <span
-              style={{ position: 'absolute', left: '13px', top: '15px', color: '#7d918d', pointerEvents: 'none' }}
+              style={{ position: 'absolute', left: '13px', top: '15px', color: '#454545', pointerEvents: 'none' }}
             >
               <Mail size={16} />
             </span>
@@ -117,11 +117,11 @@ export function LoginForm({ next }: { next: string }) {
 
         <label style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
           <span style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-            <span style={{ fontSize: '13px', fontWeight: 600, flex: 1, color: '#0e2b26' }}>Password</span>
+            <span style={{ fontSize: '13px', fontWeight: 600, flex: 1, color: '#000000' }}>Password</span>
           </span>
           <span style={{ position: 'relative', display: 'block' }}>
             <span
-              style={{ position: 'absolute', left: '13px', top: '15px', color: '#7d918d', pointerEvents: 'none' }}
+              style={{ position: 'absolute', left: '13px', top: '15px', color: '#454545', pointerEvents: 'none' }}
             >
               <Lock size={16} />
             </span>
@@ -148,7 +148,7 @@ export function LoginForm({ next }: { next: string }) {
                 borderRadius: '7px',
                 background: 'transparent',
                 border: 0,
-                color: '#52706a',
+                color: '#1a1a1a',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
@@ -236,7 +236,7 @@ export function LoginForm({ next }: { next: string }) {
               fontWeight: 700,
               letterSpacing: '0.14em',
               textTransform: 'uppercase',
-              color: '#7d918d',
+              color: '#454545',
               whiteSpace: 'nowrap',
             }}
           >
@@ -262,7 +262,7 @@ export function LoginForm({ next }: { next: string }) {
             borderRadius: '10px',
             background: '#FFFFFF',
             border: '1px solid #dbe6e4',
-            color: '#0e2b26',
+            color: '#000000',
             fontSize: '14.5px',
             fontWeight: 600,
             cursor: 'pointer',
@@ -278,7 +278,7 @@ export function LoginForm({ next }: { next: string }) {
           <span>Continue with Google</span>
         </button>
 
-        <p style={{ margin: '4px 0 0', fontSize: '12.5px', color: '#7d918d', textAlign: 'center' }}>
+        <p style={{ margin: '4px 0 0', fontSize: '12.5px', color: '#454545', textAlign: 'center' }}>
           Access is granted by the MD&rsquo;s office.
         </p>
       </div>

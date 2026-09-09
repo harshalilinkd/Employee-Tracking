@@ -9,6 +9,7 @@ import { GeneralAdmin, ReadOnlyNote } from '@/components/app/GeneralAdmin'
 import { Gauge } from 'lucide-react'
 import { cardStyle, labelCaps, pill, tableHeadStyle } from '@/lib/design'
 import { SEVERITY_LABELS, SEVERITY_ORDER, isAdmin, type Severity } from '@/lib/types'
+import { AuditLogGroups, type AuditGroup } from '@/components/app/AuditLogGroups'
 
 export const dynamic = 'force-dynamic'
 
@@ -53,14 +54,21 @@ export default async function SettingsPage({
             <Link
               key={t}
               href={`/settings?tab=${encodeURIComponent(t)}`}
+              className={`epi-settings-tab${active ? ' epi-tab-active' : ''}`}
               style={{
-                padding: '10px 14px',
-                fontSize: '14px',
-                fontWeight: 600,
+                padding: '11px 15px',
+                fontSize: '15.5px',
+                // Weight, not colour, carries the selection. The palette went
+                // black across the board, so --epi-fg (#000) and --epi-fg-2
+                // (#1a1a1a) are now indistinguishable — the old active tab was
+                // relying on a difference that no longer exists.
+                fontWeight: active ? 800 : 500,
                 whiteSpace: 'nowrap',
                 textDecoration: 'none',
-                color: active ? 'var(--epi-fg)' : 'var(--epi-fg-3)',
-                borderBottom: active ? '2px solid var(--epi-pos)' : '2px solid transparent',
+                color: active ? 'var(--epi-fg)' : 'var(--epi-fg-2)',
+                background: active ? 'var(--epi-teal-bg)' : 'transparent',
+                borderRadius: '9px 9px 0 0',
+                borderBottom: active ? '3px solid var(--epi-teal)' : '3px solid transparent',
                 marginBottom: '-1px',
               }}
             >
@@ -254,23 +262,104 @@ async function AuditLog({ supabase, admin }: { supabase: any; admin: boolean }) 
     .from('audit_log')
     .select('id, actor_email, entity_type, entity_id, action, field_changed, old_value, new_value, created_at')
     .order('created_at', { ascending: false })
-    .limit(200)
+    .limit(600)
 
   const all = (data ?? []) as any[]
 
   // Trigger-written rows with no actor are the database's own work — the
   // one-time import backfill wrote one per department, which is what buried
   // the handful of entries anyone actually cares about. Those are counted
-  // and summarised rather than listed row by row.
+  // and summarised rather than listed.
   const rows = all.filter((r) => r.actor_email)
   const systemCount = all.length - rows.length
+
+  // One group per record, newest activity first. The rows arrive newest
+  // first, so each group's entries are already in the right order and the
+  // group order follows whichever record was touched most recently.
+  const byRecord = new Map<string, AuditGroup>()
+  for (const r of rows) {
+    const key = `${r.entity_type}:${r.entity_id}`
+    const existing = byRecord.get(key)
+    const entry = {
+      id: r.id,
+      actor_email: r.actor_email,
+      action: r.action,
+      field_changed: r.field_changed,
+      old_value: r.old_value,
+      new_value: r.new_value,
+      created_at: r.created_at,
+    }
+    if (existing) existing.entries.push(entry)
+    else
+      byRecord.set(key, {
+        key,
+        entityType: r.entity_type,
+        entityId: r.entity_id,
+        title: '',
+        subtitle: null,
+        entries: [entry],
+      })
+  }
+
+  const groups = [...byRecord.values()]
+
+  // The log stores ids, not names. Resolve them per entity type in one query
+  // each, rather than a lookup per row.
+  const idsOf = (t: string) => groups.filter((g) => g.entityType === t).map((g) => g.entityId)
+  const nameMap = new Map<string, { title: string; subtitle: string | null }>()
+
+  const resolve = async (
+    table: string,
+    columns: string,
+    build: (row: any) => { title: string; subtitle: string | null },
+  ) => {
+    const ids = idsOf(table)
+    if (ids.length === 0) return
+    const { data: found } = await supabase.from(table).select(columns).in('id', ids)
+    for (const row of (found ?? []) as any[]) {
+      nameMap.set(`${table}:${row.id}`, build(row))
+    }
+  }
+
+  await Promise.all([
+    resolve('performance_events', 'id, event_ref, title', (r) => ({
+      title: `${r.event_ref} — ${r.title}`,
+      subtitle: null,
+    })),
+    resolve('employees', 'id, full_name, employee_code', (r) => ({
+      title: r.full_name,
+      subtitle: r.employee_code ?? null,
+    })),
+    resolve('categories', 'id, name, applies_to', (r) => ({
+      title: r.name,
+      subtitle: r.applies_to === 'positive' ? 'Positive contribution' : 'Goofup',
+    })),
+    resolve('app_users', 'id, full_name, email', (r) => ({ title: r.full_name, subtitle: r.email })),
+    resolve('departments', 'id, name', (r) => ({ title: r.name, subtitle: null })),
+    resolve('designations', 'id, title', (r) => ({ title: r.title, subtitle: null })),
+    resolve('observers', 'id, name, role_note', (r) => ({ title: r.name, subtitle: r.role_note ?? null })),
+  ])
+
+  for (const g of groups) {
+    const found = nameMap.get(`${g.entityType}:${g.entityId}`)
+    if (found) {
+      g.title = found.title
+      g.subtitle = found.subtitle
+    } else {
+      // A deleted record has no row left to name it, so the delete entry's
+      // own summary is the only thing that still knows what it was.
+      const deleted = g.entries.find((e) => e.action === 'delete')
+      g.title = deleted?.old_value ?? 'Deleted record'
+      g.subtitle = 'no longer exists'
+    }
+  }
 
   return (
     <>
       <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 700, letterSpacing: '-0.018em' }}>Audit log</h2>
       <p style={{ margin: '-8px 0 0', fontSize: '14px', color: 'var(--epi-fg-2)' }}>
-        Who changed what, and when. Written by database triggers, so it records the change even if it did not
-        go through this app.
+        Grouped by record. Open one to see everything that has been done to it, in order. Written by
+        database triggers, so it records the change even if it did not go through this app.
       </p>
 
       {systemCount ? (
@@ -293,68 +382,7 @@ async function AuditLog({ supabase, admin }: { supabase: any; admin: boolean }) 
         </div>
       ) : null}
 
-      {rows.length === 0 ? (
-        <div style={{ ...cardStyle, padding: '30px 20px', textAlign: 'center' }}>
-          <div style={{ fontSize: '15px', fontWeight: 600 }}>No changes recorded yet</div>
-          <div style={{ fontSize: '13px', color: 'var(--epi-fg-2)', marginTop: '5px' }}>
-            Edits, archives and new records will appear here as your team uses the system.
-          </div>
-        </div>
-      ) : (
-      <div className="epi-scroll-x" style={{ ...cardStyle, overflow: 'hidden', overflowX: 'auto' }}>
-        <div
-          className="epi-grid-table epi-grid-table-head"
-          style={{
-            minWidth: '860px',
-            display: 'grid',
-            gridTemplateColumns: '150px minmax(150px,1.4fr) 130px 96px minmax(160px,2fr)',
-            gap: '10px',
-            padding: '10px 16px',
-            borderBottom: '1px solid var(--epi-border)',
-            ...tableHeadStyle,
-          }}
-        >
-          <span>When</span>
-          <span>Who</span>
-          <span>Entity</span>
-          <span>Action</span>
-          <span>Change</span>
-        </div>
-        {rows.map((r) => (
-          <div
-            key={r.id}
-            className="epi-row epi-grid-table"
-            style={{
-              minWidth: '860px',
-              display: 'grid',
-              gridTemplateColumns: '150px minmax(150px,1.4fr) 130px 96px minmax(160px,2fr)',
-              alignItems: 'center',
-              fontSize: '13px',
-            }}
-          >
-            <span className="epi-num" style={{ color: 'var(--epi-fg-3)' }}>
-              {new Date(r.created_at).toLocaleString('en-IN', {
-                day: 'numeric',
-                month: 'short',
-                hour: '2-digit',
-                minute: '2-digit',
-              })}
-            </span>
-            <Cell>{r.actor_email}</Cell>
-            <Cell mono>{r.entity_type}</Cell>
-            <span style={pill(r.action === 'archive' ? 'neg' : r.action === 'create' ? 'pos' : 'muted')}>
-              {r.action}
-            </span>
-            <Cell>
-              {r.field_changed
-                ? `${r.field_changed}: ${r.old_value ?? '—'} → ${r.new_value ?? '—'}`
-                : 'record created'}
-            </Cell>
-          </div>
-        ))}
-      </div>
-      )}
-      <span className="epi-scroll-hint">Swipe sideways to see all columns →</span>
+      <AuditLogGroups groups={groups} />
     </>
   )
 }

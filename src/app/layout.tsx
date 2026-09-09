@@ -17,8 +17,8 @@ const mono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Employee Tracking — LD Silk Mills',
-  description: 'Employee performance tracking for LD Silk Mills',
+  title: 'Employee Tracking',
+  description: 'Record recognitions and goofups, and see who needs attention.',
   robots: { index: false, follow: false },
 }
 

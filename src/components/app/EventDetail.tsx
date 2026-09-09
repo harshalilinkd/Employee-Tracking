@@ -3,9 +3,10 @@
 import { useEffect, useMemo, useState, type CSSProperties } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { AlertTriangle, Archive, Check, Loader2, Pencil, X } from 'lucide-react'
+import { AlertTriangle, Archive, Check, Loader2, Pencil, Trash2, X } from 'lucide-react'
 import { EventAttachments } from './EventAttachments'
 import { createClient } from '@/lib/supabase/client'
+import { EventHistory } from './EventHistory'
 import { iconStyle, pill } from '@/lib/design'
 import { fmtFull } from '@/lib/format'
 import {
@@ -58,21 +59,26 @@ const todayIso = () => {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
+export type DetailMode = 'view' | 'edit' | 'archive'
+
 export function EventDetail({
   event,
   close,
   categories,
   currentAppUserId,
   isAdmin,
+  initialMode = 'view',
 }: {
   event: DetailEvent
   close: () => void
   categories: Category[]
   currentAppUserId: string
   isAdmin: boolean
+  /** The ledger's row menu opens straight into a mode. */
+  initialMode?: DetailMode
 }) {
   const router = useRouter()
-  const [mode, setMode] = useState<'view' | 'edit' | 'archive'>('view')
+  const [mode, setMode] = useState<DetailMode>(initialMode)
   const [title, setTitle] = useState(event.title)
   const [description, setDescription] = useState(event.description ?? '')
   const [date, setDate] = useState(event.event_date)
@@ -151,6 +157,25 @@ export function EventDetail({
     setSaving(false)
 
     if (err) return setError(friendly(err.message))
+    router.refresh()
+    close()
+  }
+
+  // Deletes on the spot, as asked — no confirmation step.
+  async function destroy() {
+    setError('')
+    setSaving(true)
+    const supabase = createClient()
+    const { error: err } = await supabase.from('performance_events').delete().eq('id', event.id)
+    setSaving(false)
+
+    if (err) {
+      return setError(
+        err.message.includes('row-level security') || err.message.includes('violates')
+          ? 'Only Super Admin and Management can permanently delete a record.'
+          : err.message,
+      )
+    }
     router.refresh()
     close()
   }
@@ -451,12 +476,18 @@ export function EventDetail({
               its own — the question "what proof is there" is only ever asked
               while looking at the record. */}
           {mode === 'view' ? (
-            <EventAttachments
-              eventId={event.id}
-              canUpload={canEdit}
-              currentAppUserId={currentAppUserId}
-              isAdmin={isAdmin}
-            />
+            <>
+              <EventAttachments
+                eventId={event.id}
+                canUpload={canEdit}
+                currentAppUserId={currentAppUserId}
+                isAdmin={isAdmin}
+              />
+              {/* Every correction to this record, in one place. The system-wide
+                  log still lives in Settings; this is the same rows scoped to
+                  the record you are looking at. */}
+              <EventHistory eventId={event.id} />
+            </>
           ) : null}
         </div>
 
@@ -541,6 +572,29 @@ export function EventDetail({
                     <Archive size={14} /> Archive
                   </button>
                 </>
+              ) : null}
+              {isAdmin ? (
+                <button
+                  onClick={destroy}
+                  disabled={saving}
+                  title="Permanently delete — Super Admin and Management only"
+                  style={{
+                    height: '40px',
+                    padding: '0 14px',
+                    borderRadius: '10px',
+                    background: 'var(--epi-red-bg)',
+                    border: '1px solid var(--epi-red-bd)',
+                    color: 'var(--epi-red)',
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '7px',
+                  }}
+                >
+                  <Trash2 size={14} /> Delete
+                </button>
               ) : null}
             </>
           ) : (

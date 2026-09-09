@@ -29,10 +29,17 @@
   --epi-elev: #ffffff;
   --epi-raised: #f2f7f9;
 
-  --epi-fg: #0e2b26;
-  --epi-fg-strong: #0a201c;
-  --epi-fg-2: #52706a;
-  --epi-fg-3: #8298a0;
+  /* Black, not tinted.
+     These were a desaturated teal family carried over from the design
+     canvas. On white, --epi-fg-2 (#52706a) came out olive at 13px and
+     --epi-fg-3 (#8298a0) measured 3.4:1 — under the 4.5:1 minimum, which
+     is why table text read as washed out rather than as text.
+     The three tiers stay so hierarchy still works, but all of them are
+     now neutral and well past AA: 21:1, 16:1 and 9:1 on white. */
+  --epi-fg: #000000;
+  --epi-fg-strong: #000000;
+  --epi-fg-2: #1a1a1a;
+  --epi-fg-3: #454545;
 
   --epi-border: #e6eef1;
   --epi-border-2: #d5e2e7;
@@ -1564,7 +1571,7 @@ body {
     grid-column: 2;
     justify-self: end;
     font-size: 11px;
-    color: #6b7a77;
+    color: #3d3d3d;
   }
   .epi-doc-table > div > span:nth-child(2) {
     grid-column: 1;
@@ -1587,7 +1594,7 @@ body {
     grid-column: 1 / -1;
     white-space: normal !important;
     font-size: 11px;
-    color: #6b7a77;
+    color: #3d3d3d;
   }
   /* The "RECORDED BY" column header is gone, so the value labels itself. */
   .epi-doc-table > div > span:nth-child(6)::before {
@@ -2109,5 +2116,25 @@ body {
   .epi-signal-stats > div {
     min-width: 0;
     flex: 1 1 30%;
+  }
+}
+
+
+/* Settings tabs.
+   Three signals mark the selected one — weight, a teal tint, and a 3px
+   underline — because any single one of them is easy to miss in a row of
+   six, and colour alone stopped working once the text palette went black. */
+.epi-settings-tab:hover {
+  text-decoration: none;
+}
+.epi-settings-tab:not(.epi-tab-active):hover {
+  background: var(--epi-hover) !important;
+  color: var(--epi-fg) !important;
+}
+
+@media (max-width: 767px) {
+  .epi-settings-tab {
+    font-size: 14.5px !important;
+    padding: 10px 12px !important;
   }
 }

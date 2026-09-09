@@ -1,30 +1,26 @@
 # Deploy — Employee Tracking
 
-Do cheezein karni hain: **(A) Vercel pe live karna**, **(B) Google login chalu karna**.
-Dono me kuch steps sirf aap kar sakte hain (aapke GitHub / Vercel / Google account chahiye).
+Teen cheezein: **(A) Vercel pe live karna**, **(B) Google login chalu karna**,
+**(C) database migrations chalana**. Kuch steps sirf aap kar sakte hain
+(aapke Vercel / Google / Supabase account chahiye).
 
-Code taraf ka kaam ho chuka hai — repo ready hai, build clean hai, aur OAuth callback
-Vercel ke proxy ke liye fix kar diya gaya hai.
+Code ka kaam ho chuka hai — build clean hai aur OAuth callback fix hai.
 
 ---
 
 ## A. Vercel pe deploy
 
-### 1. GitHub pe code daalein
+### 1. GitHub — ho chuka hai
 
-<https://github.com/new> → naya **private** repo banayein, naam `employee-tracking`.
-Repo banane ke baad terminal me (project folder me):
+Repo already bana hua hai aur code push ho chuka hai:
 
-```bash
-git remote add origin https://github.com/<aapka-username>/employee-tracking.git
-git push -u origin main
-```
+<https://github.com/harshalilinkd/Employee-Tracking>
 
-`.env.local` commit **nahi** hoga — `.gitignore` me hai, checked.
+`.env.local` commit **nahi** hota — `.gitignore` me hai, checked.
 
 ### 2. Vercel pe import karein
 
-<https://vercel.com/new> → GitHub connect karein → `employee-tracking` repo **Import**.
+<https://vercel.com/new> → GitHub connect karein → **Employee-Tracking** repo **Import**.
 Framework Next.js apne aap detect ho jayega. Abhi **Deploy dabane se pehle** step 3 karein.
 
 ### 3. Environment Variables daalein — ye sabse zaroori step hai
@@ -55,6 +51,61 @@ Supabase → **Authentication → URL Configuration**:
   - `http://localhost:3000/auth/callback` *(local kaam karta rahe isliye)*
 
 Ye na kiya to login ke baad "redirect not allowed" error aayega.
+
+---
+
+## C. Database migrations — ye bhool gaye to app error dega
+
+Vercel se code deploy hota hai, **database nahi**. Migrations aapko Supabase me
+chalane padte hain, warna screen pe error aayega jaise
+*"Could not find the table … in the schema cache"*.
+
+Supabase → **SQL Editor** → file ka content paste karein → **Run**.
+Sab idempotent hain, dobara chalane se kuch nahi bigadta.
+
+| File | Kya karta hai | Status |
+|---|---|---|
+| `supabase/migrations/009_observers.sql` | Observers master + `observed_by` column | chal chuka |
+| `supabase/migrations/010_event_delete.sql` | Event permanently delete karne ki permission | chal chuka |
+| `supabase/migrations/011_audit_one_row_per_action.sql` | Audit ek row per save + per-record history | **check karein** |
+
+### Go-live se pehle — trial data hatana
+
+`docs/go-live-reset.sql` chalayein. Ye saare test events, attachments, audit log aur
+reference counter clear kar deta hai, lekin **employees, departments, categories,
+observers aur logins rehne deta hai**. Uske baad pehla asli record `PE-2026-0001` se
+shuru hoga.
+
+> Ye file `docs/` me hai, `supabase/migrations/` me **nahi** — kyunki migration har
+> naye environment pe dobara chalti hai aur ye uska data mita deti.
+
+Backup pehle le lein: Supabase → **Database → Backups**. Iska undo nahi hai.
+
+---
+
+## D. Email + password login
+
+Login page pe dono option hain — Google aur email+password. Password wala tab
+chalega jab har user ka password set ho.
+
+1. Supabase → **Authentication → Providers → Email** enable hona chahiye.
+2. Service role key lein: Supabase → **Settings → API → service_role**.
+3. Terminal me (project folder me):
+
+```powershell
+$env:SUPABASE_SERVICE_ROLE_KEY="eyJ..."
+node scripts/set-passwords.mjs           # preview — kuch change nahi hota
+node scripts/set-passwords.mjs --apply    # ab set karta hai
+```
+
+Password har user ka **first name + 123** hota hai — "Harshali Bhopale" →
+`Harshali123`. Script preview me poori list dikhata hai.
+
+> Service role key RLS bypass karta hai. Use kisi file me save na karein, chat me
+> paste na karein, aur kaam hone ke baad terminal band kar dein.
+
+Google login isse band nahi hota — dono saath chalte hain. Pehli baar login ke
+baad sabko password badalne ko kahein.
 
 ---
 
@@ -115,7 +166,11 @@ Ye database me enforce hai (RLS), sirf screen pe chhupaya nahi gaya.
 - [ ] Login page khul raha hai
 - [ ] Email + password se login ho raha hai
 - [ ] "Continue with Google" se login ho raha hai
-- [ ] Dashboard pe data dikh raha hai (51 employees)
+- [ ] Dashboard khul raha hai (51 employees)
+- [ ] Performance page pe record add ho raha hai
+- [ ] Row ke **⋮ menu** se View / Edit / Archive / Delete chal raha hai
+- [ ] Settings → **Observers** me naam add ho raha hai (011 chala hai to hi)
+- [ ] Settings → **Audit log** record-wise group dikha raha hai
 - [ ] Reports → **Download PDF** ek page ka aa raha hai
 - [ ] Mobile pe kholke dekh lein
 

@@ -339,3 +339,131 @@ spec describes.
 
 This closes the previously-flagged blocker "department companies are unset" — company-level
 grouping is no longer needed, because there is only one company.
+
+---
+
+## Impact is a goofup scale, not an event scale
+
+Raghav: *"if user selected positive contribution then why we showing impact field."*
+
+Impact reads Low / Medium / High / Critical with hints like "cost money, time or a
+customer". None of that describes a recognition. The field is now offered only when
+recording a goofup, and renders as an em dash everywhere a positive is read back.
+
+`hasImpact()` and `impactLabel()` in `src/lib/types.ts` are the single source of that
+rule; every screen asks them rather than testing `type === 'goofup'` inline, so the
+record form and the six read surfaces cannot drift apart.
+
+Two consequences, both deliberate:
+
+- **Positives store `medium`.** The column is `NOT NULL` and the signal engine multiplies
+  every event by its severity weight, so a positive must carry some grade. Fixing it at the
+  neutral middle makes `recognition_load` a straight decayed count instead of something a
+  recorder could inflate by grading a compliment "critical". Existing positives keep whatever
+  they were saved with — not backfilled.
+- **Impact Mix counts goofups only.** Counting all events would pile every recognition into
+  the Medium slice and make the chart meaningless.
+
+The impact *filter* disappears once the type filter excludes goofups, and both server pages
+ignore a stale `?sev=` in that case, so a bookmarked URL cannot return an unexplained empty list.
+
+---
+
+## Observed by, separate from recorded by
+
+Raghav: *"create dropdown master for who observed this from settings."*
+
+The field showing the signed-in user read-only was `recorded_by`, which could not become a
+dropdown: `pe_insert` pins it to `current_app_user_id()` and `pe_snapshot_and_freeze()` raises
+on any change. It answers "who typed this in" and has to stay unforgeable.
+
+"Who witnessed it" is a different fact — the Executive Assistant enters what the MD saw — so
+`009` adds `observed_by`, nullable, `ON DELETE SET NULL`, with its own master list.
+
+The master is **not** linked to `employees`. Raghav: *"observers are MD not employee so we will
+not get them in our employee database."* That table holds the staff being assessed; the people
+doing the assessing are not in it. An `employee_id` foreign key would have been null on every
+row, so it was dropped from the migration before it ran.
+
+Deactivating an observer hides it from the dropdown and keeps every past record pointing at it.
+Deleting is blocked in the UI while any record names them, because `SET NULL` would silently
+blank the observer on those records.
+
+---
+
+## Permanent delete: added, and kept narrow
+
+Raghav: *"its showing only archive option i want delete also."*
+
+Until `010` there was no `DELETE` policy on `performance_events` at all, so deletion was
+impossible by design. It now exists, with three guards:
+
+1. **Super Admin and MD only.** Deliberately narrower than `pe_update`, which also lets a
+   recorder correct their own entry within 48 hours. Fixing a typo and destroying evidence are
+   not the same act and do not share a permission.
+2. **The deletion is audited.** The audit trigger only fired on insert and update, so a hard
+   delete would have left no trace; `010` adds `delete` to `audit_action` and a DELETE branch
+   that records what the row was. `audit_log.entity_id` has no foreign key to the events table,
+   so the trail survives the row.
+3. **Attachments cascade.** The storage objects behind them are not removed — that is a
+   separate cleanup.
+
+Raghav then asked for the confirmation step to go: *"dont ask for confirmation."* The
+type-the-reference gate was removed and delete now fires straight from the row menu. The row
+dims while the request is in flight and a failure surfaces as a named error, because without
+that a refused delete looks identical to a successful one.
+
+---
+
+## The audit log is grouped by record
+
+Raghav: *"dont save unnecessary repeatative entries … all important changes under that one
+event will store under that."*
+
+Two separate problems.
+
+**Volume.** The trigger looped over every changed column and wrote a row each, so one save
+touching three fields produced three entries at the same second by the same person. `011`
+writes one row per action: `field_changed` lists the fields, `old_value` / `new_value` hold
+JSON of only the changed keys. JSON rather than prose because a value containing a comma would
+otherwise be indistinguishable from the separator. `updated_at`, `created_at` and `sort_order`
+are skipped outright, and a save that changed nothing meaningful now writes nothing.
+
+**Shape.** A flat chronological list answered "what happened, in order" — but the question
+people bring to this screen is about a record. Settings → Audit log now lists records and opens
+each into its history; the same timeline appears inside an event's detail panel. Records are
+resolved to names (`PE-2026-0113 — Done late`) in one query per entity type, and a deleted
+record falls back to the delete entry's own summary, marked "no longer exists".
+
+`src/lib/audit.ts` renders both the post-`011` JSON shape and pre-`011` single-field rows.
+Rewriting the existing trail to match the new format was rejected: an audit log you have edited
+is not an audit log.
+
+**One policy widened.** `audit_log_admin_read` restricted the log to Super Admin and MD, which
+would have hidden the per-record history from Executive Assistants — the people who record most
+events. `011` adds a second, narrower policy: you may read the history of a performance event
+you can already see. The Settings screen stays admin-only.
+
+---
+
+## Employee form reduced to what is actually captured
+
+Raghav: *"remove all this unnecessary fields — Employee code, Joining date, Phone."*
+
+The add/edit form now captures name, department, designation, reports-to, status and an optional
+email, and the Settings table shows exactly those columns. Code, joining date and phone stay in
+the database and keep their values for the 49 employees already imported — the update payload
+simply omits those keys, so editing someone through the form does not blank them. New employees
+have none, so the profile and the printed report show an em dash where they would have appeared.
+
+---
+
+## Branding: the product, not the company
+
+The sidebar read `LD | SILK MILLS`. Raghav: *"our app name is Employee Tracking."* The wordmark,
+the browser title and the dashboard footer now carry the product name, and the sidebar mark is
+the same diverging-bar figure as the favicon so the tab and the app share one identity.
+
+The company name is kept where it is the company speaking rather than the software: the printed
+report masthead, the `preparedBy` line, and the login page. A report an MD signs and hands to an
+employee is company letterhead.

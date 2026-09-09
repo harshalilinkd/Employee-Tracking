@@ -1044,9 +1044,9 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           color: 'var(--epi-fg-3)',
         }}
       >
-        <span style={{ fontWeight: 700, letterSpacing: '0.14em' }}>LD SILK MILLS</span>
+        <span style={{ fontWeight: 700, letterSpacing: '0.14em' }}>EMPLOYEE TRACKING</span>
         <span style={{ color: 'var(--epi-border-3)' }}>|</span>
-        <span>Employee Performance</span>
+        <span>Performance overview</span>
         <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '6px' }}>
           <RefreshCw size={11} />
           Last updated {fmtFull(new Date())}

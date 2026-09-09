@@ -1,0 +1,833 @@
+<title>Employee Tracking Handbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap">
+
+<style>
+  /* ---- Light is the reference palette. Neutrals carry a green bias so they
+         read as chosen against the teal, not as inherited grey. ---- */
+  :root {
+    --ink:        #0e2b26;
+    --ink-2:      #46635c;
+    --ink-3:      #7d968f;
+    --teal:       #0e7c6b;
+    --teal-deep:  #0a3d34;
+    --teal-wash:  #e2f1ec;
+    --ground:     #f3f7f5;
+    --paper:      #ffffff;
+    --line:       #dce7e3;
+    --line-soft:  #eaf1ee;
+
+    --good:       #16a37a;
+    --good-wash:  #e2f6ef;
+    --warn:       #b9791a;
+    --warn-wash:  #fdf3e2;
+    --bad:        #cf4553;
+    --bad-wash:   #fdeaec;
+    --info:       #2f6fd0;
+    --info-wash:  #e9f1fd;
+    --null-wash:  #eef2f1;
+
+    --shadow:     0 1px 2px rgba(14,43,38,.05), 0 8px 24px rgba(14,43,38,.06);
+
+    --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+    --sans:  "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono:  "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink:        #e4efeb;
+      --ink-2:      #a2bab3;
+      --ink-3:      #77948c;
+      --teal:       #58c9ad;
+      --teal-deep:  #7fd8c1;
+      --teal-wash:  rgba(88,201,173,.13);
+      --ground:     #071613;
+      --paper:      #0e2320;
+      --line:       #1d3b35;
+      --line-soft:  #17302b;
+
+      --good:       #5ccfa4;
+      --good-wash:  rgba(92,207,164,.13);
+      --warn:       #e0b45f;
+      --warn-wash:  rgba(224,180,95,.13);
+      --bad:        #ef858e;
+      --bad-wash:   rgba(239,133,142,.13);
+      --info:       #79abee;
+      --info-wash:  rgba(121,171,238,.13);
+      --null-wash:  rgba(255,255,255,.05);
+
+      --shadow:     0 1px 2px rgba(0,0,0,.4);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ink:        #e4efeb;
+    --ink-2:      #a2bab3;
+    --ink-3:      #77948c;
+    --teal:       #58c9ad;
+    --teal-deep:  #7fd8c1;
+    --teal-wash:  rgba(88,201,173,.13);
+    --ground:     #071613;
+    --paper:      #0e2320;
+    --line:       #1d3b35;
+    --line-soft:  #17302b;
+
+    --good:       #5ccfa4;
+    --good-wash:  rgba(92,207,164,.13);
+    --warn:       #e0b45f;
+    --warn-wash:  rgba(224,180,95,.13);
+    --bad:        #ef858e;
+    --bad-wash:   rgba(239,133,142,.13);
+    --info:       #79abee;
+    --info-wash:  rgba(121,171,238,.13);
+    --null-wash:  rgba(255,255,255,.05);
+
+    --shadow:     0 1px 2px rgba(0,0,0,.4);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---------- masthead ---------- */
+  .mast {
+    background: linear-gradient(150deg, var(--teal-deep) 0%, #06231e 100%);
+    color: #fff;
+    padding: 52px 32px 44px;
+  }
+  .mast-in { max-width: 1140px; margin: 0 auto; }
+  .wordmark {
+    display: flex; align-items: center; gap: 11px;
+    font-size: 13px; letter-spacing: .18em; text-transform: uppercase;
+    color: rgba(255,255,255,.72);
+  }
+  .wordmark b { font-size: 19px; letter-spacing: .02em; color: #fff; font-weight: 700; }
+  .wordmark span[aria-hidden] { width: 1px; height: 17px; background: rgba(255,255,255,.32); }
+  .mast h1 {
+    font-family: var(--serif);
+    font-size: clamp(34px, 6vw, 50px);
+    font-weight: 600;
+    line-height: 1.08;
+    letter-spacing: -.02em;
+    text-wrap: balance;
+    margin: 22px 0 0;
+    color: #fff;
+  }
+  .mast p {
+    max-width: 60ch; margin: 16px 0 0;
+    font-size: 17px; color: rgba(255,255,255,.8);
+  }
+  .mast-facts {
+    display: flex; flex-wrap: wrap; gap: 10px 30px;
+    margin-top: 30px; padding-top: 22px;
+    border-top: 1px solid rgba(255,255,255,.16);
+    font-family: var(--mono); font-size: 12.5px;
+    color: rgba(255,255,255,.62);
+  }
+  .mast-facts b { color: #fff; font-weight: 500; }
+
+  /* ---------- shell ---------- */
+  .shell {
+    max-width: 1140px; margin: 0 auto;
+    padding: 40px 32px 96px;
+    display: grid; grid-template-columns: 216px minmax(0, 1fr);
+    gap: 56px; align-items: start;
+  }
+
+  nav.toc { position: sticky; top: 28px; }
+  nav.toc .lbl {
+    font-size: 10.5px; font-weight: 600; letter-spacing: .15em;
+    text-transform: uppercase; color: var(--ink-3);
+    padding-bottom: 12px; margin-bottom: 4px;
+    border-bottom: 1px solid var(--line);
+  }
+  nav.toc a {
+    display: block; padding: 7px 0;
+    font-size: 14px; color: var(--ink-2); text-decoration: none;
+    border-left: 2px solid transparent; padding-left: 11px; margin-left: -13px;
+  }
+  nav.toc a:hover { color: var(--teal); border-left-color: var(--teal); }
+  nav.toc a:focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; border-radius: 3px; }
+
+  main { min-width: 0; }
+  section + section { margin-top: 52px; }
+  section { scroll-margin-top: 24px; }
+
+  h2 {
+    font-family: var(--serif);
+    font-size: 27px; font-weight: 600; letter-spacing: -.015em;
+    line-height: 1.2; text-wrap: balance;
+    margin: 0 0 6px;
+    padding-bottom: 12px; border-bottom: 2px solid var(--teal);
+    display: inline-block;
+  }
+  h3 {
+    font-family: var(--sans);
+    font-size: 16.5px; font-weight: 600; letter-spacing: -.005em;
+    margin: 32px 0 8px;
+  }
+  p { margin: 12px 0; max-width: 66ch; }
+  main ul, main ol { max-width: 66ch; padding-left: 20px; }
+  main li { margin: 7px 0; }
+  a { color: var(--teal); }
+
+  code {
+    font-family: var(--mono); font-size: .88em;
+    background: var(--null-wash); padding: 2px 6px; border-radius: 4px;
+  }
+  strong { font-weight: 600; }
+
+  /* ---------- cards & callouts ---------- */
+  .card {
+    background: var(--paper); border: 1px solid var(--line);
+    border-radius: 12px; padding: 20px 22px; box-shadow: var(--shadow);
+    margin: 20px 0;
+  }
+  .note {
+    border-left: 3px solid var(--teal);
+    background: var(--teal-wash);
+    border-radius: 0 10px 10px 0;
+    padding: 15px 18px; margin: 20px 0;
+    max-width: 66ch;
+  }
+  .note.warn { border-left-color: var(--warn); background: var(--warn-wash); }
+  .note.stop { border-left-color: var(--bad); background: var(--bad-wash); }
+  .note p { margin: 0; max-width: none; }
+  .note p + p { margin-top: 9px; }
+  .note .head {
+    display: block; font-size: 11px; font-weight: 600;
+    letter-spacing: .13em; text-transform: uppercase;
+    margin-bottom: 5px; color: var(--teal);
+  }
+  .note.warn .head { color: var(--warn); }
+  .note.stop .head { color: var(--bad); }
+
+  /* ---------- tables ---------- */
+  .scroll { overflow-x: auto; margin: 20px 0; }
+  table {
+    width: 100%; border-collapse: collapse;
+    background: var(--paper); border: 1px solid var(--line);
+    border-radius: 10px; overflow: hidden;
+    font-size: 14.5px; min-width: 460px;
+  }
+  th, td {
+    text-align: left; padding: 11px 14px;
+    border-bottom: 1px solid var(--line-soft);
+    vertical-align: top;
+  }
+  th {
+    font-size: 10.5px; font-weight: 600; letter-spacing: .11em;
+    text-transform: uppercase; color: var(--ink-2);
+    background: var(--null-wash);
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+  }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.num, th.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  .yes { color: var(--good); font-weight: 600; }
+  .no  { color: var(--ink-3); }
+
+  /* ---------- chips ---------- */
+  .chip {
+    display: inline-block; padding: 2px 9px; border-radius: 999px;
+    font-size: 12px; font-weight: 600; white-space: nowrap;
+  }
+  .chip.attention { background: var(--bad-wash);  color: var(--bad); }
+  .chip.watch     { background: var(--warn-wash); color: var(--warn); }
+  .chip.stable    { background: var(--info-wash); color: var(--info); }
+  .chip.strong    { background: var(--good-wash); color: var(--good); }
+  .chip.none      { background: var(--null-wash); color: var(--ink-3); }
+
+  /* ---------- the recording sequence — numbered because it IS a sequence ---------- */
+  ol.steps { list-style: none; padding: 0; margin: 22px 0; counter-reset: s; max-width: none; }
+  ol.steps > li {
+    counter-increment: s; position: relative;
+    padding: 0 0 22px 46px; margin: 0;
+    border-left: 1px solid var(--line);
+  }
+  ol.steps > li:last-child { border-left-color: transparent; padding-bottom: 0; }
+  ol.steps > li::before {
+    content: counter(s, decimal-leading-zero);
+    position: absolute; left: -14px; top: -2px;
+    width: 28px; height: 28px; border-radius: 999px;
+    background: var(--paper); border: 1px solid var(--line);
+    color: var(--teal); font-family: var(--mono); font-size: 11px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+  }
+  ol.steps h3 { margin: 0 0 4px; }
+  ol.steps p { margin: 0; }
+
+  /* ---------- screen tour — not a sequence, so not numbered ---------- */
+  .screens { display: grid; gap: 14px; margin: 22px 0; }
+  .screen {
+    background: var(--paper); border: 1px solid var(--line);
+    border-radius: 12px; padding: 18px 20px; box-shadow: var(--shadow);
+  }
+  .screen h3 { margin: 0 0 3px; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .screen h3 .who {
+    font-family: var(--mono); font-size: 11px; font-weight: 500;
+    color: var(--ink-3); letter-spacing: .02em;
+  }
+  .screen p { margin: 6px 0 0; font-size: 15px; color: var(--ink-2); }
+  .screen ul { margin: 10px 0 0; font-size: 14.5px; color: var(--ink-2); }
+
+  .foot {
+    margin-top: 64px; padding-top: 22px; border-top: 1px solid var(--line);
+    font-size: 13px; color: var(--ink-3); max-width: none;
+  }
+
+  @media (max-width: 880px) {
+    .mast { padding: 38px 20px 34px; }
+    .shell { grid-template-columns: 1fr; gap: 26px; padding: 26px 20px 72px; }
+    nav.toc { position: static; }
+    nav.toc .links { display: flex; flex-wrap: wrap; gap: 2px 16px; }
+    nav.toc a { border-left: 0; padding-left: 0; margin-left: 0; }
+    section + section { margin-top: 40px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+
+<header class="mast">
+  <div class="mast-in">
+    <div class="wordmark"><b>LD</b><span aria-hidden="true"></span>Silk Mills</div>
+    <h1>Employee Tracking Handbook</h1>
+    <p>
+      How the performance system works, what each screen is for, and the rules it
+      enforces whether or not you agree with them. Written for Management and
+      Executive Assistants.
+    </p>
+    <div class="mast-facts">
+      <span><b>90-day</b> rolling window</span>
+      <span><b>3</b> events before a signal</span>
+      <span><b>1 / 2 / 3.5 / 6</b> impact weights</span>
+      <span><b>48 hrs</b> to fix your own entry</span>
+      <span><b>Invite only</b> — no open sign-up</span>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="toc" aria-label="Contents">
+    <div class="lbl">Contents</div>
+    <div class="links">
+      <a href="#what">What this is</a>
+      <a href="#access">Your access</a>
+      <a href="#screens">The screens</a>
+      <a href="#record">Recording an event</a>
+      <a href="#fixing">Fixing an entry</a>
+      <a href="#signal">The signal</a>
+      <a href="#bands">Reading the bands</a>
+      <a href="#people">Adding people</a>
+      <a href="#removing">Removing people</a>
+      <a href="#report">The MD report</a>
+      <a href="#audit">The audit trail</a>
+      <a href="#wont">What it won't do</a>
+    </div>
+  </nav>
+
+  <main>
+    <section id="what">
+      <h2>What this is</h2>
+      <p>
+        A record of what people actually did — recognition when someone does well,
+        a <strong>goofup</strong> when something goes wrong — so a review conversation
+        rests on dated entries rather than on whoever remembers loudest.
+      </p>
+      <p>
+        Everything on every screen is built from those entries. Nothing is estimated,
+        inferred, or filled in. If nobody recorded it, the system does not know it
+        happened and will not pretend otherwise.
+      </p>
+      <div class="note">
+        <span class="head">The one habit that matters</span>
+        <p>
+          The system is only as good as what gets entered. Two minutes at the time
+          beats an hour of recall at appraisal. An employee with no entries shows
+          <span class="chip none">No signal</span> — not a good score.
+        </p>
+      </div>
+    </section>
+
+    <section id="access">
+      <h2>Your access</h2>
+      <p>
+        Management and Executive Assistants both record performance, but they are
+        <strong>not</strong> the same account. An Executive Assistant records and fixes
+        their own entries; changing the system itself, correcting someone else's entry,
+        and reading the audit log stay with Super Admin and Management.
+      </p>
+      <div class="scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Can they…</th>
+              <th>Super&nbsp;Admin &amp; MD</th>
+              <th>Exec Assistant</th>
+              <th>HR</th>
+              <th>Dept Manager</th>
+              <th>Viewer</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>See every employee</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="no">Own dept</td><td class="no">Own dept</td></tr>
+            <tr><td>Record performance</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="no">No</td><td class="no">No</td><td class="no">No</td></tr>
+            <tr><td>Fix their own entry, first 48 hours</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="no">—</td><td class="no">—</td><td class="no">—</td></tr>
+            <tr><td>Edit anyone's entry, any time</td><td class="yes">Yes</td><td class="no">No</td><td class="no">No</td><td class="no">No</td><td class="no">No</td></tr>
+            <tr><td>Delete an entry permanently</td><td class="yes">Yes</td><td class="no">No</td><td class="no">No</td><td class="no">No</td><td class="no">No</td></tr>
+            <tr><td>Add &amp; edit employees</td><td class="yes">Yes</td><td class="no">No</td><td class="yes">Yes</td><td class="no">No</td><td class="no">No</td></tr>
+            <tr><td>Manage who can sign in</td><td class="yes">Yes</td><td class="no">No</td><td class="no">No</td><td class="no">No</td><td class="no">No</td></tr>
+            <tr><td>Categories, observers, settings</td><td class="yes">Yes</td><td class="no">No</td><td class="no">No</td><td class="no">No</td><td class="no">No</td></tr>
+            <tr><td>See the full audit log</td><td class="yes">Yes</td><td class="no">No</td><td class="no">No</td><td class="no">No</td><td class="no">No</td></tr>
+            <tr><td>See one record's own history</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="no">Own dept</td><td class="no">Own dept</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note">
+        <span class="head">Enforced in the database</span>
+        <p>
+          A Department Manager does not merely have rows hidden from their screen —
+          the database refuses to return them. Nobody can reach another department's
+          data by any route, including by calling the API directly.
+        </p>
+      </div>
+    </section>
+
+    <section id="screens">
+      <h2>The screens</h2>
+      <div class="screens">
+        <div class="screen">
+          <h3>Dashboard <span class="who">everyone</span></h3>
+          <p>What needs attention right now, for the date range you pick at the top right.</p>
+          <ul>
+            <li><strong>Four cards</strong> — headcount, goofups, who needs attention, who was recognised.</li>
+            <li><strong>Management Attention</strong> — only people who need action. If it is empty, that is genuinely good news.</li>
+            <li><strong>Quick Insights</strong> — each line pairs a number with what to do about it, and links to the filtered list.</li>
+            <li><strong>Impact Mix</strong> — how serious the recorded goofups are. Recognitions are not counted here; they carry no impact grade.</li>
+            <li><strong>Issue heat</strong> — weighted goofup load per person per month. Darker is heavier.</li>
+          </ul>
+          <p>
+            Lists say how much they are hiding. <em>Showing 6 of 23</em> with a
+            <strong>Show all</strong> button — never a silent top-six.
+          </p>
+        </div>
+
+        <div class="screen">
+          <h3>Performance <span class="who">everyone</span></h3>
+          <p>The full ledger — every entry, searchable and filterable. This is where you go to check a specific claim.</p>
+          <ul>
+            <li>Filter by employee, department, type, category, impact or period. The impact filter disappears when you filter to positive contributions, because those carry no impact.</li>
+            <li><strong>Saved views</strong> keep a filter combination you use often.</li>
+            <li><strong>Export CSV</strong> gives you exactly the rows currently filtered.</li>
+            <li>Each row has a <code>⋮</code> menu — view, edit, archive, delete.</li>
+          </ul>
+        </div>
+
+        <div class="screen">
+          <h3>Reports <span class="who">everyone</span></h3>
+          <p>One employee, one period, formatted to print and sign. Covered in detail below.</p>
+        </div>
+
+        <div class="screen">
+          <h3>Settings <span class="who">Super Admin &amp; MD</span></h3>
+          <ul>
+            <li><strong>Employee database</strong> — add, edit, deactivate. <em>Edit rows</em> lets you change several people at once without opening a form. <em>Update emails</em> takes a pasted list rather than fifty forms.</li>
+            <li><strong>Performance categories</strong> — what people pick from when recording. Goofup categories carry a default impact; positive ones do not.</li>
+            <li><strong>Observers</strong> — the names offered under <em>Who observed this?</em> Kept separate from the employee database, because the people who witness events are usually not the people being assessed.</li>
+            <li><strong>User access</strong> — who can sign in, and as what.</li>
+            <li><strong>Audit log</strong> — every change, grouped by the record it happened to.</li>
+            <li><strong>General</strong> — the numbers behind the signal. Editable, but read the warning there first.</li>
+          </ul>
+        </div>
+
+        <div class="screen">
+          <h3>Employee profile <span class="who">everyone</span></h3>
+          <p>Click any name. Their full timeline, recognitions and goofups separately, and how their signal was reached.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="record">
+      <h2>Recording an event</h2>
+      <p>
+        Press <strong>Record Performance</strong> — top right on desktop, the middle
+        button in the bottom bar on a phone.
+      </p>
+      <ol class="steps">
+        <li>
+          <h3>Pick the person</h3>
+          <p>Type to search. Only active employees appear.</p>
+        </li>
+        <li>
+          <h3>Positive contribution, or goofup</h3>
+          <p>This decides which categories you are offered next — and whether you are asked for an impact at all.</p>
+        </li>
+        <li>
+          <h3>Choose a category</h3>
+          <p>
+            Quality Issue, Delay, Teamwork, Leadership and so on. A goofup category
+            carries a default impact, which you can override.
+          </p>
+        </li>
+        <li>
+          <h3>Set the impact — goofups only</h3>
+          <p>
+            Low, Medium, High or Critical. This is the single most consequential field
+            on the form; the weights are below. <strong>You will not see it on a positive
+            contribution</strong> — the scale grades how bad something was, which says
+            nothing about a recognition.
+          </p>
+        </li>
+        <li>
+          <h3>Say who observed it</h3>
+          <p>
+            Optional, and drawn from the Observers list in Settings. This is the person
+            who <em>saw</em> it, which is often not the person typing it in — who is
+            recorded separately and cannot be changed.
+          </p>
+        </li>
+        <li>
+          <h3>Write what happened, and save</h3>
+          <p>
+            One specific sentence. <em>"Done late — 4 days"</em> is useful in six months;
+            <em>"poor performance"</em> is not.
+          </p>
+        </li>
+      </ol>
+
+      <div class="note warn">
+        <span class="head">Two rules you will meet</span>
+        <p>
+          <strong>You cannot record against yourself.</strong> Not even as Super Admin.
+          The database refuses it.
+        </p>
+        <p>
+          <strong>You have 48 hours to fix your own entry.</strong> After that only
+          Management can change it — so history cannot be quietly rewritten weeks later.
+          Every change is logged either way.
+        </p>
+      </div>
+    </section>
+
+    <section id="fixing">
+      <h2>Fixing an entry</h2>
+      <p>
+        Every row in the ledger carries a <code>⋮</code> menu on the right. It offers
+        four things, and greys out the ones you cannot use with the reason attached —
+        so a missing option is never a mystery.
+      </p>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Action</th><th>What happens</th><th>Who</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>View</strong></td>
+              <td>The full record — description, observer, recorder, attachments, and its own change history.</td>
+              <td>Anyone who can see the record</td>
+            </tr>
+            <tr>
+              <td><strong>Edit</strong></td>
+              <td>Title, description, date, category and impact. Employee, type and who recorded it are frozen at creation.</td>
+              <td>Management any time; the recorder for 48 hours</td>
+            </tr>
+            <tr>
+              <td><strong>Archive</strong></td>
+              <td>Asks for a reason. The record leaves the ledger and stops counting toward signals, but is kept and stays readable in the audit trail.</td>
+              <td>Management any time; the recorder for 48 hours</td>
+            </tr>
+            <tr>
+              <td><strong>Delete</strong></td>
+              <td>Gone permanently, with its attachments. No confirmation step — it goes immediately.</td>
+              <td>Super Admin and MD only</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note stop">
+        <span class="head">Archive, unless it was never real</span>
+        <p>
+          <strong>Archive is the one you almost always want.</strong> It hides the record
+          and keeps the history, so if the entry is ever questioned there is still
+          something to produce.
+        </p>
+        <p>
+          <strong>Delete cannot be undone and fires on the first click.</strong> The
+          deletion itself is written to the audit log with your name — so there is a
+          record that a record was removed — but the entry itself is gone. Use it for
+          something entered in error, not for something inconvenient.
+        </p>
+      </div>
+    </section>
+
+    <section id="signal">
+      <h2>The signal</h2>
+      <p>
+        Each employee gets one word: <span class="chip strong">Strong</span>
+        <span class="chip stable">Stable</span> <span class="chip watch">Watch</span>
+        <span class="chip attention">Attention</span> <span class="chip none">No signal</span>.
+        It is <strong>not</strong> recognitions minus goofups. Three things shape it.
+      </p>
+
+      <h3>Impact is weighted</h3>
+      <p>One critical goofup outweighs six low ones. These are the current weights:</p>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Impact</th><th class="num">Weight</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td>Low</td><td class="num">1</td><td>Minor, easily corrected</td></tr>
+            <tr><td>Medium</td><td class="num">2</td><td>Noticeable, some rework</td></tr>
+            <tr><td>High</td><td class="num">3.5</td><td>Real cost to the business</td></tr>
+            <tr><td>Critical</td><td class="num">6</td><td>Serious — customer, safety or compliance</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note">
+        <span class="head">Recognitions all count the same</span>
+        <p>
+          The weights above grade goofups. A positive contribution carries no impact, so
+          every recognition counts once — nobody can lift someone's band by grading a
+          compliment "critical".
+        </p>
+      </div>
+
+      <h3>Old events fade</h3>
+      <p>
+        An event carries roughly <strong>half its weight after about a month</strong>
+        (a 45-day decay). Something from last week matters more than the same thing
+        from two months ago. Nothing older than <strong>90 days</strong> counts at all.
+      </p>
+
+      <h3>Silence is not a pass</h3>
+      <p>
+        Fewer than <strong>3 events</strong> and the system says
+        <span class="chip none">No signal</span> — never <span class="chip stable">Stable</span>.
+        Someone nobody has observed is a different problem from someone doing fine,
+        and the system refuses to confuse the two.
+      </p>
+    </section>
+
+    <section id="bands">
+      <h2>Reading the bands</h2>
+      <p>The rules are checked in this order. The first one that matches wins.</p>
+      <div class="scroll">
+        <table>
+          <thead><tr><th class="num">#</th><th>Band</th><th>Triggered when</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="num">1</td>
+              <td><span class="chip attention">Attention</span></td>
+              <td><strong>Any critical goofup at all</strong> — checked before everything else, including the 3-event minimum</td>
+            </tr>
+            <tr>
+              <td class="num">2</td>
+              <td><span class="chip none">No signal</span></td>
+              <td>Fewer than 3 events in the window</td>
+            </tr>
+            <tr>
+              <td class="num">3</td>
+              <td><span class="chip attention">Attention</span></td>
+              <td>Weighted issue load reaches 7, or 2+ overdue follow-ups</td>
+            </tr>
+            <tr>
+              <td class="num">4</td>
+              <td><span class="chip watch">Watch</span></td>
+              <td>Issue load reaches 4, or the same category repeats, or the trend drops sharply</td>
+            </tr>
+            <tr>
+              <td class="num">5</td>
+              <td><span class="chip strong">Strong</span></td>
+              <td>Recognition load reaches 6, issues stay under 3, and the trend is not falling</td>
+            </tr>
+            <tr>
+              <td class="num">6</td>
+              <td><span class="chip stable">Stable</span></td>
+              <td>Issue load under 4 and nothing overdue</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note">
+        <span class="head">Why rule 1 sits above rule 2</span>
+        <p>
+          A single critical goofup flags <span class="chip attention">Attention</span>
+          immediately, even for someone with only that one entry. Waiting for a third
+          event before surfacing a safety or compliance failure would defeat the point
+          of recording it.
+        </p>
+      </div>
+      <p>
+        Every badge explains itself. Hover it, or open the profile, and you get the
+        sentence behind the verdict — how many events, what load, what trend.
+        If it cannot be explained, it does not ship.
+      </p>
+    </section>
+
+    <section id="people">
+      <h2>Adding people</h2>
+      <h3>A new employee to track</h3>
+      <p>
+        <strong>Settings → Employee database → Add employee.</strong> Name, department,
+        designation, who they report to, status, and an optional email. They appear
+        immediately in the record form.
+      </p>
+
+      <h3>Someone who needs to sign in</h3>
+      <p><strong>Settings → User access → Give someone access.</strong> Enter their Gmail address and pick a role.</p>
+      <div class="note stop">
+        <span class="head">Invite only — this is the important one</span>
+        <p>
+          Signing in with Google does <em>not</em> grant access. Only people whose email
+          you have added here can get in. Everyone else is refused, however valid their
+          Google account.
+        </p>
+        <p>
+          Their row shows <strong>Pending</strong> until they sign in for the first time,
+          then <strong>Linked</strong>. Nothing is wrong while it says Pending.
+        </p>
+      </div>
+
+      <h3>Someone who witnesses events</h3>
+      <p>
+        <strong>Settings → Observers → Add observer.</strong> A name, and optionally a
+        note like <em>MD</em> or <em>Floor supervisor — Weaving</em>. Observers do not
+        need a login and do not need to be employees.
+      </p>
+      <p>
+        To retire one, <strong>deactivate</strong> rather than delete: it leaves the
+        dropdown while every past record still shows who observed it. The system blocks
+        deleting an observer that any record names.
+      </p>
+    </section>
+
+    <section id="removing">
+      <h2>Removing people</h2>
+      <p>Two different actions. Pick the right one.</p>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Action</th><th>What happens</th><th>Use when</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>Deactivate</strong></td>
+              <td>Removed from the record form and the dashboard. All history kept and readable. Reversible.</td>
+              <td>Almost always — someone left, or a login is no longer needed</td>
+            </tr>
+            <tr>
+              <td><strong>Delete</strong></td>
+              <td>Gone permanently. Cannot be undone.</td>
+              <td>Only a row added by mistake</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note warn">
+        <span class="head">The system will stop you</span>
+        <p>
+          <strong>An employee with any recorded event cannot be deleted.</strong> Their
+          history would be left with nobody attached to it, so the database refuses and
+          offers Deactivate instead.
+        </p>
+        <p>
+          <strong>A user who has recorded events cannot be deleted either</strong>, for
+          the same reason — their entries would lose their author. And you cannot delete
+          your own login, so you cannot lock yourself out.
+        </p>
+      </div>
+    </section>
+
+    <section id="report">
+      <h2>The MD report</h2>
+      <p>
+        <strong>Reports</strong> → pick the employee → set From and To →
+        <strong>Download PDF</strong>.
+      </p>
+      <p>
+        One page: letterhead, the person, their signal, key figures, activity by month,
+        every event in the period, and a signature block for Prepared / Reviewed /
+        Approved. <strong>Print</strong> and <strong>CSV</strong> sit beside it.
+      </p>
+      <div class="note">
+        <span class="head">Set this once in the print dialog</span>
+        <p>
+          Tick <strong>Background graphics</strong>, or the tinted panels print white.
+          Untick <strong>Headers and footers</strong> to drop the browser's date and URL.
+          Chrome remembers both.
+        </p>
+      </div>
+      <p>
+        The employee dropdown lists <strong>only people who have at least one recorded
+        event</strong>. A report on someone with no entries would be a blank page.
+      </p>
+    </section>
+
+    <section id="audit">
+      <h2>The audit trail</h2>
+      <p>
+        Every change is written by the database itself, not by the app — so it is
+        recorded even if a change is made outside this system. One save is one entry,
+        however many fields it touched.
+      </p>
+      <h3>One record at a time</h3>
+      <p>
+        Open any event and scroll to <strong>History</strong>: created, edited, archived,
+        restored, each with who, when, and every field that changed — old value to new.
+        This is the fastest answer to <em>"why does this entry say that?"</em>
+      </p>
+      <h3>Everything at once</h3>
+      <p>
+        <strong>Settings → Audit log</strong> lists <em>records</em>, not individual
+        changes. Open one to see its whole history in the same form. Search by record,
+        by person, or by type. Deleted records stay listed, marked
+        <em>no longer exists</em> — that is the point of an audit trail.
+      </p>
+      <div class="note">
+        <span class="head">What is not logged</span>
+        <p>
+          Housekeeping columns the system maintains itself, and saves that changed
+          nothing. If you open a record, change nothing and save, no entry is written.
+        </p>
+      </div>
+    </section>
+
+    <section id="wont">
+      <h2>What it won't do</h2>
+      <p>These are deliberate. Knowing them saves you hunting for a setting that does not exist.</p>
+      <ul>
+        <li><strong>It will not guess.</strong> No estimated scores, no filled gaps. Fewer than three events shows <span class="chip none">No signal</span>.</li>
+        <li><strong>It will not let you score yourself.</strong> No role can.</li>
+        <li><strong>It will not let history be quietly edited.</strong> 48 hours for your own entry, Management beyond that, and every change logged. Management can delete an entry outright — and that deletion is logged too.</li>
+        <li><strong>It will not orphan a record.</strong> Anyone with history cannot be deleted, only deactivated.</li>
+        <li><strong>It will not grade a recognition.</strong> Impact applies to goofups; a positive contribution has none to give.</li>
+        <li><strong>It will not rank people against each other.</strong> The signal describes one person against their own record, not a league table.</li>
+      </ul>
+
+      <div class="note">
+        <span class="head">If something looks wrong</span>
+        <p>
+          Check the date range first — it is the most common cause. The dashboard
+          defaults to the last 90 days, and an event outside that window will not appear
+          anywhere on the page.
+        </p>
+      </div>
+
+      <p class="foot">
+        LD Silk Mills · Employee Tracking · This guide reflects the system as configured
+        today: 90-day window, 3-event minimum, impact weights 1 / 2 / 3.5 / 6. Those
+        values live in <strong>Settings → General</strong>; if they change, the bands
+        change with them.
+      </p>
+    </section>
+  </main>
+</div>
+

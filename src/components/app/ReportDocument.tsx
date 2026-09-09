@@ -24,9 +24,9 @@ import {
  * paper. Colours are literal hex for that reason.
  */
 
-const INK = '#0d2b28'
+const INK = '#000000'
 const TEAL = '#12645a'
-const MUTED = '#6b7a77'
+const MUTED = '#3d3d3d'
 const LINE = '#e2e7e4'
 
 const TONE = {
@@ -187,7 +187,7 @@ export function ReportDocument({
                 >
                   {name}
                 </span>
-                <span style={{ display: 'block', fontSize: '14px', color: '#4a5a56', marginTop: '3px' }}>
+                <span style={{ display: 'block', fontSize: '14px', color: '#2b2b2b', marginTop: '3px' }}>
                   {designation} &nbsp;•&nbsp; {department}
                 </span>
               </span>
@@ -295,7 +295,7 @@ export function ReportDocument({
                     <Clock size={16} />
                   )}
                 </span>
-                <span style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.14em', color: '#4a5a56' }}>
+                <span style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.14em', color: '#2b2b2b' }}>
                   {k.label}
                 </span>
               </div>
@@ -316,7 +316,7 @@ export function ReportDocument({
               right={<span style={{ fontSize: '11.5px', color: MUTED }}>Events per month</span>}
             />
             <MonthChart months={months} />
-            <div style={{ display: 'flex', gap: '18px', marginTop: '12px', fontSize: '11.5px', color: '#3f4f4c' }}>
+            <div style={{ display: 'flex', gap: '18px', marginTop: '12px', fontSize: '11.5px', color: '#1a1a1a' }}>
               <Dot colour="#3d7fd4" label="Recognitions" />
               <Dot colour="#e0a52e" label="Goofups" />
             </div>
@@ -382,7 +382,7 @@ export function ReportDocument({
                 {['DATE', 'TYPE', 'EVENT', 'CATEGORY', 'IMPACT', 'RECORDED BY'].map((h) => (
                   <span
                     key={h}
-                    style={{ fontSize: '9.5px', fontWeight: 700, letterSpacing: '0.13em', color: '#5d6c69' }}
+                    style={{ fontSize: '9.5px', fontWeight: 700, letterSpacing: '0.13em', color: '#2b2b2b' }}
                   >
                     {h}
                   </span>
@@ -458,7 +458,7 @@ export function ReportDocument({
                       display: 'block',
                       fontSize: i === 0 ? '13px' : '12.5px',
                       fontWeight: i === 0 ? 700 : 400,
-                      color: i === 0 ? INK : '#485855',
+                      color: i === 0 ? INK : '#1a1a1a',
                       marginTop: i === 0 ? 0 : '6px',
                       lineHeight: 1.55,
                     }}
@@ -644,7 +644,7 @@ function Signature({
             fontSize: '9.5px',
             fontWeight: 700,
             letterSpacing: '0.14em',
-            color: '#5d6c69',
+            color: '#2b2b2b',
           }}
         >
           {role}

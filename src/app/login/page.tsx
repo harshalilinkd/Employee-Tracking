@@ -44,11 +44,11 @@ function Lockup({ dark }: { dark?: boolean }) {
           letterSpacing: '-0.022em',
           lineHeight: 1.1,
           whiteSpace: 'nowrap',
-          color: dark ? '#F2F7F5' : '#0e2b26',
+          color: dark ? '#F2F7F5' : '#000000',
         }}
       >
         Employee{' '}
-        <span style={{ fontWeight: 400, color: dark ? 'rgba(242,247,245,0.62)' : '#52706a' }}>Tracking</span>
+        <span style={{ fontWeight: 400, color: dark ? 'rgba(242,247,245,0.62)' : '#1a1a1a' }}>Tracking</span>
       </span>
     </div>
   )
@@ -67,7 +67,7 @@ export default async function LoginPage({
       style={{
         minHeight: '100vh',
         background: 'radial-gradient(1200px 620px at 12% -10%, #dfeeea 0%, transparent 60%), linear-gradient(160deg,#f4f8fa 0%,#e4edf0 100%)',
-        color: '#0e2b26',
+        color: '#000000',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -245,7 +245,7 @@ export default async function LoginPage({
         </section>
       </div>
 
-      <p style={{ margin: 0, fontSize: '12px', color: '#52706a' }}>
+      <p style={{ margin: 0, fontSize: '12px', color: '#1a1a1a' }}>
         LD Silk Mills · Internal performance system
       </p>
 
