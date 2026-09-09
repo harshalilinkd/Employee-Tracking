@@ -12,8 +12,8 @@ import { hasImpact, impactLabel, type Category } from '@/lib/types'
 import type { DetailMode } from './EventDetail'
 
 const COLS =
-  '92px minmax(140px,1.4fr) 100px minmax(230px,2.8fr) minmax(130px,1.3fr) 92px minmax(120px,1.1fr) 104px'
-const HEADS = ['Date', 'Employee', 'Type', 'Event', 'Category', 'Impact', 'Recorded by', 'Actions']
+  '76px 92px minmax(140px,1.4fr) 100px minmax(230px,2.8fr) minmax(130px,1.3fr) 92px minmax(120px,1.1fr) 104px'
+const HEADS = ['Ref', 'Date', 'Employee', 'Type', 'Event', 'Category', 'Impact', 'Recorded by', 'Actions']
 
 /** What the row can offer, mirroring the pe_update policy exactly. */
 const CORRECTION_WINDOW_HOURS = 48
@@ -170,7 +170,7 @@ export function LedgerTable({
 
       {/* Desktop: full gridlines, every cell bordered */}
       <div className="epi-table-desktop epi-scroll-x" style={{ ...cardStyle, overflow: 'hidden', overflowX: 'auto' }}>
-        <div className="epi-xls-head" style={{ minWidth: '1104px', display: 'grid', gridTemplateColumns: COLS }}>
+        <div className="epi-xls-head" style={{ minWidth: '1180px', display: 'grid', gridTemplateColumns: COLS }}>
           {HEADS.map((h) => (
             <span key={h} style={{ ...tableHeadStyle, padding: '10px 13px' }}>
               {h}
@@ -195,7 +195,7 @@ export function LedgerTable({
             }}
             className="epi-row epi-xls"
             style={{
-              minWidth: '1104px',
+              minWidth: '1180px',
               width: '100%',
               display: 'grid',
               gridTemplateColumns: COLS,
@@ -208,6 +208,7 @@ export function LedgerTable({
               opacity: busy === e.id ? 0.45 : 1,
             }}
           >
+            <Cell mono>{e.event_ref}</Cell>
             <Cell mono muted>
               {fmtShort(e.event_date)}
             </Cell>
@@ -266,7 +267,12 @@ export function LedgerTable({
               }}
               style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '5px', cursor: 'pointer' }}
             >
-              <div style={{ fontSize: '15px', fontWeight: 600, lineHeight: 1.35 }}>{e.title}</div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', flexWrap: 'wrap' }}>
+                <span className="epi-mono" style={{ fontSize: '11.5px', color: 'var(--epi-fg-3)' }}>
+                  {e.event_ref}
+                </span>
+                <span style={{ fontSize: '15px', fontWeight: 600, lineHeight: 1.35 }}>{e.title}</span>
+              </div>
               <div style={{ fontSize: '13px', color: 'var(--epi-accent-fg)' }}>{e.employeeName}</div>
               <div style={{ fontSize: '12px', color: 'var(--epi-fg-3)' }}>
                 {e.categoryName}

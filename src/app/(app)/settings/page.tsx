@@ -7,8 +7,9 @@ import { CategoryAdmin } from '@/components/app/CategoryAdmin'
 import { ObserverAdmin, type ObserverRow } from '@/components/app/ObserverAdmin'
 import { GeneralAdmin, ReadOnlyNote } from '@/components/app/GeneralAdmin'
 import { Gauge } from 'lucide-react'
-import { cardStyle, labelCaps, pill, tableHeadStyle } from '@/lib/design'
-import { SEVERITY_LABELS, SEVERITY_ORDER, isAdmin, type Severity } from '@/lib/types'
+import { cardStyle, labelCaps, pill } from '@/lib/design'
+import { SEVERITY_LABELS, SEVERITY_ORDER, hasImpact, impactLabel, isAdmin, type Severity } from '@/lib/types'
+import { fmtFull } from '@/lib/format'
 import { AuditLogGroups, type AuditGroup } from '@/components/app/AuditLogGroups'
 
 export const dynamic = 'force-dynamic'
@@ -306,12 +307,19 @@ async function AuditLog({ supabase, admin }: { supabase: any; admin: boolean }) 
   // The log stores ids, not names. Resolve them per entity type in one query
   // each, rather than a lookup per row.
   const idsOf = (t: string) => groups.filter((g) => g.entityType === t).map((g) => g.entityId)
-  const nameMap = new Map<string, { title: string; subtitle: string | null }>()
+  const nameMap = new Map<
+    string,
+    { title: string; subtitle: string | null; details?: { label: string; value: string }[] }
+  >()
 
   const resolve = async (
     table: string,
     columns: string,
-    build: (row: any) => { title: string; subtitle: string | null },
+    build: (row: any) => {
+      title: string
+      subtitle: string | null
+      details?: { label: string; value: string }[]
+    },
   ) => {
     const ids = idsOf(table)
     if (ids.length === 0) return
@@ -322,10 +330,30 @@ async function AuditLog({ supabase, admin }: { supabase: any; admin: boolean }) 
   }
 
   await Promise.all([
-    resolve('performance_events', 'id, event_ref, title', (r) => ({
-      title: `${r.event_ref} — ${r.title}`,
-      subtitle: null,
-    })),
+    // "Record created" on its own says nothing about what was created, and
+    // the trigger stores no snapshot on insert. The record itself still
+    // exists, so the card reads it rather than the log.
+    resolve(
+      'performance_events',
+      'id, event_ref, title, description, type, event_date, severity, status, employee:employees(full_name), category:categories(name), recorder:app_users(full_name), observer:observers(name)',
+      (r) => {
+        const one = (v: any) => (Array.isArray(v) ? v[0] : v)
+        const details = [
+          { label: 'Employee', value: one(r.employee)?.full_name ?? '—' },
+          { label: 'Type', value: r.type === 'positive' ? 'Positive contribution' : 'Goofup' },
+          { label: 'Category', value: one(r.category)?.name ?? 'Uncategorised' },
+          { label: 'Date', value: fmtFull(r.event_date) },
+          ...(hasImpact(r.type)
+            ? [{ label: 'Impact', value: impactLabel(r.type, r.severity) }]
+            : []),
+          ...(one(r.observer)?.name ? [{ label: 'Observed by', value: one(r.observer).name }] : []),
+          { label: 'Recorded by', value: one(r.recorder)?.full_name ?? 'Unknown' },
+          ...(r.status && r.status !== 'active' ? [{ label: 'Status', value: r.status }] : []),
+          ...(r.description ? [{ label: 'What happened', value: r.description }] : []),
+        ]
+        return { title: `${r.event_ref} — ${r.title}`, subtitle: null, details }
+      },
+    ),
     resolve('employees', 'id, full_name, employee_code', (r) => ({
       title: r.full_name,
       subtitle: r.employee_code ?? null,
@@ -345,6 +373,7 @@ async function AuditLog({ supabase, admin }: { supabase: any; admin: boolean }) 
     if (found) {
       g.title = found.title
       g.subtitle = found.subtitle
+      g.details = found.details
     } else {
       // A deleted record has no row left to name it, so the delete entry's
       // own summary is the only thing that still knows what it was.
@@ -497,25 +526,5 @@ function SettingsCard({
       </div>
       {children}
     </section>
-  )
-}
-function Cell({ children, mono }: { children: React.ReactNode; mono?: boolean }) {
-  // Inner span carries the truncation — see EmployeeAdmin's Cell.
-  return (
-    <span style={{ minWidth: 0, display: 'block' }}>
-      <span
-        className={mono ? 'epi-mono' : undefined}
-        style={{
-          display: 'block',
-          fontSize: '13px',
-          color: 'var(--epi-fg-2)',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap',
-        }}
-      >
-        {children}
-      </span>
-    </span>
   )
 }

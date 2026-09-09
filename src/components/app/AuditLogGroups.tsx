@@ -12,6 +12,9 @@ export interface AuditGroup {
   /** Resolved name of the record, or its reference if it has since been deleted. */
   title: string
   subtitle: string | null
+  /** The record as it stands now — what the log itself never captured on
+      create. Absent for a record that has since been deleted. */
+  details?: { label: string; value: string }[]
   entries: AuditEntry[]
 }
 
@@ -184,6 +187,52 @@ export function AuditLogGroups({ groups }: { groups: AuditGroup[] }) {
 
                 {open ? (
                   <div style={{ padding: '2px 16px 14px 42px', background: 'var(--epi-hover)' }}>
+                    {/* The record first, then what has been done to it. A
+                        history is unreadable without knowing what it is a
+                        history of. */}
+                    {g.details?.length ? (
+                      <div
+                        style={{
+                          display: 'grid',
+                          gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))',
+                          gap: '10px 18px',
+                          padding: '13px 15px',
+                          marginBottom: '14px',
+                          borderRadius: '11px',
+                          border: '1px solid var(--epi-border)',
+                          background: 'var(--epi-surface)',
+                        }}
+                      >
+                        {g.details.map((d) => (
+                          <div key={d.label} style={{ minWidth: 0 }}>
+                            <div
+                              style={{
+                                fontSize: '10px',
+                                fontWeight: 700,
+                                letterSpacing: '0.12em',
+                                textTransform: 'uppercase',
+                                color: 'var(--epi-fg-3)',
+                              }}
+                            >
+                              {d.label}
+                            </div>
+                            <div
+                              style={{
+                                fontSize: '13px',
+                                color: 'var(--epi-fg)',
+                                marginTop: '3px',
+                                lineHeight: 1.5,
+                                whiteSpace: 'pre-wrap',
+                                overflowWrap: 'anywhere',
+                              }}
+                            >
+                              {d.value}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : null}
+
                     <AuditTimeline entries={g.entries} />
                   </div>
                 ) : null}
