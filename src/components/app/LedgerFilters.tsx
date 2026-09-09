@@ -7,6 +7,7 @@ import { cardStyle, selectStyle } from '@/lib/design'
 import { SEVERITY_LABELS, SEVERITY_ORDER, hasImpact } from '@/lib/types'
 import { ExportCsvButton } from './ExportCsvButton'
 import { SavedViews } from './SavedViews'
+import { SearchSelect } from './SearchSelect'
 
 interface Props {
   departments: { id: string; name: string }[]
@@ -158,49 +159,35 @@ export function LedgerFilters({
         className={`epi-ledger-panel${open ? ' epi-open' : ''}`}
         style={{ display: 'contents' }}
       >
-        <select
-          aria-label="Employee"
+        {/* The three long lists get a search box; type, impact and range have
+            four choices each and are better off as native selects. */}
+        <SearchSelect
+          ariaLabel="Employee"
+          allLabel="All employees"
+          minWidth="170px"
           value={params.get('emp') ?? ''}
-          onChange={(e) => setParam('emp', e.target.value)}
-          style={{ ...selectStyle, fontWeight: 600, border: '1px solid var(--epi-border-2)' }}
-        >
-          <option value="">All employees</option>
-          {employees.map((e) => (
-            <option key={e.id} value={e.id}>
-              {e.full_name}
-            </option>
-          ))}
-        </select>
+          onChange={(v) => setParam('emp', v)}
+          options={employees.map((e) => ({ value: e.id, label: e.full_name }))}
+        />
 
-        <select
-          aria-label="Department"
+        <SearchSelect
+          ariaLabel="Department"
+          allLabel="All departments"
           value={params.get('dept') ?? ''}
-          onChange={(e) => setParam('dept', e.target.value)}
-          style={selectStyle}
-        >
-          <option value="">All departments</option>
-          {departments.map((d) => (
-            <option key={d.id} value={d.id}>
-              {d.name}
-            </option>
-          ))}
-        </select>
+          onChange={(v) => setParam('dept', v)}
+          options={departments.map((d) => ({ value: d.id, label: d.name }))}
+        />
 
         {/* Next to department, because the two are read together — "the
             supervisors in Printing" is one question, not two. */}
-        <select
-          aria-label="Designation"
+        <SearchSelect
+          ariaLabel="Designation"
+          allLabel="All designations"
+          minWidth="165px"
           value={params.get('desig') ?? ''}
-          onChange={(e) => setParam('desig', e.target.value)}
-          style={selectStyle}
-        >
-          <option value="">All designations</option>
-          {designations.map((d) => (
-            <option key={d.id} value={d.id}>
-              {d.title}
-            </option>
-          ))}
-        </select>
+          onChange={(v) => setParam('desig', v)}
+          options={designations.map((d) => ({ value: d.id, label: d.title }))}
+        />
 
         <select
           aria-label="Type"
@@ -222,19 +209,18 @@ export function LedgerFilters({
           <option value="goofup">Goofups</option>
         </select>
 
-        <select
-          aria-label="Category"
+        <SearchSelect
+          ariaLabel="Category"
+          allLabel="All categories"
           value={params.get('cat') ?? ''}
-          onChange={(e) => setParam('cat', e.target.value)}
-          style={selectStyle}
-        >
-          <option value="">All categories</option>
-          {visibleCategories.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
-            </option>
-          ))}
-        </select>
+          onChange={(v) => setParam('cat', v)}
+          options={visibleCategories.map((c) => ({
+            value: c.id,
+            label: c.name,
+            // Only worth saying when both kinds are on offer.
+            hint: type ? null : c.applies_to === 'positive' ? 'positive' : 'goofup',
+          }))}
+        />
 
         {showImpact ? (
           <select

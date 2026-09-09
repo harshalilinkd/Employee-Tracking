@@ -2138,3 +2138,36 @@ body {
     padding: 10px 12px !important;
   }
 }
+
+/* =====================================================================
+   Searchable filter pickers
+   The trigger is a button so it can hold a clear icon, which means the
+   filter bar's own `button` sizing reaches it — that part is welcome, it
+   makes the combo match the selects beside it. The panel is another
+   matter: it floats above the bar but is still a descendant, so the same
+   rules would stretch its search field to full width and its rows to the
+   44px touch floor. Released for the panel only, last in the file so it
+   wins on order.
+   ===================================================================== */
+.epi-combo-pop [role='option']:last-child {
+  border-bottom: 0;
+}
+
+@media (max-width: 767px) {
+  .epi-combo-pop input {
+    width: auto !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    padding: 0 !important;
+    font-size: 13px !important;
+  }
+  .epi-combo-pop [role='option'] {
+    min-height: 0 !important;
+  }
+  /* On a phone the bar is a two-column grid, so a combo takes its cell
+     rather than its content width. */
+  .epi-combo {
+    min-width: 0 !important;
+    width: 100%;
+  }
+}
