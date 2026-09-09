@@ -14,6 +14,7 @@ import {
   Zap,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { describeWriteError } from '@/lib/errors'
 import { AttachmentPicker, uploadPending, type PendingFile } from './AttachmentPicker'
 import { VoiceDictation } from './VoiceDictation'
 import {
@@ -115,6 +116,9 @@ export function RecordDrawer({
   // at that point — leaving Save live would let one incident be recorded
   // twice while the user tries to fix an attachment.
   const [postSave, setPostSave] = useState('')
+  // A lapsed sign-in is the one failure the user cannot fix from this form,
+  // so the banner grows a way out of it.
+  const [signedOut, setSignedOut] = useState(false)
 
   const reset = (keepType: boolean) => {
     if (!keepType) setType(null)
@@ -193,6 +197,7 @@ export function RecordDrawer({
 
   async function save(addAnother: boolean) {
     setError('')
+    setSignedOut(false)
 
     if (!type) return setError('Choose whether this is a positive contribution or a goofup.')
     if (!employeeId) return setError('Choose the employee this is about.')
@@ -231,11 +236,13 @@ export function RecordDrawer({
 
     if (err) {
       setSaving(false)
-      setError(
-        err.message.includes('themselves')
-          ? 'You cannot record a performance event about yourself.'
-          : err.message,
-      )
+      if (err.message.includes('themselves')) {
+        setError('You cannot record a performance event about yourself.')
+        return
+      }
+      const failure = describeWriteError(err.message)
+      setError(failure.message)
+      setSignedOut(failure.signedOut)
       return
     }
 
@@ -774,7 +781,29 @@ export function RecordDrawer({
                   }}
                 >
                   <AlertTriangle size={15} style={{ flex: '0 0 15px', marginTop: '1px' }} />
-                  <span style={{ flex: 1, lineHeight: 1.45 }}>{error}</span>
+                  <span style={{ flex: 1, lineHeight: 1.45 }}>
+                    {error}
+                    {signedOut ? (
+                      <a
+                        href="/login"
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          height: '30px',
+                          padding: '0 13px',
+                          marginTop: '9px',
+                          borderRadius: '8px',
+                          background: 'linear-gradient(135deg,#14907c 0%,#0e7c6b 55%,#0a5f52 100%)',
+                          color: '#fff',
+                          fontSize: '13px',
+                          fontWeight: 600,
+                          textDecoration: 'none',
+                        }}
+                      >
+                        Sign in again
+                      </a>
+                    ) : null}
+                  </span>
                 </div>
               ) : null}
             </div>

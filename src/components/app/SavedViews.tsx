@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Bookmark, Check, Loader2, Trash2, Users } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { describeWriteError } from '@/lib/errors'
 
 /** Every filter the ledger reads from the URL. A view is exactly this set. */
 export const FILTER_KEYS = ['q', 'emp', 'dept', 'type', 'cat', 'sev', 'range'] as const
@@ -54,7 +55,7 @@ export function SavedViews({ currentAppUserId }: { currentAppUserId: string }) {
       .eq('scope', 'performance')
       .order('name')
 
-    if (err) setError(err.message)
+    if (err) setError(describeWriteError(err.message).message)
     setViews((data ?? []) as View[])
   }, [])
 
@@ -109,7 +110,7 @@ export function SavedViews({ currentAppUserId }: { currentAppUserId: string }) {
     setBusy(false)
 
     if (err) {
-      setError(err.message)
+      setError(describeWriteError(err.message).message)
       return
     }
     setName('')
@@ -127,7 +128,11 @@ export function SavedViews({ currentAppUserId }: { currentAppUserId: string }) {
     setBusy(false)
 
     if (err || count === 0) {
-      setError(err?.message ?? 'Only the person who saved a view can remove it.')
+      setError(
+        err
+          ? describeWriteError(err.message).message
+          : 'Only the person who saved a view can remove it.',
+      )
       return
     }
     await load()

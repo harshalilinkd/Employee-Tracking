@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Loader2, Lock, NotebookPen, Pencil, Plus, Trash2, X } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { describeWriteError } from '@/lib/errors'
 import { cardStyle, initials, subtleButton } from '@/lib/design'
 
 interface Note {
@@ -53,7 +54,7 @@ export function ManagementNotes({
       .eq('employee_id', employeeId)
       .order('created_at', { ascending: false })
 
-    if (err) setError(err.message)
+    if (err) setError(describeWriteError(err.message).message)
     setNotes((data ?? []) as Note[])
     setLoading(false)
   }, [employeeId])
@@ -83,9 +84,7 @@ export function ManagementNotes({
 
     if (err) {
       setError(
-        err.message.includes('row-level security')
-          ? 'Only Super Admin, Management and Executive Assistants can write notes.'
-          : err.message,
+        describeWriteError(err.message).message,
       )
       return
     }
@@ -106,7 +105,7 @@ export function ManagementNotes({
     setBusy(false)
 
     if (err) {
-      setError(err.message)
+      setError(describeWriteError(err.message).message)
       return
     }
     setEditing(null)
@@ -123,7 +122,7 @@ export function ManagementNotes({
     setBusy(false)
 
     if (err || count === 0) {
-      setError(err?.message ?? 'That note could not be removed.')
+      setError(err ? describeWriteError(err.message).message : 'That note could not be removed.')
       return
     }
     await load()

@@ -4,6 +4,7 @@ import { useEffect, useState, type CSSProperties } from 'react'
 import { useRouter } from 'next/navigation'
 import { AlertTriangle, Ban, Check, Loader2, MailPlus, Trash2, X } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { describeWriteError } from '@/lib/errors'
 import { avatarStyle, cardStyle, initials, pill, subtleButton, tableHeadStyle } from '@/lib/design'
 import { ROLE_LABELS, canRecord, type AppRole } from '@/lib/types'
 
@@ -130,9 +131,7 @@ export function UserAccessAdmin({
       setDeleteError(
         fk
           ? `${u.full_name} has recorded performance events. Deleting the account would leave those records with no author, so the database refuses it. Disable the sign-in instead — it blocks access and keeps the attribution intact.`
-          : err.message.includes('row-level security')
-            ? 'Your role cannot delete sign-in accounts. Super Admin is required.'
-            : err.message,
+          : describeWriteError(err.message).message,
       )
       return
     }
@@ -503,9 +502,7 @@ function InviteModal({
 
     if (err) {
       setError(
-        err.message.includes('row-level security')
-          ? 'Only Super Admin or Management can grant access.'
-          : err.message,
+        describeWriteError(err.message).message,
       )
       return
     }

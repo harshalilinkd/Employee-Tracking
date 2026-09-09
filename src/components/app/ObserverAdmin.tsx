@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Pencil, Plus, Trash2, Undo2, X } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { describeWriteError } from '@/lib/errors'
 import { cardStyle, labelCaps, subtleButton, tableHeadStyle } from '@/lib/design'
 
 export interface ObserverRow {
@@ -59,7 +60,7 @@ export function ObserverAdmin({ rows, canEdit }: { rows: ObserverRow[]; canEdit:
       .from('observers')
       .update({ is_active })
       .eq('id', row.id)
-    if (err) return setError(err.message)
+    if (err) return setError(describeWriteError(err.message).message)
     router.refresh()
   }
 
@@ -75,7 +76,7 @@ export function ObserverAdmin({ rows, canEdit }: { rows: ObserverRow[]; canEdit:
     if (!window.confirm(`Delete ${row.name} from the observer list?`)) return
     const supabase = createClient()
     const { error: err } = await supabase.from('observers').delete().eq('id', row.id)
-    if (err) return setError(err.message)
+    if (err) return setError(describeWriteError(err.message).message)
     router.refresh()
   }
 

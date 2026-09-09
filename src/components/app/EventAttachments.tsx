@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { FileText, ImageIcon, Loader2, Paperclip, Play, Trash2, Upload, Volume2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { describeWriteError } from '@/lib/errors'
 import { labelCaps } from '@/lib/design'
 import { ACCEPT, BUCKET, attachmentPath, isAudio, rejectReason } from '@/lib/attachments'
 
@@ -49,7 +50,7 @@ export function EventAttachments({
       .eq('event_id', eventId)
       .order('created_at', { ascending: true })
 
-    if (err) setError(err.message)
+    if (err) setError(describeWriteError(err.message).message)
     setRows((data ?? []) as Row[])
     setLoading(false)
   }, [eventId])

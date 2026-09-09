@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Pencil, Plus, Trash2, Undo2, X } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { describeWriteError } from '@/lib/errors'
 import { CHART, cardStyle, labelCaps, selectStyle, subtleButton, tableHeadStyle } from '@/lib/design'
 import { NEUTRAL_SEVERITY, SEVERITY_LABELS, SEVERITY_ORDER, hasImpact, type Severity } from '@/lib/types'
 
@@ -133,9 +134,7 @@ function CategoryTable({
     setBusy('')
     if (error) {
       onError(
-        error.message.includes('row-level security')
-          ? 'Your role cannot change categories. Super Admin is required.'
-          : error.message,
+        describeWriteError(error.message).message,
       )
       return
     }
@@ -291,9 +290,7 @@ function CategoryModal({
 
     if (err) {
       setError(
-        err.message.includes('row-level security')
-          ? 'Your role cannot change categories. Super Admin is required.'
-          : err.message,
+        describeWriteError(err.message).message,
       )
       return
     }

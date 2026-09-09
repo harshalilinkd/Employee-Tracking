@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { AlertTriangle, Ban, Check, Loader2, Pencil, PencilLine, Trash2, Undo2, UserPlus, X } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { describeWriteError } from '@/lib/errors'
 import { avatarStyle, cardStyle, initials, pill, subtleButton, tableHeadStyle } from '@/lib/design'
 import type { EmployeeStatus } from '@/lib/types'
 
@@ -200,9 +201,7 @@ export function EmployeeAdmin({ rows, departments, designations, deptCount, canE
     setBusy('')
     if (error) {
       setRowError(
-        error.message.includes('row-level security')
-          ? 'Your role cannot change the employee database. Super Admin or HR is required.'
-          : error.message,
+        describeWriteError(error.message).message,
       )
       return
     }
@@ -234,9 +233,7 @@ export function EmployeeAdmin({ rows, departments, designations, deptCount, canE
       setDeleteError(
         fk
           ? `${row.full_name} has performance history recorded against them. Deleting would orphan that history, so the database refuses it. Deactivate instead — it takes them out of the record form and keeps their record readable.`
-          : error.message.includes('row-level security')
-            ? 'Your role cannot delete employees. Super Admin is required.'
-            : error.message,
+          : describeWriteError(error.message).message,
       )
       return
     }
@@ -933,9 +930,7 @@ function EmployeeModal({
 
     if (err) {
       setError(
-        err.message.includes('row-level security')
-          ? 'Your role cannot change the employee database. Super Admin or HR is required.'
-          : err.message,
+        describeWriteError(err.message).message,
       )
       return
     }

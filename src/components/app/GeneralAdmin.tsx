@@ -16,6 +16,7 @@ import {
   Timer,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { describeWriteError } from '@/lib/errors'
 import { cardStyle, subtleButton } from '@/lib/design'
 
 export interface GeneralSettings {
@@ -117,9 +118,7 @@ export function GeneralAdmin({
     const failed = results.find((r) => r.error)
     if (failed?.error) {
       setError(
-        failed.error.message.includes('row-level security')
-          ? 'Your role cannot change these settings. Super Admin is required.'
-          : failed.error.message,
+        describeWriteError(failed.error.message).message,
       )
       return
     }
