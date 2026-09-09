@@ -178,28 +178,40 @@ async function Categories({ supabase, canEdit }: { supabase: any; canEdit: boole
 }
 
 async function Departments({ supabase, canEdit }: { supabase: any; canEdit: boolean }) {
-  const [{ data }, { data: staff }] = await Promise.all([
+  const [{ data }, { data: staff }, { data: events }, { data: scopes }] = await Promise.all([
     supabase
       .from('departments')
       .select('id, name, code, is_active')
       .order('is_active', { ascending: false })
       .order('name'),
-    // Headcount per department decides whether one can be taken out of the
-    // pickers without stranding the records that point at it.
+    // Three counts, three different consequences. Headcount decides whether a
+    // department can leave the pickers; all three decide whether it can be
+    // deleted, because each foreign key clears itself rather than refusing.
     supabase.from('employees').select('department_id').not('department_id', 'is', null),
+    supabase.from('performance_events').select('department_id').not('department_id', 'is', null),
+    supabase.from('user_departments').select('department_id'),
   ])
 
-  const counts = new Map<string, number>()
-  for (const row of (staff ?? []) as { department_id: string }[]) {
-    counts.set(row.department_id, (counts.get(row.department_id) ?? 0) + 1)
+  const tally = (list: unknown) => {
+    const m = new Map<string, number>()
+    for (const row of (list ?? []) as { department_id: string }[]) {
+      m.set(row.department_id, (m.get(row.department_id) ?? 0) + 1)
+    }
+    return m
   }
+
+  const byStaff = tally(staff)
+  const byEvent = tally(events)
+  const byScope = tally(scopes)
 
   const rows: DepartmentRow[] = ((data ?? []) as any[]).map((d) => ({
     id: d.id,
     name: d.name,
     code: d.code,
     is_active: d.is_active,
-    useCount: counts.get(d.id) ?? 0,
+    useCount: byStaff.get(d.id) ?? 0,
+    eventCount: byEvent.get(d.id) ?? 0,
+    scopeCount: byScope.get(d.id) ?? 0,
   }))
 
   return (

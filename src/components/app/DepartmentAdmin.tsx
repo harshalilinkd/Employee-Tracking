@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Pencil, Plus, Undo2, X } from 'lucide-react'
+import { Pencil, Plus, Trash2, Undo2, X } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { describeWriteError } from '@/lib/errors'
 import { cardStyle, labelCaps, primaryButton, subtleButton, tableHeadStyle } from '@/lib/design'
@@ -14,9 +14,14 @@ export interface DepartmentRow {
   is_active: boolean
   /** Employees currently assigned — the guard against hiding a live one. */
   useCount: number
+  /** Events recorded under it, and manager scopes granted on it. Both block
+      a delete: the foreign keys clear themselves rather than refusing, so
+      deleting would blank a snapshot or revoke an access silently. */
+  eventCount: number
+  scopeCount: number
 }
 
-const COLS = 'minmax(160px,2fr) minmax(90px,1fr) 96px minmax(150px,1.2fr)'
+const COLS = 'minmax(160px,2fr) minmax(80px,1fr) 92px 78px minmax(160px,1.2fr)'
 
 const iconBtn = {
   width: '28px',
@@ -75,6 +80,32 @@ export function DepartmentAdmin({ rows, canEdit }: { rows: DepartmentRow[]; canE
     router.refresh()
   }
 
+  async function remove(row: DepartmentRow) {
+    setError('')
+
+    const blockers = [
+      row.useCount ? `${row.useCount} ${row.useCount === 1 ? 'employee' : 'employees'}` : null,
+      row.eventCount ? `${row.eventCount} ${row.eventCount === 1 ? 'event' : 'events'}` : null,
+      row.scopeCount ? `${row.scopeCount} manager ${row.scopeCount === 1 ? 'scope' : 'scopes'}` : null,
+    ].filter(Boolean)
+
+    if (blockers.length) {
+      setError(
+        `${row.name} is still in use — ${blockers.join(', ')}. Deleting would blank it on those records, so deactivate it instead.`,
+      )
+      return
+    }
+
+    if (!window.confirm(`Delete ${row.name}? Nothing refers to it, so this cannot be undone.`)) return
+
+    const { error: err } = await createClient().from('departments').delete().eq('id', row.id)
+    if (err) {
+      setError(describeWriteError(err.message).message)
+      return
+    }
+    router.refresh()
+  }
+
   return (
     <>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', flexWrap: 'wrap' }}>
@@ -110,11 +141,12 @@ export function DepartmentAdmin({ rows, canEdit }: { rows: DepartmentRow[]; canE
       <div className="epi-scroll-x" style={{ ...cardStyle, overflow: 'hidden', overflowX: 'auto' }}>
         <div
           className="epi-grid-table epi-grid-table-head"
-          style={{ minWidth: '540px', display: 'grid', gridTemplateColumns: COLS, ...tableHeadStyle }}
+          style={{ minWidth: '600px', display: 'grid', gridTemplateColumns: COLS, ...tableHeadStyle }}
         >
           <span>Name</span>
           <span>Code</span>
           <span>Employees</span>
+          <span>Events</span>
           <span>Status</span>
         </div>
 
@@ -127,7 +159,7 @@ export function DepartmentAdmin({ rows, canEdit }: { rows: DepartmentRow[]; canE
             <div
               key={r.id}
               className="epi-row epi-grid-table"
-              style={{ minWidth: '540px', display: 'grid', gridTemplateColumns: COLS, alignItems: 'center' }}
+              style={{ minWidth: '600px', display: 'grid', gridTemplateColumns: COLS, alignItems: 'center' }}
             >
               <span style={{ fontSize: '14px', fontWeight: 600, opacity: r.is_active ? 1 : 0.55 }}>
                 {r.name}
@@ -139,6 +171,10 @@ export function DepartmentAdmin({ rows, canEdit }: { rows: DepartmentRow[]; canE
 
               <span className="epi-num" style={{ fontSize: '13.5px', color: 'var(--epi-fg-3)' }}>
                 {r.useCount}
+              </span>
+
+              <span className="epi-num" style={{ fontSize: '13.5px', color: 'var(--epi-fg-3)' }}>
+                {r.eventCount}
               </span>
 
               <span style={{ display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'flex-end' }}>
@@ -169,6 +205,14 @@ export function DepartmentAdmin({ rows, canEdit }: { rows: DepartmentRow[]; canE
                       }
                     >
                       {r.is_active ? <X size={13} /> : <Undo2 size={13} />}
+                    </button>
+                    <button
+                      style={iconBtn}
+                      onClick={() => void remove(r)}
+                      aria-label={`Delete ${r.name}`}
+                      title="Delete — only possible while nothing refers to it"
+                    >
+                      <Trash2 size={13} />
                     </button>
                   </>
                 ) : null}
